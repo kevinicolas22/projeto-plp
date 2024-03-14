@@ -7,7 +7,7 @@ import Data.Maybe (mapMaybe)
 -- Função principal
 main :: IO ()
 main = do
-    putStrLn "Escolha uma opção:"
+    putStrLn "Escolha o assunto da funcionalidade de Gestor:"
     putStrLn "1. Gestor"
     putStrLn "2. Funcionário"
     putStrLn "3. Máquina"
