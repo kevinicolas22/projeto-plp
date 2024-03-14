@@ -1,8 +1,9 @@
-module Manager where
-
-import TypeClasses
+import DB
+import Data.List (intercalate)
+import Data.Maybe (mapMaybe, maybeToList)
+import System.Directory
+import System.Environment
 import System.IO
-import Data.List.Split
 
 type ManagerId = Int
 type Cpf = Int 
@@ -21,46 +22,47 @@ data Manager = Manager {
     address :: Address
 } deriving (Show)
 
-instance Person Customer where
-  personCpf manager = cpf manager
+primeirosElementos :: [String] -> [String]
+primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
+  where
+    replace :: Char -> Char -> String -> String
+    replace _ _ [] = []
+    replace from to (c : cs)
+      | c == from = to : replace from to cs
+      | otherwise = c : replace from to cs
 
-instance Entity Manager where
-    entityId manager = managerId manager
+verificandoId :: String -> [String] -> Bool
+verificandoId str xs = str `elem` xs
 
-instance Stringfy Manager where
-    toString manager = show (managerId manager) ++ "," ++
-                       show (cpf manager) ++ "," ++
-                       name manager ++ "," ++
-                       birth manager ++ "," ++
-                       show (telephone manager) ++ "," ++
-                       address manager
+toStringManager :: Manager -> String
+toStringManager gestor = intercalate ", " [show (managerId gestor), show (cpf gestor), name gestor, birth gestor, show (telephone gestor), address gestor]
 
--- divide a string de entrada por , usando o split/
--- converte os campos para os tipos corretos e cria o valor manager
--- retorno é uma tupla com os dados
-instance Read Manager where
-    readsPrec _ str = do
-        let l = splitOn "," str
-        let id = read (l !! 0) :: ManagerId
-        let cpf = read (l !! 1) :: Cpf
-        let name = l !! 2
-        let birth = l !! 3
-        let telephone = read (l !! 4) :: Telephone
-        let address = l !! 5
-        [(Manager id cpf name birth telephone address, "")]
+-- Função para adicionar um gestor ao arquivo
+adicionarGestor :: Manager -> IO ()
+adicionarGestor novo_gestor = do
+  conexao <- openFile "manager.txt" ReadMode
+  assunto <- hGetContents conexao
+  let linhas = lines assunto
+      ids = primeirosElementos linhas
+      idNovo = managerId novo_gestor
+  if verificandoId (show idNovo) ids
+    then putStrLn "ID já em uso. Escolha um ID diferente."
+    else appendFile "manager.txt" (toStringManager novo_gestor ++ "\n")
+  hClose conexao
 
 -- criar gestor
-criarGestor :: IO gestor
+criarGestor :: IO Manager
 criarGestor = do
     putStrLn "Digite o seu ID de gestor: "
     id <- getLine
-    assunto <- readFile "gestor.txt"  -- Assumindo que as informações estão em um arquivo chamado gestor.txt
+    conexao <- openFile "manager.txt" ReadMode
+    assunto <- hGetContents conexao
     let linhas = lines assunto
-        gestores = mapMaybe (parseFuncionario . words) linhas
-        ids = map managerId gestores
+        ids = primeirosElementos linhas
     if read id `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
+            hClose conexao
             criarGestor
         else do
             putStrLn "Digite o seu CPF: "
@@ -82,6 +84,3 @@ criarGestor = do
             endereco <- getLine
 
             return (Manager (read id) (read cpf) nome nascimento (read telefone) endereco)
-
-
-
