@@ -27,29 +27,45 @@ data Funcionario = Funcionario {
     data_ingresso :: Data_Ingresso 
 } deriving (Show)
 
+primeirosElementos :: [String] -> [String]
+primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
+    where
+        replace :: Char -> Char -> String -> String
+        replace _ _ [] = []
+        replace from to (c:cs) 
+            | c == from = to : replace from to cs
+            | otherwise = c : replace from to cs
+
+verificandoId:: String -> [String] -> Bool
+verificandoId str xs = str `elem` xs
+
 -- Função para adicionar um funcionário ao arquivo
 adicionarFuncionario :: Funcionario -> IO ()
 adicionarFuncionario novo_funcionario = do
-    conteudo <- readFile "funcionario.txt"
+    conexao <- openFile "funcionario.txt" ReadMode
+    conteudo <- hGetContents conexao
     let linhas = lines conteudo
-        funcionarios = mapMaybe (parseFuncionario . words) linhas
-        ids = map funcId funcionarios
-    if funcId novo_funcionario `elem` ids
+        ids = primeirosElementos linhas
+        idNovo = funcId novo_funcionario
+    if verificandoId (show idNovo) ids 
         then putStrLn "ID já em uso. Escolha um ID diferente."
         else appendFile "funcionario.txt" (toStringFuncionario novo_funcionario ++ "\n")
+    hClose conexao
 
 -- Função para criar um novo funcionário
 criarFuncionario :: IO Funcionario
 criarFuncionario = do
     putStrLn "Digite o seu ID: "
     id <- getLine
-    conteudo <- readFile "funcionario.txt"
+    conexao <- openFile "funcionario.txt" ReadMode
+    conteudo <- hGetContents conexao
     let linhas = lines conteudo
-        funcionarios = mapMaybe (parseFuncionario . words) linhas
-        ids = map funcId funcionarios
-    if read id `elem` ids
+        ids = primeirosElementos linhas
+   
+    if id `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
+            hClose conexao
             criarFuncionario
         else do
             putStrLn "Digite o seu nome: "
@@ -67,7 +83,9 @@ criarFuncionario = do
             putStrLn "Digite sua data de ingresso: "
             data_ingresso <- getLine
 
-            return (Funcionario (read id) nome cpf endereco telefone data_ingresso)
+            return (Funcionario(read id) nome cpf endereco telefone data_ingresso)
+
+     
 
 -- Função para ler um funcionário pelo ID e imprimir seus dados
 lerFuncionarioPorId :: Id -> IO ()
@@ -78,6 +96,7 @@ lerFuncionarioPorId targetId = do
     case concatMap (\func -> maybeToList $ if funcId func == targetId then Just func else Nothing) funcionarios of
         [funcionario] -> putStrLn $ show funcionario
         _             -> putStrLn "Funcionário não encontrado"
+
 
 -- Função para remover um funcionário pelo ID
 removerFuncionarioPorId :: Id -> IO ()
@@ -94,7 +113,7 @@ removerFuncionarioPorId targetId = do
 
 -- Função auxiliar para converter uma lista de strings em um Funcionario
 parseFuncionario :: [String] -> Maybe Funcionario
-parseFuncionario [id, nome, cpf, endereco, telefone, dataIngresso] =
+parseFuncionario [id,nome,cpf,endereco,telefone,dataIngresso] =
     Just (Funcionario (read id) nome cpf endereco telefone dataIngresso)
 parseFuncionario _ = Nothing
 
