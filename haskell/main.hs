@@ -35,9 +35,8 @@ lerFuncionarioOpcao :: IO ()
 lerFuncionarioOpcao = do
     putStrLn "Digite o ID do funcionário que deseja buscar:"
     id <- getLine
-    putStrLn "Funcionário encontrado:"
     lerFuncionarioPorId (read id)
-    main
+    main  -- Chamada para main para continuar a execução após a leitura do funcionário
 
 -- Opção para atualizar um funcionário
 atualizarFuncionarioOpcao :: IO ()

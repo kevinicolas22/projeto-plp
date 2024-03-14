@@ -95,13 +95,15 @@ lerFuncionarioPorId targetId = do
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
-  if verificandoId (show targetId) ids
-    then putStrLn "ID já em uso. Escolha um ID diferente."
+  if not (verificandoId (show targetId) ids)
+    then putStrLn "ID não encontrado."
     else do
+      putStrLn "Funcionário encontrado:"  -- Mover a mensagem para dentro do ramo "else"
       let dadosFuncionario = filtrarId targetId linhas
       case dadosFuncionario of
         Just funcionario -> putStrLn funcionario
         Nothing -> putStrLn "Funcionário não encontrado"
+  hClose conexao  -- fechar o arquivo após a leitura
 
 -- Função para remover um funcionário pelo ID
 removerFuncionarioPorId :: Id -> IO ()
