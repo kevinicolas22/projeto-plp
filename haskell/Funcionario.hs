@@ -1,6 +1,5 @@
 module Funcionario where
 
-import DB
 import Data.List (intercalate)
 import Data.Maybe (mapMaybe, maybeToList)
 import System.Directory
@@ -90,14 +89,19 @@ criarFuncionario = do
       return (Funcionario (read id) nome cpf endereco telefone data_ingresso)
 
 -- Função para ler um funcionário pelo ID e imprimir seus dados
-lerFuncionarioPorId :: Id -> IO ()
+lerFuncionarioPorId :: Int -> IO ()
 lerFuncionarioPorId targetId = do
-  conteudo <- readFile "funcionario.txt"
+  conexao <- openFile "funcionario.txt" ReadMode
+  conteudo <- hGetContents conexao
   let linhas = lines conteudo
-      funcionarios = mapMaybe (parseFuncionario . words) linhas
-  case concatMap (\func -> maybeToList $ if funcId func == targetId then Just func else Nothing) funcionarios of
-    [funcionario] -> putStrLn $ show funcionario
-    _ -> putStrLn "Funcionário não encontrado"
+      ids = primeirosElementos linhas
+  if verificandoId (show targetId) ids
+    then putStrLn "ID já em uso. Escolha um ID diferente."
+    else do
+      let dadosFuncionario = filtrarId targetId linhas
+      case dadosFuncionario of
+        Just funcionario -> putStrLn funcionario
+        Nothing -> putStrLn "Funcionário não encontrado"
 
 -- Função para remover um funcionário pelo ID
 removerFuncionarioPorId :: Id -> IO ()
@@ -122,3 +126,10 @@ parseFuncionario _ = Nothing
 toStringFuncionario :: Funcionario -> String
 toStringFuncionario (Funcionario id nome cpf endereco telefone data_ingresso) =
   intercalate "," [show id, nome, cpf, endereco, telefone, data_ingresso]
+
+-- Função para filtrar os dados de um funcionário pelo ID
+filtrarId :: Int -> [String] -> Maybe String
+filtrarId _ [] = Nothing
+filtrarId id (x : xs)
+  | id == read (head (words x)) = Just x
+  | otherwise = filtrarId id xs
