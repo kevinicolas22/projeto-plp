@@ -1,9 +1,7 @@
 module DB where
-{-
-import System.Directory
-import System.IO
-import Data.List
 
-add :: [String] -> IO()
-add [arquivo, conteudo] = appendFile arquivo (conteudo ++ "\n")
--}
+import System.IO
+
+-- Função para adicionar conteúdo a um arquivo
+add :: FilePath -> String -> IO ()
+add arquivo conteudo = appendFile arquivo (conteudo ++ "\n")
