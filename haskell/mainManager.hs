@@ -31,8 +31,17 @@ menuGestor = do
     opcaoGestor <- getLine
     case opcaoGestor of
         "a" -> -- a funcao que tem em cima
+        "b" -> criarNovoGestor
         "e" -> main
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestor
+
+criarNovoGestor :: IO ()
+criarNovoGestor = do
+    novoGestor <- criarGestor
+    adicionarGestor novoGestor
+    putStrLn "Gestor adicionado com sucesso!"
+    main
+
 
 menuFuncionario :: IO ()
 menuFuncionario = do
