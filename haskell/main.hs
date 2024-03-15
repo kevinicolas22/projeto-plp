@@ -1,7 +1,8 @@
 import System.IO
 import System.Directory
 import System.Exit
-import Manager
+import ManagerController
+import 
 
 import Data.Maybe (mapMaybe)
 
@@ -31,7 +32,7 @@ menuGestor = do
     putStrLn "c. Listar gestores"
     opcaoGestor <- getLine
     case opcaoGestor of
-        --"a" -> -- a funcao que tem em cima
+        "a" -> consultarGestor
         "b" -> criarNovoGestor
         "e" -> main
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestor
@@ -43,6 +44,13 @@ criarNovoGestor = do
     putStrLn "Gestor adicionado com sucesso!"
     main
 
+consultarGestor :: IO ()
+consultarGestor = do
+    putStrLn "Digite o ID do gestor que deseja buscar:"
+    id <- getLine
+    lerGestorPorId (read id)
+    main  
+
 
 menuFuncionario :: IO ()
 menuFuncionario = do
@@ -50,7 +58,7 @@ menuFuncionario = do
     putStrLn "a. Excluir funcionario"
     opcaoFuncionario <- getLine
     case opcaoFuncionario of
-       -- "a" -> -- funcionalidade nome
+        "a" -> 
         --"c" -> main
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionario
 
