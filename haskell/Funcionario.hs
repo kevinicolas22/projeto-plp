@@ -7,6 +7,7 @@ import System.Environment
 import System.IO
 import Data.List.Split (splitOn)
 
+
 -- Definição de tipos de dados
 type Id = Int
 
@@ -104,18 +105,30 @@ lerFuncionarioPorId targetId = do
         imprimindoFuncionario dadosFuncionario
   hClose conexao  -- fechar o arquivo após a leitura
 
--- Função para remover um funcionário pelo ID
-removerFuncionarioPorId :: Id -> IO ()
+removerFuncionarioPorId :: Int -> IO ()
 removerFuncionarioPorId targetId = do
-  dirAtual <- getCurrentDirectory
-  let arquivo = dirAtual ++ "/funcionario.txt"
-  conteudo <- withFile arquivo ReadMode hGetContents
-  let linhas = lines conteudo
-      funcionarios = mapMaybe (parseFuncionario . words) linhas
-      funcionariosFiltrados = filter (\func -> funcId func /= targetId) funcionarios
-      novoConteudo = unlines (map toStringFuncionario funcionariosFiltrados)
-  writeFile arquivo novoConteudo
-  putStrLn "Funcionário removido com sucesso!"
+  -- Abrir o arquivo original para leitura
+  handle <- openFile "funcionario.txt" ReadMode
+  -- Ler conteúdo do arquivo
+  contents <- hGetContents handle
+  let linhas = lines contents
+      ids = primeirosElementos linhas
+  -- Verificar se o ID está presente no arquivo
+  if not (verificandoId (show targetId) ids)
+    then putStrLn "Funcionário não encontrado."
+    else do
+      -- Criar um nome para o arquivo temporário
+      (tempName, tempHandle) <- openTempFile "." "temp"
+      -- Escrever no arquivo temporário, exceto as linhas que correspondem ao ID a ser removido
+      let linhasFiltradas = filter (\linha -> not $ verificandoId (show targetId) (primeirosElementos [linha])) linhas
+      hPutStr tempHandle (unlines linhasFiltradas)
+      -- Fechar os arquivos
+      hClose handle
+      hClose tempHandle
+      -- Substituir o arquivo original pelo arquivo temporário
+      removeFile "funcionario.txt"
+      renameFile tempName "funcionario.txt"
+
 
 -- Função auxiliar para converter uma lista de strings em um Funcionario
 parseFuncionario :: [String] -> Maybe Funcionario
