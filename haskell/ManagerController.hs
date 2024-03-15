@@ -37,6 +37,7 @@ criarGestor = do
             return (Manager (read id) (read cpf) nome nascimento (read telefone) endereco)
 
 ------- adicionar gestor ao txt ----------
+
 adicionarGestor :: Manager -> IO ()
 adicionarGestor novo_gestor = do
   conexao <- openFile "manager.txt" ReadMode
@@ -50,21 +51,6 @@ adicionarGestor novo_gestor = do
   hClose conexao
 
 
-primeirosElementos :: [String] -> [String]
-primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
-  where
-    replace :: Char -> Char -> String -> String
-    replace _ _ [] = []
-    replace from to (c : cs)
-      | c == from = to : replace from to cs
-      | otherwise = c : replace from to cs
-
------ verificar o ID --------
-verificandoId :: String -> [String] -> Bool
-verificandoId str xs = str `elem` xs
-
-toStringManager :: Manager -> String
-toStringManager gestor = intercalate ", " [show (managerId gestor), show (cpf gestor), name gestor, birth gestor, show (telephone gestor), address gestor]
 
 ---- ler gestor por ID --------
 
@@ -81,3 +67,54 @@ lerFuncionarioPorId targetId = do
             putStrLn "Gestor encontrado"
             mostrarGestor dadosGestor
     hClose conexao
+
+
+
+    -- Funções auxiliares
+
+verificandoId :: String -> [String] -> Bool
+verificandoId str xs = str `elem` xs
+
+toStringManager :: Manager -> String
+toStringManager gestor = intercalate ", " [show (managerId gestor), show (cpf gestor), name gestor, birth gestor, show (telephone gestor), address gestor]
+
+primeirosElementos :: [String] -> [String]
+primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
+  where
+    replace :: Char -> Char -> String -> String
+    replace _ _ [] = []
+    replace from to (c : cs)
+      | c == from = to : replace from to cs
+      | otherwise = c : replace from to cs
+
+
+filtrarId :: Int -> [String] -> [[String]]
+filtrarId id listaG = do
+    let listaP = primeirosElementos listaG
+        posicao = posicaoIdLista id listaP
+    --sabendo que a posicao da listaP e a mesma da listaG, com os mesmos valores
+    return (splitOn "," (listaG !! posicao))
+
+-- Função que retorna a posição na lista do ID fornecido.
+posicaoIdLista :: Int -> [String] -> Int
+posicaoIdLista id lista = do
+    let posUltimo = (length (lista) - 1)
+    if id == read(lista !! posUltimo)
+        then posUltimo
+        else posicaoIdLista id (take posUltimo lista)
+
+-- Função para imprimir os dados de um gestor representados por uma lista de listas de strings.
+mostrarGestor :: [[String]] -> IO()
+mostrarGestor [] = return ()
+mostrarGestor (a:as) = do
+    if length a >= 6 then
+        putStrLn ("\nId: " ++ (a !! 0) ++
+                "\nNome: " ++ (a !! 1) ++
+                "\nCpf: " ++ (a !! 2) ++
+                "\nEndereço: " ++ (a !! 3) ++
+                "\nTelefones: " ++ (a !! 4) ++
+                "\nData Ingresso: " ++ (a !! 5))
+                ---- alterar os dados
+    else
+        putStrLn "A lista não contém dados suficientes para um gestor."
+    mostrarGestor xs
