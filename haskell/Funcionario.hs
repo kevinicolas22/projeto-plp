@@ -5,6 +5,7 @@ import Data.Maybe (mapMaybe, maybeToList)
 import System.Directory
 import System.Environment
 import System.IO
+import Data.List.Split (splitOn)
 
 -- Definição de tipos de dados
 type Id = Int
@@ -128,12 +129,12 @@ toStringFuncionario (Funcionario id nome cpf endereco telefone data_ingresso) =
   intercalate "," [show id, nome, cpf, endereco, telefone, data_ingresso]
 
 -- Função para filtrar os dados de um funcionário pelo ID
-filtrarId :: Int -> [String] -> [String]
+filtrarId :: Int -> [String] -> [[String]]
 filtrarId id listaG = do
     let listaP = primeirosElementos listaG
         posicao = posicaoIdLista id listaP
     --sabendo que a posicao da listaP e a mesma da listaG, com os mesmos valores
-    return (listaG !! posicao)
+    return (splitOn "," (listaG !! posicao))
 
 posicaoIdLista :: Int -> [String] -> Int
 posicaoIdLista id lista = do
@@ -142,12 +143,17 @@ posicaoIdLista id lista = do
         then posUltimo
         else posicaoIdLista id (take posUltimo lista)
 
+imprimindoFuncionario :: [[String]] -> IO()
+imprimindoFuncionario [] = return ()
+imprimindoFuncionario (x:xs) = do
+    if length x >= 6 then
+        putStrLn ("\nId: " ++ (x !! 0) ++
+                "\nNome: " ++ (x !! 1) ++
+                "\nCpf: " ++ (x !! 2) ++
+                "\nEndereço: " ++ (x !! 3) ++
+                "\nTelefones: " ++ (x !! 4) ++
+                "\nData Ingresso: " ++ (x !! 5))
+    else
+        putStrLn "A lista não contém dados suficientes para um funcionário."
+    imprimindoFuncionario xs
 
-imprimindoFuncionario :: [String] -> IO()
-imprimindoFuncionario lista = do
-    putStrLn ("\nId: " ++ (lista !! 0) ++
-            "\nNome: " ++ (lista !! 1) ++
-            "\nCpf: " ++ (lista !! 2) ++
-            "\nEndereço: " ++ (lista !! 3) ++
-            "\nTelefones: " ++ (lista !! 4) ++
-            "\nData Ingresso: " ++ (lista !! 5))
