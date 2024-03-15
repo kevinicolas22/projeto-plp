@@ -31,6 +31,7 @@ data Funcionario = Funcionario
   }
   deriving (Show)
 
+--  Função que extrai os primeiros elementos de uma lista de strings.
 primeirosElementos :: [String] -> [String]
 primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
   where
@@ -40,6 +41,7 @@ primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha)))
       | c == from = to : replace from to cs
       | otherwise = c : replace from to cs
 
+-- Função que verifica se uma string está presente em uma lista de strings.
 verificandoId :: String -> [String] -> Bool
 verificandoId str xs = str `elem` xs
 
@@ -102,33 +104,26 @@ lerFuncionarioPorId targetId = do
         let dadosFuncionario = filtrarId targetId linhas
         putStrLn "Funcionario encontrado"
         imprimindoFuncionario dadosFuncionario
-  hClose conexao  -- fechar o arquivo após a leitura
+  hClose conexao  
 
+-- Função que atualiza os dados de um funcionário no arquivo "funcionario.txt" com base no ID fornecido.
 atualizarFuncionarioPorId :: Int -> Funcionario -> IO ()
 atualizarFuncionarioPorId targetId novoFuncionario = do
-  -- Abrir o arquivo original para leitura
   handle <- openFile "funcionario.txt" ReadMode
-  -- Ler conteúdo do arquivo
   contents <- hGetContents handle
   let linhas = lines contents
       ids = primeirosElementos linhas
-  -- Verificar se o ID está presente no arquivo
   if not (verificandoId (show targetId) ids)
     then putStrLn "Funcionário não encontrado."
     else do
-      -- Criar um nome para o arquivo temporário
       (tempName, tempHandle) <- openTempFile "." "temp"
-      -- Atualizar os dados do funcionário
       let linhasAtualizadas = map (\linha ->
                                       if verificandoId (show targetId) (primeirosElementos [linha])
                                           then atualizarDadosFuncionario linha novoFuncionario
                                           else linha) linhas
-      -- Escrever no arquivo temporário
       hPutStr tempHandle (unlines linhasAtualizadas)
-      -- Fechar os arquivos
       hClose handle
       hClose tempHandle
-      -- Substituir o arquivo original pelo arquivo temporário
       removeFile "funcionario.txt"
       renameFile tempName "funcionario.txt"
 
@@ -143,31 +138,26 @@ atualizarDadosFuncionario linha (Funcionario id nome cpf endereco telefone dataI
                     if null dataIngresso then dadosAntigos !! 5 else dataIngresso]
   in intercalate "," novosDados
 
-  
-
+-- Função para remover um funcionário do arquivo pelo ID.
 removerFuncionarioPorId :: Int -> IO ()
 removerFuncionarioPorId targetId = do
-  -- Abrir o arquivo original para leitura
   handle <- openFile "funcionario.txt" ReadMode
-  -- Ler conteúdo do arquivo
   contents <- hGetContents handle
   let linhas = lines contents
       ids = primeirosElementos linhas
-  -- Verificar se o ID está presente no arquivo
   if not (verificandoId (show targetId) ids)
     then putStrLn "Funcionário não encontrado."
     else do
-      -- Criar um nome para o arquivo temporário
       (tempName, tempHandle) <- openTempFile "." "temp"
-      -- Escrever no arquivo temporário, exceto as linhas que correspondem ao ID a ser removido
       let linhasFiltradas = filter (\linha -> not $ verificandoId (show targetId) (primeirosElementos [linha])) linhas
       hPutStr tempHandle (unlines linhasFiltradas)
-      -- Fechar os arquivos
       hClose handle
       hClose tempHandle
-      -- Substituir o arquivo original pelo arquivo temporário
       removeFile "funcionario.txt"
       renameFile tempName "funcionario.txt"
+
+
+
 
 
 -- Função auxiliar para converter uma lista de strings em um Funcionario
@@ -189,6 +179,7 @@ filtrarId id listaG = do
     --sabendo que a posicao da listaP e a mesma da listaG, com os mesmos valores
     return (splitOn "," (listaG !! posicao))
 
+-- Função que retorna a posição na lista do ID fornecido.
 posicaoIdLista :: Int -> [String] -> Int
 posicaoIdLista id lista = do
     let posUltimo = (length (lista) - 1)
@@ -196,6 +187,7 @@ posicaoIdLista id lista = do
         then posUltimo
         else posicaoIdLista id (take posUltimo lista)
 
+-- Função para imprimir os dados de um funcionário representados por uma lista de listas de strings.
 imprimindoFuncionario :: [[String]] -> IO()
 imprimindoFuncionario [] = return ()
 imprimindoFuncionario (x:xs) = do
