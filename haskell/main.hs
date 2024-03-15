@@ -51,67 +51,30 @@ atualizarFuncionarioOpcao = do
     putStrLn "5. Data de Ingresso"
     escolha <- getLine
     case escolha of
-        "1" -> atualizarNomeFuncionario (read id)
-        "2" -> atualizarCpfFuncionario (read id)
-        "3" -> atualizarEnderecoFuncionario (read id)
-        "4" -> atualizarTelefoneFuncionario (read id)
-        "5" -> atualizarDataIngressoFuncionario (read id)
-        _   -> putStrLn "Opção inválida." >> main
-
--- Opção para atualizar o nome de um funcionário
-atualizarNomeFuncionario :: Id -> IO ()
-atualizarNomeFuncionario id = do
-    putStrLn "Digite o novo nome:"
-    novoNome <- getLine
-    atualizarFuncionario id (\f -> f { nome = novoNome })
-    putStrLn "Nome atualizado com sucesso!"
+        "1" -> do
+            putStrLn "Digite o novo nome:"
+            novoNome <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = novoNome, cpf = "", endereco = "", telefone = "", data_ingresso = ""})
+        "2" -> do
+            putStrLn "Digite o novo CPF:"
+            novoCPF <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = novoCPF, endereco = "", telefone = "", data_ingresso = ""})
+        "3" -> do
+            putStrLn "Digite o novo endereço:"
+            novoEndereco <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = novoEndereco, telefone = "", data_ingresso = ""})
+        "4" -> do
+            putStrLn "Digite o novo telefone:"
+            novoTelefone <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = novoTelefone, data_ingresso = ""})
+        "5" -> do
+            putStrLn "Digite a nova data de ingresso:"
+            novaData <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = novaData})
+        _   -> putStrLn "Opção inválida."
     main
 
--- Opção para atualizar o CPF de um funcionário
-atualizarCpfFuncionario :: Id -> IO ()
-atualizarCpfFuncionario id = do
-    putStrLn "Digite o novo CPF:"
-    novoCpf <- getLine
-    atualizarFuncionario id (\f -> f { cpf = novoCpf })
-    putStrLn "CPF atualizado com sucesso!"
-    main
 
--- Opção para atualizar o endereço de um funcionário
-atualizarEnderecoFuncionario :: Id -> IO ()
-atualizarEnderecoFuncionario id = do
-    putStrLn "Digite o novo endereço:"
-    novoEndereco <- getLine
-    atualizarFuncionario id (\f -> f { endereco = novoEndereco })
-    putStrLn "Endereço atualizado com sucesso!"
-    main
-
--- Opção para atualizar o telefone de um funcionário
-atualizarTelefoneFuncionario :: Id -> IO ()
-atualizarTelefoneFuncionario id = do
-    putStrLn "Digite o novo telefone:"
-    novoTelefone <- getLine
-    atualizarFuncionario id (\f -> f { telefone = novoTelefone })
-    putStrLn "Telefone atualizado com sucesso!"
-    main
-
--- Opção para atualizar a data de ingresso de um funcionário
-atualizarDataIngressoFuncionario :: Id -> IO ()
-atualizarDataIngressoFuncionario id = do
-    putStrLn "Digite a nova data de ingresso:"
-    novaDataIngresso <- getLine
-    atualizarFuncionario id (\f -> f { data_ingresso = novaDataIngresso })
-    putStrLn "Data de ingresso atualizada com sucesso!"
-    main
-
--- Função para atualizar um funcionário pelo ID
-atualizarFuncionario :: Id -> (Funcionario -> Funcionario) -> IO ()
-atualizarFuncionario targetId updateFunc = do
-    conteudo <- readFile "funcionario.txt"
-    let linhas = lines conteudo
-        funcionarios = mapMaybe (parseFuncionario . words) linhas
-        funcionariosAtualizados = map (\func -> if funcId func == targetId then updateFunc func else func) funcionarios
-        novoConteudo = unlines (map toStringFuncionario funcionariosAtualizados)
-    writeFile "funcionario.txt" novoConteudo
 
 -- Opção para remover um funcionário
 removerFuncionarioOpcao :: IO ()

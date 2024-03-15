@@ -7,7 +7,6 @@ import System.Environment
 import System.IO
 import Data.List.Split (splitOn)
 
-
 -- Definição de tipos de dados
 type Id = Int
 
@@ -104,6 +103,47 @@ lerFuncionarioPorId targetId = do
         putStrLn "Funcionario encontrado"
         imprimindoFuncionario dadosFuncionario
   hClose conexao  -- fechar o arquivo após a leitura
+
+atualizarFuncionarioPorId :: Int -> Funcionario -> IO ()
+atualizarFuncionarioPorId targetId novoFuncionario = do
+  -- Abrir o arquivo original para leitura
+  handle <- openFile "funcionario.txt" ReadMode
+  -- Ler conteúdo do arquivo
+  contents <- hGetContents handle
+  let linhas = lines contents
+      ids = primeirosElementos linhas
+  -- Verificar se o ID está presente no arquivo
+  if not (verificandoId (show targetId) ids)
+    then putStrLn "Funcionário não encontrado."
+    else do
+      -- Criar um nome para o arquivo temporário
+      (tempName, tempHandle) <- openTempFile "." "temp"
+      -- Atualizar os dados do funcionário
+      let linhasAtualizadas = map (\linha ->
+                                      if verificandoId (show targetId) (primeirosElementos [linha])
+                                          then atualizarDadosFuncionario linha novoFuncionario
+                                          else linha) linhas
+      -- Escrever no arquivo temporário
+      hPutStr tempHandle (unlines linhasAtualizadas)
+      -- Fechar os arquivos
+      hClose handle
+      hClose tempHandle
+      -- Substituir o arquivo original pelo arquivo temporário
+      removeFile "funcionario.txt"
+      renameFile tempName "funcionario.txt"
+
+-- Função para atualizar os dados de um funcionário em uma linha específica
+atualizarDadosFuncionario :: String -> Funcionario -> String
+atualizarDadosFuncionario linha (Funcionario id nome cpf endereco telefone dataIngresso) =
+  let dadosAntigos = splitOn "," linha
+      novosDados = [show id, if null nome then dadosAntigos !! 1 else nome,
+                    if null cpf then dadosAntigos !! 2 else cpf,
+                    if null endereco then dadosAntigos !! 3 else endereco,
+                    if null telefone then dadosAntigos !! 4 else telefone,
+                    if null dataIngresso then dadosAntigos !! 5 else dataIngresso]
+  in intercalate "," novosDados
+
+  
 
 removerFuncionarioPorId :: Int -> IO ()
 removerFuncionarioPorId targetId = do
