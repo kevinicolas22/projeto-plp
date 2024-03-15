@@ -1,22 +1,5 @@
-1,natan,705,rua bla vla,4002,13/03/2024
-1,kkkk,123,546,dddd,22/03/2024
-1,carlos,dfgdg,dfgdhjk,ui8i,hgfh
-"1",laysa,705150,monte santo,44444,29
-"1",jp,865,dasd,uuu,dfg
-"2",pessoa,111.111.111-76,rua da agua,22222-22222,22/03/2024
-"1",jose,faria,do,rego,fsd
-"1",sem pasciencia,dfsd,sdafsd,gsfdgfsd,sdfg
-"1",5654,xcvg,hmg,nmfcg,mcbvm
-"1",alex,111111111111,5asfgasfdg,99999,dsfs
-"7",raul,8888,sda,asdg,14
-"2",indigente,789,159,123,159
-"2",novamente,teste,que,nunca,acababa
-"7",159,133,156,15974,1526
-2,maria,456,uiui,adad,dede
-3,medeiros,adadsdg,asfsfagasd,sdgdfh,dfhgshg
-5,marcus,adfhgsdh,fhjl,kfg,afgasdfg,  asdfg
-4,julia,sfdgasd,asfgas,afdgs,ghfjk
-9,dormir,af,dfg,dfj,sdfh
-8,laysa,12345,monte santo,1234,22/03
-435,sdgsadg,sdagfsz,rgdfbcx,,fbds
-10,Joao Pedro,70515099422,rua da agua,84848,14
+1,Natan,70515099422,rua rogerio toledo,83456,14/03/2024
+7,laysa,123456789,monte santo,40028922,14/03/2024
+3,Kevin,456789123,bodogongo,sem numero,29/02/2024
+10,bia,789456123,app,456123,14028/14
+5,jp,1237609,rua,744,qwertyuiop

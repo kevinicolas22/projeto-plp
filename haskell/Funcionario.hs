@@ -98,11 +98,9 @@ lerFuncionarioPorId targetId = do
   if not (verificandoId (show targetId) ids)
     then putStrLn "ID não encontrado."
     else do
-      putStrLn "Funcionário encontrado:"  -- Mover a mensagem para dentro do ramo "else"
-      let dadosFuncionario = filtrarId targetId linhas
-      case dadosFuncionario of
-        Just funcionario -> putStrLn funcionario
-        Nothing -> putStrLn "Funcionário não encontrado"
+        let dadosFuncionario = filtrarId targetId linhas
+        putStrLn "Funcionario encontrado"
+        imprimindoFuncionario dadosFuncionario
   hClose conexao  -- fechar o arquivo após a leitura
 
 -- Função para remover um funcionário pelo ID
@@ -130,8 +128,26 @@ toStringFuncionario (Funcionario id nome cpf endereco telefone data_ingresso) =
   intercalate "," [show id, nome, cpf, endereco, telefone, data_ingresso]
 
 -- Função para filtrar os dados de um funcionário pelo ID
-filtrarId :: Int -> [String] -> Maybe String
-filtrarId _ [] = Nothing
-filtrarId id (x : xs)
-  | id == read (head (words x)) = Just x
-  | otherwise = filtrarId id xs
+filtrarId :: Int -> [String] -> [String]
+filtrarId id listaG = do
+    let listaP = primeirosElementos listaG
+        posicao = posicaoIdLista id listaP
+    --sabendo que a posicao da listaP e a mesma da listaG, com os mesmos valores
+    return (listaG !! posicao)
+
+posicaoIdLista :: Int -> [String] -> Int
+posicaoIdLista id lista = do
+    let posUltimo = (length (lista) - 1)
+    if id == read(lista !! posUltimo)
+        then posUltimo
+        else posicaoIdLista id (take posUltimo lista)
+
+
+imprimindoFuncionario :: [String] -> IO()
+imprimindoFuncionario lista = do
+    putStrLn ("\nId: " ++ (lista !! 0) ++
+            "\nNome: " ++ (lista !! 1) ++
+            "\nCpf: " ++ (lista !! 2) ++
+            "\nEndereço: " ++ (lista !! 3) ++
+            "\nTelefones: " ++ (lista !! 4) ++
+            "\nData Ingresso: " ++ (lista !! 5))
