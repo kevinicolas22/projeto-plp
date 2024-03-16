@@ -6,11 +6,11 @@ import System.Environment
 import System.IO
 
 type ManagerId = Int
-type Cpf = Int 
+type Cpf = String 
 type Name = String
 type Birth = String
 type Email = String
-type Telephone = Int
+type Telephone = String
 type Address = String
 
 data Manager = Manager {

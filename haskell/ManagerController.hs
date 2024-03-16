@@ -68,7 +68,55 @@ lerFuncionarioPorId targetId = do
             mostrarGestor dadosGestor
     hClose conexao
 
+    --- Atualizar gestor ---
+atualizarGestorPorId :: Int -> Manager -> IO ()
+atualizarGestorPorId targetId novoGestor = do
+  handle <- openFile "manager.txt" ReadMode
+  contents <- hGetContents handle
+  let linhas = lines contents
+      ids = primeirosElementos linhas
+  if not (verificandoId (show targetId) ids)
+    then putStrLn "Gestor não encontrado."
+    else do
+      (tempName, tempHandle) <- openTempFile "." "temp"
+      let linhasAtualizadas = map (\linha ->
+                                      if verificandoId (show targetId) (primeirosElementos [linha])
+                                          then atualizarDadosGestor linha novoGestor
+                                          else linha) linhas
+      hPutStr tempHandle (unlines linhasAtualizadas)
+      hClose handle
+      hClose tempHandle
+      removeFile "manager.txt"
+      renameFile tempName "manager.txt"
 
+-- Função para atualizar os dados de um gestor
+atualizarDadosGestor :: String -> Manager -> String
+atualizarDadosGestor linha (Manager id cpf nome endereco telefone dataNascimento) =
+  let dadosAntigos = splitOn "," linha
+      novosDados = [show id, if null cpf then dadosAntigos !! 2 else cpf,
+                    if null nome then dadosAntigos !! 1 else nome,
+                    if null endereco then dadosAntigos !! 5 else endereco,
+                    if null telefone then dadosAntigos !! 4 else telefone,
+                    if null birth then dadosAntigos !! 3 else dataNascimento]
+  in intercalate "," novosDados
+
+  --- remover gestor ---
+removerGestorPorId :: Int -> IO ()
+removerGestorPorId targetId = do
+    handle <- openFile "manager.txt" ReadMode
+    contents <- hGetContents handle
+    let linhas = lines contents
+        ids = primeirosElementos linhas
+    if not (verificandoId (show targetId) ids)
+      then putStrLn "Gestor não encontrado."
+      else do
+        (tempName, tempHandle) <- openTempFile "." "temp"
+        let linhasFiltradas = filter (\linha -> not $ verificandoId (show targetId) (primeirosElementos [linha])) linhas
+        hPutStr tempHandle (unlines linhasFiltradas)
+        hClose handle
+        hClose tempHandle
+        removeFile "manager.txt"
+        renameFile tempName "manager.txt"
 
     -- Funções auxiliares
 
