@@ -1,3 +1,5 @@
+module Manager where
+
 import DB
 import Data.List (intercalate)
 import Data.Maybe (mapMaybe, maybeToList)

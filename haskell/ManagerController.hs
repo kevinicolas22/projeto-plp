@@ -1,4 +1,11 @@
+module ManagerController where
+
 import Manager
+import System.IO
+import System.Directory
+import Data.List
+import Data.List.Split
+
 
 ----- ---------criar gestor------------------
 
@@ -55,7 +62,7 @@ adicionarGestor novo_gestor = do
 ---- ler gestor por ID --------
 
 lerGestorPorId :: Int -> IO()
-lerFuncionarioPorId targetId = do
+lerGestorPorId targetId = do
     conexao <- openFile "manager.txt" ReadMode
     assunto <- hGetContents conexao
     let linhas = lines assunto
@@ -165,4 +172,4 @@ mostrarGestor (a:as) = do
                 ---- alterar os dados
     else
         putStrLn "A lista não contém dados suficientes para um gestor."
-    mostrarGestor xs
+    mostrarGestor as
