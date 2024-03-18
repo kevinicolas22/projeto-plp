@@ -5,6 +5,7 @@ import System.IO
 import System.Directory
 import Data.List
 import Data.List.Split
+import Data.List (null) 
 
 
 ----- ---------criar gestor------------------
@@ -104,7 +105,7 @@ atualizarDadosGestor linha (Manager id cpf nome endereco telefone dataNascimento
                     if null nome then dadosAntigos !! 1 else nome,
                     if null endereco then dadosAntigos !! 5 else endereco,
                     if null telefone then dadosAntigos !! 4 else telefone,
-                    if null birth then dadosAntigos !! 3 else dataNascimento]
+                    if null (birth novoGestor) then "" else birth novoGestor]
   in intercalate "," novosDados
 
   --- remover gestor ---
