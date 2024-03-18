@@ -6,6 +6,7 @@ import Data.Maybe (mapMaybe)
 import Manager
 import ManagerController
 import Maquina
+import Text.Read (readMaybe)
 import MaquinaController
 import System.Exit
 import System.IO
@@ -52,7 +53,9 @@ consultarGestor :: IO ()
 consultarGestor = do
   putStrLn "Digite o ID do gestor que deseja buscar:"
   id <- getLine
-  lerGestorPorId (read id)
+  case readMaybe id of
+    Just gestorId -> lerGestorPorId gestorId
+    Nothing       -> putStrLn "ID inválido. Por favor, digite um número válido." >> main
   main
 
 criarNovoGestor :: IO ()
@@ -144,7 +147,7 @@ menuMaquina = do
       nome <- getLine
       putStrLn "Informe a data de manutenção: "
       dataMan <- getLine
-      adicionarMaquinaReparo (Maquina id nome (read dataMan :: Int)) >> menuMaquina
+      adicionarMaquinaReparo (Maquina (read id) nome dataMan) >> menuMaquina
 
     "e" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
 

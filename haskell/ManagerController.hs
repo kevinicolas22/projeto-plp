@@ -29,7 +29,7 @@ criarGestor = do
             hClose conexao
             criarGestor
         else do
-            putStrLn "Digite o seu CPF: "
+            putStrLn "Digite o seu CPF (formatação 000.000.000-00): "
             cpf <- getLine
             case delimitarCpf cpf of
                 Just cpfDelimitado -> do
@@ -40,7 +40,7 @@ criarGestor = do
                     nascimento <- getLine
                     case delimitarNascimento nascimento of
                         Just nascimentoDelimitado -> do
-                            putStrLn "Digite seu telefone: "
+                            putStrLn "Digite seu telefone (formato DDD000000000): "
                             telefone <- getLine
                             case delimitarTelefone telefone of
                                 Just telefoneDelimitado -> do

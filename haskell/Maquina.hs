@@ -9,7 +9,7 @@ import Data.Char (isDigit)
 
 type Codigo = String
 type Nome = String 
-type DataManutencao = Int
+type DataManutencao = String
 
 data Maquina = Maquina{
     codigoMaquina :: Codigo,
