@@ -23,7 +23,7 @@ criarGestor = do
     assunto <- hGetContents conexao
     let linhas = lines assunto
         ids = primeirosElementos linhas
-    if read id `elem` ids
+    if id `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
             hClose conexao
@@ -46,7 +46,7 @@ criarGestor = do
                                 Just telefoneDelimitado -> do
                                     putStrLn "Digite seu endereço: "
                                     endereco <- getLine
-                                    return (Manager (read id) (read cpf) nome nascimentoDelimitado (read telefoneDelimitado) endereco)
+                                    return (Manager (read id) (show cpf) nome nascimentoDelimitado (show telefoneDelimitado) endereco)
                                 Nothing -> do
                                     putStrLn "Telefone inválido. Por favor, digite novamente."
                                     criarGestor
@@ -116,11 +116,11 @@ atualizarGestorPorId targetId novoGestor = do
 atualizarDadosGestor :: String -> Manager -> String
 atualizarDadosGestor linha (Manager id cpf nome endereco telefone dataNascimento) =
   let dadosAntigos = splitOn "," linha
-      novosDados = [show id, if null cpf then dadosAntigos !! 2 else cpf,
-                    if null nome then dadosAntigos !! 1 else nome,
-                    if null endereco then dadosAntigos !! 5 else endereco,
+      novosDados = [show id, if null cpf then dadosAntigos !! 1 else cpf,
+                    if null nome then dadosAntigos !! 2 else nome,
+                    if null endereco then dadosAntigos !! 3 else endereco,
                     if null telefone then dadosAntigos !! 4 else telefone,
-                    if null dataNascimento then "" else dataNascimento]
+                    if null dataNascimento then dadosAntigos !! 5 else dataNascimento]
   in intercalate "," novosDados
 
 --- Funçao para remover gestor por ID

@@ -52,7 +52,7 @@ criarMaquina = do
             dataStr <- getLine
             case delimitarManutencao dataStr of
                 Just manutencaoDelimitada -> do
-                    let dataManut = read manutencaoDelimitada :: DataManutencao
+                    let dataManut = show manutencaoDelimitada :: DataManutencao
                     return (Maquina id nome dataManut)
                 Nothing -> do
                     putStrLn "Data de manutenção inválida. Por favor, digite novamente."
@@ -90,7 +90,8 @@ imprimirMaquinasReparo :: FilePath -> IO ()
 imprimirMaquinasReparo arquivo = do
     conteudo <- readFile arquivo
     let linhas = lines conteudo
-    mapM_ putStrLn linhas
+    putStrLn "Máquinas com necessidade de reparo:"
+    mapM_ mostrarMaquinas linhas
 
 
 -- ler maquinas

@@ -147,7 +147,7 @@ menuMaquina = do
       nome <- getLine
       putStrLn "Informe a data de manutenção: "
       dataMan <- getLine
-      adicionarMaquinaReparo (Maquina (read id) nome dataMan) >> menuMaquina
+      adicionarMaquinaReparo (Maquina (show id) nome dataMan) >> menuMaquina
 
     "e" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
 
