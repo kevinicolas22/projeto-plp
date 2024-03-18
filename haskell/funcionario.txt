@@ -1,5 +1,4 @@
 1,Natazin,123,rua xxx,56789,22/08/2023
 7,laysa,123456789,monte santo,40028922,14/03/2024
 3,Kevin,456789123,bodogongo,sem numero,29/02/2024
-10,bia,789456123,app,456123,14028/14
-5,jp,1237609,rua,744,qwertyuiop
+8,kara veia,7531597891,rua da vaquejada,40028922,18/03/2024

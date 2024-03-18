@@ -1,7 +1,8 @@
+import Funcionario
 import System.IO
 import System.Directory
 import System.Exit
-import Funcionario
+import FuncionarioController
 import Data.Maybe (mapMaybe)
 
 -- Função principal
@@ -9,17 +10,19 @@ main :: IO ()
 main = do
     putStrLn "Escolha uma opção:"
     putStrLn "1. Adicionar um funcionário"
-    putStrLn "2. Ler informações de um funcionário"
+    putStrLn "2. Ler informações de um funcionário por Id"
     putStrLn "3. Atualizar um funcionário"
     putStrLn "4. Remover um funcionário"
-    putStrLn "5. Sair"
+    putStrLn "5. Listar todos os funcionarios"
+    putStrLn "6. Sair"
     opcao <- getLine
     case opcao of
         "1" -> adicionarFuncionarioOpcao
         "2" -> lerFuncionarioOpcao
         "3" -> atualizarFuncionarioOpcao
         "4" -> removerFuncionarioOpcao
-        "5" -> putStrLn "Saindo..."
+        "5" -> lerTodosFuncionarios
+        "6" -> putStrLn "Saindo..."
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
 
 -- Opção para adicionar um funcionário
@@ -30,7 +33,12 @@ adicionarFuncionarioOpcao = do
     putStrLn "Funcionário adicionado com sucesso!"
     main
 
--- Opção para ler informações de um funcionário
+-- Opção para ler todos funcionarios
+lerTodosFuncionarios :: IO()
+lerTodosFuncionarios = 
+    listarTodosFuncionarios >> main
+
+-- Opção para ler informações de um funcionário por id
 lerFuncionarioOpcao :: IO ()
 lerFuncionarioOpcao = do
     putStrLn "Digite o ID do funcionário que deseja buscar:"
