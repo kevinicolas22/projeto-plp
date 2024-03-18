@@ -1,8 +1,9 @@
+{-# LANGUAGE PackageImports #-}
 module ManagerController where
 
+import "directory" System.Directory
 import Manager
 import System.IO
-import System.Directory
 import Data.List
 import Data.List.Split
 import Data.List (null) 
@@ -77,7 +78,7 @@ lerGestorPorId targetId = do
             mostrarGestor dadosGestor
     hClose conexao
 
-    --- Atualizar gestor ---
+-- Atualizar gestor por ID
 atualizarGestorPorId :: Int -> Manager -> IO ()
 atualizarGestorPorId targetId novoGestor = do
   handle <- openFile "manager.txt" ReadMode
@@ -98,7 +99,7 @@ atualizarGestorPorId targetId novoGestor = do
       removeFile "manager.txt"
       renameFile tempName "manager.txt"
 
--- Função para atualizar os dados de um gestor
+-- Atualizar os dados de um gestor
 atualizarDadosGestor :: String -> Manager -> String
 atualizarDadosGestor linha (Manager id cpf nome endereco telefone dataNascimento) =
   let dadosAntigos = splitOn "," linha
@@ -106,10 +107,10 @@ atualizarDadosGestor linha (Manager id cpf nome endereco telefone dataNascimento
                     if null nome then dadosAntigos !! 1 else nome,
                     if null endereco then dadosAntigos !! 5 else endereco,
                     if null telefone then dadosAntigos !! 4 else telefone,
-                    if null (birth novoGestor) then "" else birth novoGestor]
+                    if null dataNascimento then "" else dataNascimento]
   in intercalate "," novosDados
 
-  --- remover gestor ---
+-- Remover gestor por ID
 removerGestorPorId :: Int -> IO ()
 removerGestorPorId targetId = do
     handle <- openFile "manager.txt" ReadMode
@@ -124,22 +125,22 @@ removerGestorPorId targetId = do
         hPutStr tempHandle (unlines linhasFiltradas)
         hClose handle
         hClose tempHandle
-        removeFile "manager.txt"
-        renameFile tempName "manager.txt"
+        removeFile "manager.txt"  
+        renameFile tempName "manager.txt" 
 
 --   funcao para listar gestor 
-listarTodosGestores:: IO()
+{-listarTodosGestores:: IO()
 listarTodosGestores = do   
     handle <- openFile "manager.txt"
-ReadMode
+    ReadMode
     assunto <- hGetContents handle
     let linhas = lines assunto
         gestores = mapMaybe parseManager linhas
     if null gestores
         then putStrLn "Nenhum gestor encontrado."
-        else mapM_mostrarGestor gestores
+        else mapM_ mostrarGestor gestores
     hClose handle
-
+-}
 -- Função para imprimir os dados de um gestor representados por uma lista de listas de strings.
 mostrarGestor :: [[String]] -> IO()
 mostrarGestor [] = return ()
@@ -194,5 +195,5 @@ posicaoIdLista id lista = do
 parseManager :: String -> Maybe Manager
 parseManager linha = case splitOn"," linha of
     [managerId,cpf,name,nascimento,telefone,endereco] -> 
-        Just (Manager(read managerId) cpf nome nascimento telefone endereco)
-        _-> Nothing
+        Just (Manager(read managerId) cpf name nascimento telefone endereco)
+parseManager _ = Nothing

@@ -1,9 +1,10 @@
+{-# LANGUAGE PackageImports #-}
 module Manager where
 
+import System.Directory
 import DB
 import Data.List (intercalate)
 import Data.Maybe (mapMaybe, maybeToList)
-import System.Directory
 import System.Environment
 import System.IO
 

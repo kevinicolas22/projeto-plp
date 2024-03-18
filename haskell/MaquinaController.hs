@@ -3,6 +3,7 @@ module MaquinaController where
 import Maquina
 import Data.List (intercalate)
 import System.IO
+import Data.List (sortOn)
 import Data.List.Split
 import Data.Maybe (mapMaybe, maybeToList)
 import Data.List (sortOn)
@@ -23,7 +24,7 @@ adicionarMaquina nova_maquina = do
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
-      idNovo = maquinaId nova_maquina
+      idNovo = codigoMaquina nova_maquina  
   if verificandoId (show idNovo) ids
     then putStrLn "ID já em uso. Escolha um ID diferente."
     else appendFile "maquina.txt" (toStringMaquina nova_maquina ++ "\n")
@@ -55,8 +56,8 @@ criarMaquina = do
 
 -- Função para converter uma maquina em uma string no formato esperado
 toStringMaquina :: Maquina -> String
-toStringMaquina (Maquina id nome) =
-  intercalate "," [show id, nome, show dataManutencao]
+toStringMaquina (Maquina id nome dataManutencao) =  
+  intercalate "," [show id, nome, show dataManutencao]  
 
 -- Função para ler o arquivo e contar o número de linhas
 contarMaquinas :: FilePath -> IO Int
@@ -72,7 +73,7 @@ adicionarMaquinaReparo reparo_maquina = do
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
-      idNovo = maquinaId reparo_maquina
+      idNovo = codigoMaquina reparo_maquina
   if verificandoId (show idNovo) ids
     then putStrLn "ID inexistente. Escolha um ID diferente."
     else appendFile "maquina_reparo.txt" (toStringMaquina reparo_maquina ++ "\n")
@@ -92,15 +93,16 @@ lerMaquinas arquivo = do
   conteudo <- readFile arquivo
   let linhas = lines conteudo
   putStrLn "Máquinas Cadatradas"
-  mapM_mostrarMaquinas
+  mapM_ mostrarMaquinas linhas  
 
 -- funcao auxiliar de ler maquinas
-mostrarMaquinas :: String -> IO()
+mostrarMaquinas :: String -> IO ()
 mostrarMaquinas linha = 
-  let[idStr,nome,_] = splitOn"," linha
-    id = read idStr :: Codigo
-  in putStrLn $ "ID: " ++ idStr ++ " |Nome: " ++ nome
+  let [idStr, nome, _] = splitOn "," linha
+      id = read idStr :: Codigo
+  in putStrLn $ "ID: " ++ idStr ++ " | Nome: " ++ nome
+
 
   -- listar maquinas em ordem de manutenção
-  listarMaquinaPorManutencao :: [Maquina] -> [Maquina]
-  listarMaquinaPorManutencao = sortOn dataManutencao
+listarMaquinaPorManutencao :: [Maquina] -> [Maquina]
+listarMaquinaPorManutencao maquinas = sortOn dataManutencao maquinas
