@@ -33,25 +33,31 @@ adicionarMaquina nova_maquina = do
 -- Função para criar uma nova maquina
 criarMaquina :: IO Maquina
 criarMaquina = do
-  putStrLn "Digite o ID da máquina: "
-  id <- getLine
-  conexao <- openFile "maquina.txt" ReadMode
-  conteudo <- hGetContents conexao
-  let linhas = lines conteudo
-      ids = primeirosElementos linhas
+    putStrLn "Digite o ID da máquina: "
+    id <- getLine
+    conexao <- openFile "maquina.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let linhas = lines conteudo
+        ids = primeirosElementos linhas
 
-  if id `elem` ids
-    then do
-      putStrLn "ID já em uso. Escolha um ID diferente."
-      hClose conexao
-      criarMaquina
-    else do
-      putStrLn "Digite o nome da máquina: "
-      nome <- getLine
-      putStrLn "Digite a data de manutenção da máquina: "
-      dataStr <- getLine
-      let dataManut = read dataStr :: Int
-      return (Maquina id nome dataManut)
+    if id `elem` ids
+        then do
+            putStrLn "ID já em uso. Escolha um ID diferente."
+            hClose conexao
+            criarMaquina
+        else do
+            putStrLn "Digite o nome da máquina: "
+            nome <- getLine
+            putStrLn "Digite a data de manutenção da máquina (formato: dd/mm/aaaa): "
+            dataStr <- getLine
+            case delimitarManutencao dataStr of
+                Just manutencaoDelimitada -> do
+                    let dataManut = read manutencaoDelimitada :: DataManutencao
+                    return (Maquina id nome dataManut)
+                Nothing -> do
+                    putStrLn "Data de manutenção inválida. Por favor, digite novamente."
+                    criarMaquina
+
 
 
 -- Função para converter uma maquina em uma string no formato esperado

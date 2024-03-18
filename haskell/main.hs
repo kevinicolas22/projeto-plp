@@ -37,10 +37,12 @@ menuGestor = do
   putStrLn "c. Listar gestores"
   putStrLn "d. Atualizar gestor"
   putStrLn "f. Remover gestor"
+  putStrLn "e. Voltar para o menu"
   opcaoGestor <- getLine
   case opcaoGestor of
     "a" -> consultarGestor
     "b" -> criarNovoGestor
+    "c" -> listarGestores
     "d" -> atualizarGestor
     "f" -> removerGestor
     "e" -> main
@@ -60,6 +62,12 @@ criarNovoGestor = do
   putStrLn "Gestor adicionado com sucesso!"
   main
 
+listarGestores :: IO ()
+listarGestores = do
+    putStrLn "Lista de Todos os Gestores:"
+    listarTodosGestores
+    main
+
 -- Opção para atualizar um gestor
 atualizarGestor :: IO ()
 atualizarGestor = do
@@ -76,23 +84,23 @@ atualizarGestor = do
     "1" -> do
         putStrLn "Digite o novo CPF:"
         novoCPF <- getLine
-        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = novoCPF, name = "", birth = "", telephone = "", address = ""})
+        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = novoCPF, nome = "", dataNascimento = "", telefone = "", endereco = ""})
     "2" -> do
         putStrLn "Digite o novo nome:"
         novoNome <- getLine
-        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", name = novoNome, birth = "", telephone = "", address = ""})
+        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = novoNome, dataNascimento = "", telefone = "", endereco = ""})
     "3" -> do
       putStrLn "Digite o novo endereço:"
       novoEndereco <- getLine
-      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", name = "", birth = "", telephone = "", address = novoEndereco})
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = "", endereco = novoEndereco})
     "4" -> do
       putStrLn "Digite o novo telefone:"
       novoTelefone <- getLine
-      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", name = "", birth = "", telephone = novoTelefone, address = ""})
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = novoTelefone, endereco = ""})
     "5" -> do
       putStrLn "Digite a nova data de nascimento:"
       novaData <- getLine
-      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", name = "", birth = novaData, telephone = "", address = ""})
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = novaData, telefone = "", endereco = ""})
     _ -> putStrLn "Opção inválida."
   main
 
@@ -117,20 +125,19 @@ menuFuncionario = do
 menuMaquina :: IO ()
 menuMaquina = do
   putStrLn "Opções sobre Máquina:"
-  putStrLn "1. Criar máquina"
-  putStrLn "a. Controle de datas de manutenção dos equipamentos"
-  putStrLn "b. Listar equipamentos cadastrados"
-  putStrLn "c. Adicionar máquina com necessidade de reparo"
-  putStrLn "d. Listar máquinas com quebradas/necessidades de reparo"
-  putStrLn "e. Verificar quantidade de máquinas cadastradas"
-  putStrLn "f. Voltar ao menu principal"
+  putStrLn "a. Criar máquina"
+  putStrLn "b. Verificar datas de manutenção dos equipamentos"
+  putStrLn "c. Listar equipamentos cadastrados"
+  putStrLn "d. Adicionar máquina com necessidade de reparo"
+  putStrLn "e. Listar máquinas com necessidades de reparo"
+  putStrLn "f. Verificar quantidade de máquinas cadastradas"
+  putStrLn "g. Voltar ao menu principal"
   opcaoMaquina <- getLine
   case opcaoMaquina of
-    "1" -> criarMaquinas
-    -- "a" -> controleStatusEqp
-    -- "b" -> listarEquipamentos
-    -- "c" -> main
-    "c" -> do
+    "a" -> criarMaquinas
+    --"b" -> verificarDatasManutencao
+    "c" -> listarEquipamentos
+    "d" ->  do
       putStrLn "Informe o ID: "
       id <- getLine
       putStrLn "Informe o nome: "
@@ -138,12 +145,15 @@ menuMaquina = do
       putStrLn "Informe a data de manutenção: "
       dataMan <- getLine
       adicionarMaquinaReparo (Maquina id nome (read dataMan :: Int)) >> menuMaquina
-    "d" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
-    "e" -> do
+
+    "e" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
+
+    "f" -> do
       numeroMaquinas <- contarMaquinas "maquina.txt"
       putStrLn $ "Número de máquinas registradas: " ++ show numeroMaquinas 
       menuMaquina
-    "f" -> main
+
+    "g" -> main
     _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquina
 
 criarMaquinas :: IO ()
@@ -152,6 +162,21 @@ criarMaquinas = do
   adicionarMaquina novaMaquina
   putStrLn "Maquina adicionada com sucesso!"
   main
+
+listarEquipamentos :: IO()
+listarEquipamentos = do
+  lerMaquinas "maquina.txt" >> menuMaquina 
+
+{-verificarDatasManutencao :: IO ()
+verificarDatasManutencao = do
+    -- as máquinas em reparo do arquivo
+    maquinasReparo <- lerMaquinas "maquina_reparo.txt"
+    -- ordem de manutenção
+    let maquinasOrdenadas = listarMaquinaPorManutencao maquinasReparo
+    -- máquinas ordenadas
+    mapM_ mostrarMaquinas maquinasOrdenadas
+    menuMaquina-}
+
 
 menuAluno :: IO ()
 menuAluno = do
