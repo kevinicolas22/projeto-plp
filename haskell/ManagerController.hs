@@ -6,6 +6,7 @@ import System.Directory
 import Data.List
 import Data.List.Split
 import Data.List (null) 
+import Data.Maybe (mapMaybe, maybeToList)
 
 
 ----- ---------criar gestor------------------
@@ -126,6 +127,36 @@ removerGestorPorId targetId = do
         removeFile "manager.txt"
         renameFile tempName "manager.txt"
 
+--   funcao para listar gestor 
+listarTodosGestores:: IO()
+listarTodosGestores = do   
+    handle <- openFile "manager.txt"
+ReadMode
+    assunto <- hGetContents handle
+    let linhas = lines assunto
+        gestores = mapMaybe parseManager linhas
+    if null gestores
+        then putStrLn "Nenhum gestor encontrado."
+        else mapM_mostrarGestor gestores
+    hClose handle
+
+-- Função para imprimir os dados de um gestor representados por uma lista de listas de strings.
+mostrarGestor :: [[String]] -> IO()
+mostrarGestor [] = return ()
+mostrarGestor (a:as) = do
+    if length a >= 6 then
+        putStrLn ("\nId: " ++ (a !! 0) ++
+                "\nNome: " ++ (a !! 1) ++
+                "\nCpf: " ++ (a !! 2) ++
+                "\nEndereço: " ++ (a !! 3) ++
+                "\nTelefones: " ++ (a !! 4) ++
+                "\nData Ingresso: " ++ (a !! 5))
+                ---- alterar os dados
+    else
+        putStrLn "A lista não contém dados suficientes para um gestor."
+    mostrarGestor as
+
+
     -- Funções auxiliares
 
 verificandoId :: String -> [String] -> Bool
@@ -159,18 +190,9 @@ posicaoIdLista id lista = do
         then posUltimo
         else posicaoIdLista id (take posUltimo lista)
 
--- Função para imprimir os dados de um gestor representados por uma lista de listas de strings.
-mostrarGestor :: [[String]] -> IO()
-mostrarGestor [] = return ()
-mostrarGestor (a:as) = do
-    if length a >= 6 then
-        putStrLn ("\nId: " ++ (a !! 0) ++
-                "\nNome: " ++ (a !! 1) ++
-                "\nCpf: " ++ (a !! 2) ++
-                "\nEndereço: " ++ (a !! 3) ++
-                "\nTelefones: " ++ (a !! 4) ++
-                "\nData Ingresso: " ++ (a !! 5))
-                ---- alterar os dados
-    else
-        putStrLn "A lista não contém dados suficientes para um gestor."
-    mostrarGestor as
+-- converter uma linha em um Gestor
+parseManager :: String -> Maybe Manager
+parseManager linha = case splitOn"," linha of
+    [managerId,cpf,name,nascimento,telefone,endereco] -> 
+        Just (Manager(read managerId) cpf nome nascimento telefone endereco)
+        _-> Nothing

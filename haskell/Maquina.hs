@@ -1,11 +1,11 @@
+module Manager where
+
 import DB
-import Data.List (intercalate)
-import Data.Maybe (mapMaybe, maybeToList)
 import System.Directory
 import System.Environment
 import System.IO
 
-type Codigo = Int
+type Codigo = String
 type Nome = String 
 type DataManutencao = Int
 

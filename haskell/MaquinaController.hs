@@ -1,14 +1,16 @@
+module MaquinaController where
+
 import Maquina
+import Data.List (intercalate)
+import System.IO
+import Data.List.Split
+import Data.Maybe (mapMaybe, maybeToList)
+import Data.List (sortOn)
 
 --  Função que extrai os primeiros elementos de uma lista de strings.
 primeirosElementos :: [String] -> [String]
-primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
-  where
-    replace :: Char -> Char -> String -> String
-    replace _ _ [] = []
-    replace from to (c : cs)
-      | c == from = to : replace from to cs
-      | otherwise = c : replace from to cs
+primeirosElementos linhas = map (\linha -> head(splitOn","linha))linhas
+
 
 -- Função que verifica se uma string está presente em uma lista de strings.
 verificandoId :: String -> [String] -> Bool
@@ -82,3 +84,23 @@ imprimirMaquinasReparo arquivo = do
     conteudo <- readFile arquivo
     let linhas = lines conteudo
     mapM_ putStrLn linhas
+
+
+-- ler maquinas
+lerMaquinas :: FilePath -> IO()
+lerMaquinas arquivo = do
+  conteudo <- readFile arquivo
+  let linhas = lines conteudo
+  putStrLn "Máquinas Cadatradas"
+  mapM_mostrarMaquinas
+
+-- funcao auxiliar de ler maquinas
+mostrarMaquinas :: String -> IO()
+mostrarMaquinas linha = 
+  let[idStr,nome,_] = splitOn"," linha
+    id = read idStr :: Codigo
+  in putStrLn $ "ID: " ++ idStr ++ " |Nome: " ++ nome
+
+  -- listar maquinas em ordem de manutenção
+  listarMaquinaPorManutencao :: [Maquina] -> [Maquina]
+  listarMaquinaPorManutencao = sortOn dataManutencao
