@@ -11,34 +11,34 @@ import Data.List (intercalate)
 import Data.List.Split (chunksOf)
 
 
-type Id = Int
-type Cpf = String 
-type Nome = String
+type IdG = Int
+type CpfG = String 
+type NomeG = String
 type DataNascimento = String
 type Email = String
-type Telefone = String
-type Endereco = String
+type TelefoneG = String
+type EnderecoG = String
 
 data Manager = Manager {
-    managerId :: Id,
-    cpf :: Cpf,
-    nome :: Nome,
+    managerId :: IdG,
+    cpfG ::CpfG,
+    nomeG :: NomeG,
     dataNascimento :: DataNascimento,
-    telefone :: Telefone,
-    endereco :: Endereco
+    telefoneG :: TelefoneG,
+    enderecoG :: EnderecoG
 } deriving (Show)
 
---- Funçao para delimitar o telefone
-delimitarTelefone :: String -> Maybe String
-delimitarTelefone telefone
-    | length numeros == 11 = Just telefone
+--- Funçao para delimitar o telefoneG
+delimitartelefoneGG :: String -> Maybe String
+delimitartelefoneGG telefoneG
+    | length numeros == 11 = Just telefoneG
     | otherwise = Nothing
     where
-        numeros = filter isDigit telefone
+        numeros = filter isDigit telefoneG
 
 --- Função data de nascimento delimitar em 00/00/0000
-delimitarNascimento :: String -> Maybe String
-delimitarNascimento nascimento
+delimitarNascimentoG :: String -> Maybe String
+delimitarNascimentoG nascimento
     | length numeros == 8 = Just dataFormatada
     | otherwise = Nothing
     where
@@ -48,12 +48,12 @@ delimitarNascimento nascimento
         ano = drop 4 numeros
         dataFormatada = intercalate "/"[dia,mes,ano]
 
---- Função delimitar CPF 11 numeros 000.000.000-00
-delimitarCpf :: String -> Maybe String
-delimitarCpf cpf
-    | length numeros == 11 = Just cpfFormatado
+--- Função delimitar cpfGG 11 numeros 000.000.000-00
+delimitarcpfG :: String -> Maybe String
+delimitarcpfG cpfG
+    | length numeros == 11 = Just cpfGFormatado
     | otherwise = Nothing
     where
-        numeros = filter isDigit cpf
-        cpfFormatado = intercalate "."[chunk 0 3, chunk 3 6, chunk 6 9] ++ "-" ++ take 2(drop 9 numeros)
+        numeros = filter isDigit cpfG
+        cpfGFormatado = intercalate "."[chunk 0 3, chunk 3 6, chunk 6 9] ++ "-" ++ take 2(drop 9 numeros)
         chunk start end = take(end - start)(drop start numeros)
