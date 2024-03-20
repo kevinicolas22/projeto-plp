@@ -37,7 +37,6 @@ adicionarFuncionario novo_funcionario = do
   hClose conexao
 
 
--- Possível ajuste nessa função, pois a mesma faz a leitura no Service
 -- Função para criar um novo funcionário
 criarFuncionario :: IO Funcionario
 criarFuncionario = do
