@@ -1,4 +1,4 @@
-module MenuFuncionario where
+module Main where
 
 import System.IO
 import Funcionario
@@ -6,17 +6,19 @@ import System.Directory
 import System.Exit
 import FuncionarioService
 import Data.Maybe (mapMaybe)
+import AvaliacaoFisica
 
 -- Função principal
-menuFuncionario :: IO ()
-menuFuncionario = do
+main :: IO ()
+main = do
     putStrLn "Escolha uma opção:"
     putStrLn "1. Adicionar um funcionário"
     putStrLn "2. Ler informações de um funcionário por Id"
     putStrLn "3. Atualizar um funcionário"
     putStrLn "4. Remover um funcionário"
     putStrLn "5. Listar todos os funcionarios"
-    putStrLn "6. Sair"
+    putStrLn "6. Menu de Avaliação Física"
+    putStrLn "7. Sair"
     opcao <- getLine
     case opcao of
         "1" -> adicionarFuncionarioOpcao
@@ -24,8 +26,10 @@ menuFuncionario = do
         "3" -> atualizarFuncionarioOpcao
         "4" -> removerFuncionarioOpcao
         "5" -> lerTodosFuncionarios
-        "6" -> putStrLn "Saindo..."
+        "6" -> menuAvaliacaoFisica
+        "7" -> putStrLn "Saindo..."
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
+
 
 -- Opção para adicionar um funcionário
 adicionarFuncionarioOpcao :: IO ()
@@ -97,3 +101,27 @@ removerFuncionarioOpcao = do
     removerFuncionarioPorId (read id)
     putStrLn "Funcionário removido com sucesso!"
     main
+
+-- Função para o menu de avaliação física
+menuAvaliacaoFisica :: IO ()
+menuAvaliacaoFisica = do
+    putStrLn "Menu de Avaliação Física"
+    putStrLn "1. Realizar Avaliação Física"
+    putStrLn "2. Visualizar Avaliações Físicas Anteriores"
+    putStrLn "3. Voltar ao Menu Principal"
+    opcao <- getLine
+    case opcao of
+        "1" -> do
+            putStrLn "Realizando avaliação física..."
+            adicionarAvaliacaoFisica
+            putStrLn "Avaliação física concluída."
+            main  
+        "2" -> visualizarAvaliacoesAnteriores
+        "3" -> putStrLn "Voltando ao Menu Principal..."
+        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAvaliacaoFisica
+      
+
+
+-- Função para visualizar avaliações físicas anteriores
+visualizarAvaliacoesAnteriores :: IO ()
+visualizarAvaliacoesAnteriores = putStrLn "Visualizando avaliações físicas anteriores..."

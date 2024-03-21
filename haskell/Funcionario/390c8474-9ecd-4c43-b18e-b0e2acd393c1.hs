@@ -8,6 +8,7 @@ import System.Environment
 import System.IO
 import Data.Char (isDigit)
 import Data.List.Split (splitOn)
+import Text.Read (readMaybe)
 
 import AvaliacaoFisica
 
@@ -242,8 +243,12 @@ obterInformacao tipo validador = do
 
 -- Definição do tipo AvaliacaoFisica
 -- Função para criar uma nova avaliação física
-criarAvaliacaoFisica :: IO AvaliacaoFisica.AvaliacaoFisica
+criarAvaliacaoFisica :: IO AvaliacaoFisica
 criarAvaliacaoFisica = do
+    putStrLn "Digite o CPF do aluno:"
+    cpfAluno <- getLine
+    putStrLn "Digite o nome do aluno:"
+    nomeAluno <- getLine
     putStrLn "Digite a data da avaliação (DD/MM/AAAA):"
     dataAvaliacao <- obterInformacao "Data da avaliação" delimitarData
     putStrLn "Digite seu peso:"
@@ -254,20 +259,8 @@ criarAvaliacaoFisica = do
     idade <- readLn :: IO Int
     putStrLn "Digite seu objetivo:"
     objetivo <- getLine
-    return (AvaliacaoFisica.AvaliacaoFisica dataAvaliacao (Atributos peso altura idade objetivo))
+    return (AvaliacaoFisica dataAvaliacao (Atributos cpfAluno nomeAluno peso altura idade objetivo))
 
-
--- Função auxiliar para delimitar a data no formato "DD/MM/AAAA"
-delimitarData :: String -> Maybe String
-delimitarData dataAvaliacao
-    | length numeros == 8 = Just dataFormatada
-    | otherwise = Nothing
-    where
-        numeros = filter isDigit dataAvaliacao
-        dia = take 2 numeros
-        mes = take 2 (drop 2 numeros)
-        ano = drop 4 numeros
-        dataFormatada = intercalate "/" [dia, mes, ano]
 
 -- Função para adicionar uma avaliação física ao arquivo
 adicionarAvaliacaoFisica :: IO ()
@@ -275,19 +268,16 @@ adicionarAvaliacaoFisica = do
     nova_avaliacao <- criarAvaliacaoFisica
     appendFile "avaliacoes_fisicas.txt" (toStringAvaliacaoFisica nova_avaliacao ++ "\n")
 
-
--- Função auxiliar para converter uma lista de strings em uma AvaliacaoFisica
 parseAvaliacaoFisica :: String -> Maybe AvaliacaoFisica.AvaliacaoFisica
 parseAvaliacaoFisica linha = case words linha of
     [dataAvaliacao, peso, altura, idade, objetivo] ->
-        Just (AvaliacaoFisica.AvaliacaoFisica dataAvaliacao (Atributos (read peso) (read altura) (read idade) (read objetivo)))
-    _ -> Nothing
+        Just (AvaliacaoFisica.AvaliacaoFisica dataAvaliacao (Atributos cpfAluno nomeAluno peso altura idade objetivo))
 
--- Função para converter uma AvaliacaoFisica em uma string no formato esperado
+
 toStringAvaliacaoFisica :: AvaliacaoFisica.AvaliacaoFisica -> String
 toStringAvaliacaoFisica (AvaliacaoFisica.AvaliacaoFisica dataAvaliacao atributos) =
     intercalate " "
-        [show dataAvaliacao, show (peso atributos), show (altura atributos), show (idade atributos), show (objetivo atributos)]
+        [dataAvaliacao, cpfAluno atributos, nomeAluno atributos, show (peso atributos), show (altura atributos), show (idade atributos), objetivo atributos]
 
 
 -- Função para calcular o idade e determinar a faixa
@@ -308,3 +298,16 @@ faixaidade imc
     | imc < 34.9 = "Obesidade Grau I"
     | imc < 39.9 = "Obesidade Grau II"
     | otherwise = "Obesidade Grau III"
+
+  
+-- Função auxiliar para delimitar a data no formato "DD/MM/AAAA"
+delimitarData :: String -> Maybe String
+delimitarData dataAvaliacao
+    | length numeros == 8 = Just dataFormatada
+    | otherwise = Nothing
+    where
+        numeros = filter isDigit dataAvaliacao
+        dia = take 2 numeros
+        mes = take 2 (drop 2 numeros)
+        ano = drop 4 numeros
+        dataFormatada = intercalate "/" [dia, mes, ano]
