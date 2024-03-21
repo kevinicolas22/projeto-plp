@@ -14,10 +14,6 @@ import "directory" System.Directory
 import Funcionario
 import FuncionarioService
 
-
-
-
-
 main :: IO()
 main = do
     putStrLn "╔═══════════════════════════════╗"
@@ -59,7 +55,7 @@ gestor = do
         "4" -> menuAlunoG
         "5" -> menuFinanceiroG
         "6" -> sair
-    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
+    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> gestor
 
   menuGestorG :: IO()
   menuGestorG = do 
@@ -67,14 +63,14 @@ gestor = do
     putStrLn "║           Opções sobre Gestor:             ║"
     putStrLn "║                                            ║"
     putStrLn "║   a. Consultar gestor                      ║"
-    putStrLn "║   c. Listar gestores                       ║"
-    putStrLn "║   e. Voltar para o menu                    ║"
+    putStrLn "║   b. Listar gestores                       ║"
+    putStrLn "║   c. Voltar para o menu                    ║"
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoGestorG <- getLine
     case opcaoGestorG of
         "a" -> consultarGestor
         "b" -> listarGestores
-        "e" -> main
+        "c" -> main
         _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestor
 
 consultarGestor :: IO ()
@@ -83,14 +79,14 @@ consultarGestor = do
   id <- getLine
   case readMaybe id of
     Just gestorId -> lerGestorPorId gestorId
-    Nothing       -> putStrLn "ID inválido. Por favor, digite um número válido." >> main
-  main
+    Nothing       -> putStrLn "ID inválido. Por favor, digite um número válido." >> menuGestor
+  menuGestor
 
 listarGestores :: IO ()
 listarGestores = do
     putStrLn "Lista de Todos os Gestores:"
     listarTodosGestores
-    main   
+    menuGestor   
 
 menuFuncionarioG :: IO()
 menuFuncionarioG = do
@@ -107,7 +103,7 @@ menuFuncionarioG = do
     opcaoFuncionarioG <- getLine
     case opcaoFuncionarioG of
         "a" -> -- nome das funcoes
-        "e" -> main
+        "f" -> main
         _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionarioG
 
 menuMaquinaG :: IO ()
@@ -135,9 +131,9 @@ menuMaquinaG = do
       nome <- getLine
       putStrLn "Informe a data de manutenção: "
       dataMan <- getLine
-      adicionarMaquinaReparo (Maquina (show id) nome dataMan) >> menuMaquina
+      adicionarMaquinaReparo (Maquina (show id) nome dataMan) >> menuMaquinaG
 
-    "e" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
+    "e" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquinaG
 
     "f" -> do
       numeroMaquinas <- contarMaquinas "maquina.txt"
@@ -145,18 +141,18 @@ menuMaquinaG = do
       menuMaquina
 
     "g" -> main
-    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquina
+    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquinaG
 
 criarMaquinas :: IO ()
 criarMaquinas = do
   novaMaquina <- criarMaquina
   adicionarMaquina novaMaquina
   putStrLn "Maquina adicionada com sucesso!"
-  main
+  menuMaquinaG
 
 listarEquipamentos :: IO()
 listarEquipamentos = do
-  lerMaquinas "maquina.txt" >> menuMaquina 
+  lerMaquinas "maquina.txt" >> menuMaquinaG
 
 {-verificarDatasManutencao :: IO ()
 verificarDatasManutencao = do
@@ -175,14 +171,31 @@ menuAlunoG = do
     putStrLn "║           Opções sobre Aluno:              ║"
     putStrLn "║                                            ║"
     putStrLn "║   a. Quantidade de Aluno Cadastrados       ║"
-    putStrLn "║   c. Listar alunos                         ║"
-    putStrLn "║   e. Voltar para o menu                    ║"
+    putStrLn "║   b. Listar alunos                         ║"
+    putStrLn "║   c. Voltar para o menu                    ║"
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoAlunoG <- getLine
     case opcaoAlunoG of
-        "a" -> quantidadeAluno
-        "b" -> listarAlunos
-        "e" -> main
+        "a" -> -----
+        "b" -> -----
+        "c" -> main
+        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAlunoG
+
+
+menuAlunoG :: IO()
+menuAlunoG = do
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║           Opções sobre Financeiro:         ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   a. Folha de Pagamento                    ║"
+    putStrLn "║   b. Renda e Gastos Mensais                ║"
+    putStrLn "║   c. Voltar para o menu                    ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    opcaoAlunoG <- getLine
+    case opcaoAlunoG of
+        "a" -> ----
+        "b" -> ----
+        "c" -> main
         _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAlunoG
 
 
@@ -204,8 +217,8 @@ funcionario = do
         "2" -> menuAlunoF
         "3" -> menuTreinoF
         "4" -> menuExtraF
-        "5" -> sair
-    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
+        "5" -> main
+    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> funcionario
 
 menuFuncionarioF :: IO()
 menuFuncionarioF = do
@@ -241,77 +254,42 @@ menuAlunoF = do
     opcaoAlunoF <- getLine
     case opcaoAlunoF of
         "a" -> -- nome das funcoes
-        "d" -> main
+        "g" -> main
         _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAlunoF
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+menuTreinoF :: IO()
+menuTreinoF = do
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║           Opções sobre Treinos:            ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   a. ModificarTreinos                      ║"
+    putStrLn "║   b. Gerar Treinos                         ║"
+    putStrLn "║   c. Progresso do aluno                    ║"
+    putStrLn "║   d. Avaliação fisíca do aluno             ║"
+    putStrLn "║   e. Voltar para o menu                    ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    opcaoTreinoF <- getLine
+    case opcaoTreinoF of
+        "a" -> -- nome das funcoes
+        "d" -> main
+        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuTreinoF
+
+
+menuExtraF :: IO()
+menuExtraF = do
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║      Opções sobre Atividades Extras:       ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   a. Publicar Horário de Aulas Coletivas   ║"
+    putStrLn "║   b. Atualizar aulas coletivas             ║"
+    putStrLn "║   c. Voltar para o menu                    ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    opcaoExtraF <- getLine
+    case opcaoExtraF of
+        "a" -> -- nome das funcoes
+        "c" -> main
+        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuExtraF
 
 
 aluno :: IO()
@@ -320,35 +298,152 @@ aluno = do
     putStrLn "║   Escolha o assunto da funcionalidade      ║"
     putStrLn "║   de Aluno:                                ║"
     putStrLn "║                                            ║"
-    putStrLn "║   1. Treino                                ║"
-    putStrLn "║   2. Pagamento                             ║"
-    putStrLn "║   3. Reserva                               ║"
-    putStrLn "║   4. Sair                                  ║"
+    putStrLn "║   1.                            ║"
+    putStrLn "║   2.                                 ║"
+    putStrLn "║   3.                                ║"
+    putStrLn "║   4.                                  ║"
+    putStrLn "║   5. Sair                                  ║"
     putStrLn "╚════════════════════════════════════════════╝"
     opcao <- getLine
     case opcao of
-        "1" -> menuTreinoA
-        "2" -> menuPagamentoA
-        "3" -> menuReservaA
-        "4" -> sair
-    _ -> putStrLn "Opção inválida. Por favor, escolha novamente."
+        "1" -> 
+        "2" -> 
+        "3" -> 
+        "4" -> 
+        "5" -> main
+    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> aluno
 
 
 academia :: IO()
 academia = do
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║   Escolha o assunto da funcionalidade      ║"
-    putStrLn "║   do Sistema da Academia:                  ║"
+    putStrLn "║   do Sistema CodeFit:                      ║"
     putStrLn "║                                            ║"
     putStrLn "║   1. Gestor                                ║"
-    putStrLn "║   2. Espaços                               ║"
+    putStrLn "║   2. Espaços Oferecidos                    ║"
     putStrLn "║   3. Aulas Coletivas                       ║"
-    putStrLn "║   4. Sair                                  ║"
+    putStrLn "║   4. Planos                                ║"
+    putStrLn "║   5. Sair                                  ║"
     putStrLn "╚════════════════════════════════════════════╝"
     opcao <- getLine
     case opcao of
         "1" -> menuGestorAcad
-        "2" -> menuEspaçosAcad
+        "2" -> menuEspacoAcad
         "3" -> menuAulasAcad
-        "4" -> sair
-    _ -> putStrLn "Opção inválida. Por favor, escolha novamente."   
+        "4" -> menuPlanosAcad
+        "5" -> main
+    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> academia
+
+menuGestorAcad :: IO()
+menuGestorAcad = do
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║           Opções sobre Gestor:             ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   a. Criar Gestor                          ║"
+    putStrLn "║   b. Atualizar Gestor                      ║"
+    putStrLn "║   c. Remover Gestor                        ║"
+    putStrLn "║   d. Listar Gestor                         ║"
+    putStrLn "║   e. Voltar para o menu                    ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    opcaoGestorAcad <- getLine
+    case opcaoGestorAcad of
+        "a" -> criarNovoGestor
+        "b" -> atualizarGestor
+        "c" -> removerGestor
+        "d" -> listarGestor
+        "e" -> main
+        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestorAcad
+
+
+criarNovoGestor :: IO ()
+criarNovoGestor = do
+  novoGestor <- criarGestor
+  adicionarGestor novoGestor
+  putStrLn "Gestor adicionado com sucesso!"
+  menuGestorAcad    
+
+  -- Opção para atualizar um gestor
+atualizarGestor :: IO ()
+atualizarGestor = do
+  putStrLn "Digite o ID do gestor que deseja atualizar:"
+  id <- getLine
+  putStrLn "╔════════════════════════════════════════════╗"
+  putStrLn "║       Escolha o dado do gestor a ser       ║"
+  putStrLn "║              atualizado:                   ║"
+  putStrLn "║                                            ║"
+  putStrLn "║   1. CPF                                   ║"
+  putStrLn "║   2. Nome                                  ║"
+  putStrLn "║   3. Endereço                              ║"
+  putStrLn "║   4. Telefone                              ║"
+  putStrLn "║   5. Data de Nascimento                    ║"
+  putStrLn "╚════════════════════════════════════════════╝"
+  escolha <- getLine
+  case escolha of
+    "1" -> do
+        putStrLn "Digite o novo CPF: "
+        novoCPF <- getLine
+        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = novoCPF, nome = "", dataNascimento = "", telefone = "", endereco = ""})
+    "2" -> do
+        putStrLn "Digite o novo nome: "
+        novoNome <- getLine
+        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = novoNome, dataNascimento = "", telefone = "", endereco = ""})
+    "3" -> do
+      putStrLn "Digite o novo endereço: "
+      novoEndereco <- getLine
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = "", endereco = novoEndereco})
+    "4" -> do
+      putStrLn "Digite o novo telefone: "
+      novoTelefone <- getLine
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = novoTelefone, endereco = ""})
+    "5" -> do
+      putStrLn "Digite a nova data de nascimento: "
+      novaData <- getLine
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = novaData, telefone = "", endereco = ""})
+    _ -> putStrLn "Opção inválida."
+  menuGestorAcad
+
+
+removerGestor :: IO ()
+removerGestor = do
+  putStrLn "Digite o ID do gestor que deseja remover:"
+  id <- getLine
+  removerGestorPorId (read id)
+  putStrLn "Gestor removido com sucesso!"
+  menuGestorAcad
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
