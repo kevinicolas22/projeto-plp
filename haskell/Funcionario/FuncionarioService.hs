@@ -1,6 +1,7 @@
 module FuncionarioService where
 
 import Funcionario
+import Treino
 import Data.List (intercalate)
 import Data.Maybe (mapMaybe, maybeToList)
 import System.Directory
@@ -8,8 +9,9 @@ import System.Environment
 import System.IO
 import Data.Char (isDigit)
 import Data.List.Split (splitOn)
-
+import Data.List (elemIndices)
 import AvaliacaoFisica
+
 
 
 --  Função que extrai os primeiros elementos de uma lista de strings.
@@ -308,3 +310,11 @@ faixaidade imc
     | imc < 34.9 = "Obesidade Grau I"
     | imc < 39.9 = "Obesidade Grau II"
     | otherwise = "Obesidade Grau III"
+
+--TREINO
+
+--Função para cadastrar TREINO (primeiro paramêtro por enquanto é uma String)
+cadastraTreino :: Int -> String -> String -> IO()
+cadastraTreino matricula tipo_treino descricao = do
+  let novoTreino = Treino matricula tipo_treino descricao
+  appendFile "treino.txt" (toString novoTreino ++ "\n")

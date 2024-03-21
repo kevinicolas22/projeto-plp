@@ -6,6 +6,7 @@ import System.Directory
 import System.Exit
 import FuncionarioService
 import Data.Maybe (mapMaybe)
+import Data.Char (toUpper)
 import AvaliacaoFisica
 
 -- Função principal
@@ -18,7 +19,8 @@ main = do
     putStrLn "4. Remover um funcionário"
     putStrLn "5. Listar todos os funcionarios"
     putStrLn "6. Menu de Avaliação Física"
-    putStrLn "7. Sair"
+    putStrLn "7. Menu de Treino"
+    putStrLn "8. Sair"
     opcao <- getLine
     case opcao of
         "1" -> adicionarFuncionarioOpcao
@@ -27,6 +29,7 @@ main = do
         "4" -> removerFuncionarioOpcao
         "5" -> lerTodosFuncionarios
         "6" -> menuAvaliacaoFisica
+        "7" -> menuTreinoF
         "7" -> putStrLn "Saindo..."
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
 
@@ -125,3 +128,99 @@ menuAvaliacaoFisica = do
 -- Função para visualizar avaliações físicas anteriores
 visualizarAvaliacoesAnteriores :: IO ()
 visualizarAvaliacoesAnteriores = putStrLn "Visualizando avaliações físicas anteriores..."
+
+--TREINO
+menuTreinoF :: IO()
+menuTreinoF = do
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║           Opções sobre Treinos:            ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   a. Gerar Treinos                         ║"
+    putStrLn "║   b. Visualizar Treino(s)                  ║"
+    putStrLn "║   c. Progresso do aluno                    ║"
+    putStrLn "║   d. Avaliação fisíca do aluno             ║"
+    putStrLn "║   e. Voltar para o menu                    ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    opcaoTreinoF <- getLine
+    case opcaoTreinoF of
+        "a" -> funcionarioCriaTreino
+        --"b" -> lerTreinoAluno
+        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuTreinoF
+
+
+
+--Função auxiliar para ler múltiplas linhas, até encontrar o caracter de parada
+lerLinhas :: Char -> IO String
+lerLinhas stopChar = do
+    linha <- getLine
+    if stopChar `elem` linha
+        then return ""
+        else do
+            restante <- lerLinhas stopChar
+            return (linha ++"/"++ restante)
+
+--Função auxiliar para validar as entradas de cada opção de treino
+validarOpcaoTreino :: Int -> Bool
+validarOpcaoTreino n = n >= 1 && n <= 8
+
+--Função auxiliar para ficar lendo recursivamente, até inserir a opção correta
+opcaoCorreta :: Int -> IO Int
+opcaoCorreta valor =
+    if validarOpcaoTreino valor
+        then return valor
+        else do
+            putStrLn "Opção inválida. Por favor, insira um número entre 1 e 8."
+            novaOpcao <- getLine
+            let novoValor = read novaOpcao :: Int
+            opcaoCorreta novoValor
+
+--Função para o funcionario criar treino de um aluno
+funcionarioCriaTreino :: IO()
+funcionarioCriaTreino = do
+    --falta verificar se existe aluno tratar caso não existie
+    --falta puxar aluno
+    --provisorio
+    putStrLn "Digite a matricula do aluno: "
+    matricula <- readLn :: IO Int
+
+    putStrLn "Digite o tipo de treino (PS - Personalizado ou PR - Padronizado): "
+    tipo_treino <- getLine
+
+    let opcao = map toUpper tipo_treino
+    case opcao of
+        "PS" -> do
+            putStrLn "Insira o treino personalizado( ! :parar finalizar): "
+            personalizado <- lerLinhas '!'
+            cadastraTreino matricula "PS" personalizado
+        "PR" -> do
+            putStrLn "Escolha o treino padrão: \n\
+                        \1 - Treino Cardiovascular\n\
+                        \2 - Treino de Definição\n\
+                        \3 - Treino de Forca\n\
+                        \4 - Treino Funcional\n\
+                        \5 - Treino HIIT\n\
+                        \6 - Treino de Hipertrofia\n\
+                        \7 - Treino de Resistência Muscular\n\
+                        \8 - Treino Terapêutico\n"
+
+            escolha <- readLn :: IO Int
+            opcaoValidada <- opcaoCorreta escolha
+
+            case opcaoValidada of
+                1 -> do
+                    cadastraTreino matricula "PR" "Treino Cardiovascular"
+                2 -> do
+                    cadastraTreino matricula "PR" "Treino de Definição"
+                3 -> do
+                    cadastraTreino matricula "PR" "Treino de Forca"
+                4 -> do
+                    cadastraTreino matricula "PR" "Treino Funcional"
+                5 -> do
+                    cadastraTreino matricula "PR" "Treino HIIT"
+                6 -> do
+                    cadastraTreino matricula "PR" "Treino de Hipertrofia"
+                7 -> do
+                    cadastraTreino matricula "PR" "Treino de Resistência Muscular"
+                8 -> do
+                    cadastraTreino matricula "PR" "Treino Terapêutico"
+    main      
