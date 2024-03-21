@@ -6,7 +6,8 @@ import System.IO
 import Data.List (sortOn)
 import Data.List.Split
 import Data.Maybe (mapMaybe, maybeToList)
-import Data.List (sortOn)
+import Data.List.Split (splitOn)
+
 
 --  Função que extrai os primeiros elementos de uma lista de strings.
 primeirosElementos :: [String] -> [String]
@@ -110,6 +111,26 @@ mostrarMaquinas linha =
   in putStrLn $ "ID: " ++ idStr ++ " | Nome: " ++ nome
 
 
-  -- listar maquinas em ordem de manutenção
-listarMaquinaPorManutencao :: [Maquina] -> [Maquina]
-listarMaquinaPorManutencao maquinas = sortOn dataManutencao maquinas
+-- Função auxiliar para ler uma máquina do arquivo
+lerMaquinaR :: String -> Maybe Maquina
+lerMaquinaR linha =
+  case splitOn "," linha of
+    [idStr, nome, dataManutencaoStr] ->
+      case readMaybe idStr of
+        Just id -> Just (Maquina id nome dataManutencaoStr)
+        Nothing -> Nothing
+    _ -> Nothing
+
+-- Função para mostrar o nome e a data de manutenção de uma máquina
+mostrarMaquina :: Maquina -> IO ()
+mostrarMaquina (Maquina _ nome dataManutencao) =
+  putStrLn $ "Nome: " ++ nome ++ " | Data de Manutenção: " ++ dataManutencao
+
+-- Função para listar as máquinas em ordem alfabética
+listarMaquinasOrdemAlfabetica :: IO ()
+listarMaquinasOrdemAlfabetica = do
+  conteudo <- readFile "maquina_reparo.txt"
+  let linhas = lines conteudo
+      maquinas = mapMaybe lerMaquinaR linhas
+      maquinasOrdenadas = sortOn nomeMaquina maquinas
+  mapM_ mostrarMaquina maquinasOrdenadas

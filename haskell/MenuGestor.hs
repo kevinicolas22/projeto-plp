@@ -105,24 +105,24 @@ menuMaquinaG = do
     putStrLn "╚═══════════════════════════════════════════════════════╝"
     opcaoMaquinaG <- getLine
     case opcaoMaquinaG of 
-        "a" -> criarMaquinas
-    --"b" -> verificarDatasManutencao
-    "c" -> listarEquipamentos
-    "d" -> do
-      putStrLn "Informe o ID: "
-      id <- getLine
-      putStrLn "Informe o nomeG: "
-      nomeG <- getLine
-      putStrLn "Informe a data de manutenção: "
-      dataMan <- getLine
-      adicionarMaquinaReparo (Maquina (show id) nomeG dataMan) >> menuMaquina
-    "e" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
-    "f" -> do
-      numeroMaquinas <- contarMaquinas "maquina.txt"
-      putStrLn $ "Número de máquinas registradas: " ++ show numeroMaquinas
-      menuMaquina
-    "g" -> main
-    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquinaG
+      "a" -> criarMaquinas
+      "b" -> listarMaquinasOrdemAlfabetica 
+      "c" -> listarEquipamentos
+      "d" -> do
+        putStrLn "Informe o ID: "
+        id <- getLine
+        putStrLn "Informe o nomeG: "
+        nomeG <- getLine
+        putStrLn "Informe a data de manutenção: "
+        dataMan <- getLine
+        adicionarMaquinaReparo (Maquina (show id) nomeG dataMan) >> menuMaquina
+      "e" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
+      "f" -> do
+        numeroMaquinas <- contarMaquinas "maquina.txt"
+        putStrLn $ "Número de máquinas registradas: " ++ show numeroMaquinas
+        menuMaquina
+      "g" -> main
+      _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquinaG
 
 criarMaquinas :: IO ()
 criarMaquinas = do
@@ -134,16 +134,6 @@ criarMaquinas = do
 listarEquipamentos :: IO ()
 listarEquipamentos = do
   lerMaquinas "maquina.txt" >> menuMaquina
-
-{-verificarDatasManutencao :: IO ()
-verificarDatasManutencao = do
-    -- as máquinas em reparo do arquivo
-    maquinasReparo <- lerMaquinas "maquina_reparo.txt"
-    -- ordem de manutenção
-    let maquinasOrdenadas = listarMaquinaPorManutencao maquinasReparo
-    -- máquinas ordenadas
-    mapM_ mostrarMaquinas maquinasOrdenadas
-    menuMaquina-}
 
 
 menuAlunoG :: IO()

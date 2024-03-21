@@ -1,5 +1,5 @@
 {-# LANGUAGE PackageImports #-}
-module Gestor where
+module Manager where
 
 import System.Directory
 import DB
