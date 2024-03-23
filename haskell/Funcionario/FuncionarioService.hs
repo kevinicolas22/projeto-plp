@@ -41,7 +41,6 @@ adicionarFuncionario novo_funcionario = do
     else appendFile "funcionario.txt" (toStringFuncionario novo_funcionario ++ "\n")
   hClose conexao
 
-
 -- Função para criar um novo funcionário
 criarFuncionario :: IO Funcionario
 criarFuncionario = do
@@ -77,7 +76,6 @@ criarFuncionario = do
       salario <- readLn :: IO Float
 
       return (Funcionario id nome cpf endereco telefone data_ingresso salario)
-
 
 -- Função para ler um funcionário pelo ID e imprimir seus dados
 lerFuncionarioPorId :: Int -> IO ()
@@ -241,23 +239,148 @@ obterInformacao tipo validador = do
             putStrLn $ tipo ++ " inválido. Por favor, tente novamente."
             obterInformacao tipo validador
 
+-- AVALIAÇÃO FISICA 
 
--- Definição do tipo AvaliacaoFisica
 -- Função para criar uma nova avaliação física
-criarAvaliacaoFisica :: IO AvaliacaoFisica.AvaliacaoFisica
+criarAvaliacaoFisica :: IO AvaliacaoFisica
 criarAvaliacaoFisica = do
-    putStrLn "Digite a data da avaliação (DD/MM/AAAA):"
-    dataAvaliacao <- obterInformacao "Data da avaliação" delimitarData
-    putStrLn "Digite seu peso:"
-    peso <- readLn :: IO Float
-    putStrLn "Digite a sua altura (1.80):"
-    altura <- readLn :: IO Float
-    putStrLn "Digite sua idade:"
-    idade <- readLn :: IO Int
-    putStrLn "Digite seu objetivo:"
-    objetivo <- getLine
-    return (AvaliacaoFisica.AvaliacaoFisica dataAvaliacao (Atributos peso altura idade objetivo))
+    putStrLn "Digite o ID da avaliação:"
+    avaliacaoId <- readLn :: IO Int
+    conexao <- openFile "avaliacoes_fisicas.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let linhas = lines conteudo
+        ids = primeirosElementos linhas
+    if verificandoId (show avaliacaoId) ids
+      then do
+        putStrLn "ID já em uso. Escolha um ID diferente."
+        hClose conexao
+        criarAvaliacaoFisica
+      else do
+        putStrLn "Digite a data da avaliação (DD/MM/AAAA):"
+        dataAvaliacao <- obterInformacao "Data da avaliação" delimitarData
+        putStrLn "Digite seu peso:"
+        peso <- readLn :: IO Float
+        putStrLn "Digite a sua altura (1.80):"
+        altura <- readLn :: IO Float
+        putStrLn "Digite sua idade:"
+        idade <- readLn :: IO Int
+        putStrLn "Digite seu objetivo:"
+        objetivo <- getLine
+        return (AvaliacaoFisica avaliacaoId dataAvaliacao peso altura idade objetivo)
 
+lerAvaliacaoFisicaPorId :: Int -> IO ()
+lerAvaliacaoFisicaPorId targetId = do
+    conexao <- openFile "avaliacoes_fisicas.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let linhas = lines conteudo
+        ids = primeirosElementos linhas
+    if not (verificandoId (show targetId) ids)
+        then putStrLn "ID não encontrado."
+        else do
+            let dadosAvaliacao = filtrarId targetId linhas
+            putStrLn "Avaliação física encontrada:"
+            imprimindoAvaliacaoFisica dadosAvaliacao
+    hClose conexao  
+
+
+-- Função para listar todas as avaliações físicas do arquivo "avaliacoes_fisicas.txt"
+listarTodasAvaliacoesFisicas :: IO ()
+listarTodasAvaliacoesFisicas = do
+    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    conteudo <- hGetContents handle
+    let linhas = lines conteudo
+        avaliacoes = map (splitOn ",") linhas
+    if null linhas
+        then putStrLn "\nNenhuma avaliação física encontrada."
+        else imprimindoAvaliacaoFisica avaliacoes
+    hClose handle
+
+-- Função para atualizar os dados de uma avaliação física no arquivo "avaliacoes_fisicas.txt" com base no ID fornecido.
+atualizarAvaliacaoFisicaPorId :: Int -> AvaliacaoFisica -> IO ()
+atualizarAvaliacaoFisicaPorId targetId novaAvaliacao = do
+    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    contents <- hGetContents handle
+    let linhas = lines contents
+        ids = primeirosElementos linhas
+    if not (verificandoId (show targetId) ids)
+        then putStrLn "Avaliação física não encontrada."
+        else do
+            (tempName, tempHandle) <- openTempFile "." "temp"
+            let linhasAtualizadas = map (\linha ->
+                    if verificandoId (show targetId) (primeirosElementos [linha])
+                        then atualizarDadosAvaliacaoFisica linha novaAvaliacao
+                        else linha) linhas
+            hPutStr tempHandle (unlines linhasAtualizadas)
+            hClose handle
+            hClose tempHandle
+            removeFile "avaliacoes_fisicas.txt"
+            renameFile tempName "avaliacoes_fisicas.txt"
+
+-- Função para atualizar os dados de uma avaliação física em uma linha específica
+atualizarDadosAvaliacaoFisica :: String -> AvaliacaoFisica -> String
+atualizarDadosAvaliacaoFisica linha (AvaliacaoFisica id dataAvaliacao novoPeso novaAltura novaIdade novoObjetivo) =
+    let dadosAntigos = splitOn "," linha
+        idAntigo = dadosAntigos !! 0
+        dataAntiga = dadosAntigos !! 1
+        pesoAntigo = dadosAntigos !! 2
+        alturaAntiga = dadosAntigos !! 3
+        idadeAntiga = dadosAntigos !! 4
+        objetivoAntigo = dadosAntigos !! 5
+        novosDados = [idAntigo,
+                      if null dataAvaliacao then dataAntiga else dataAvaliacao,
+                      if novoPeso == 0 then pesoAntigo else show novoPeso,
+                      if novaAltura == 0 then alturaAntiga else show novaAltura,
+                      if novaIdade == 0 then idadeAntiga else show novaIdade,
+                      if null novoObjetivo then objetivoAntigo else novoObjetivo]
+    in intercalate "," novosDados
+
+
+-- Função para remover uma avaliação física do arquivo pelo ID.
+removerAvaliacaoFisicaPorId :: Int -> IO ()
+removerAvaliacaoFisicaPorId targetId = do
+    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    contents <- hGetContents handle
+    let linhas = lines contents
+        ids = primeirosElementos linhas
+    if not (verificandoId (show targetId) ids)
+        then putStrLn "Avaliação física não encontrada."
+        else do
+            (tempName, tempHandle) <- openTempFile "." "temp"
+            let linhasFiltradas = filter (\linha -> not $ verificandoId (show targetId) (primeirosElementos [linha])) linhas
+            hPutStr tempHandle (unlines linhasFiltradas)
+            hClose handle
+            hClose tempHandle
+            removeFile "avaliacoes_fisicas.txt"
+            renameFile tempName "avaliacoes_fisicas.txt"
+            putStrLn "Avaliação física removida com sucesso."
+
+-- Função para imprimir os dados de uma avaliação física representada por uma lista de listas de strings.
+imprimindoAvaliacaoFisica :: [[String]] -> IO ()
+imprimindoAvaliacaoFisica [] = return ()
+imprimindoAvaliacaoFisica (x:xs) = do
+    if length x >= 1 then
+        putStrLn $ "\nID da avaliação: " ++  (x !! 0) ++
+                  "\nData da avaliação: " ++  (x !! 1) ++
+                  "\nPeso: " ++ (x !! 2) ++
+                  "\nAltura: " ++  (x !! 3) ++
+                  "\nIdade: " ++(x !! 4) ++
+                  "\nObjetivo: " ++ (x !! 5) 
+    else
+        putStrLn "A lista não contém dados suficientes para uma avaliação física."
+    imprimindoAvaliacaoFisica xs
+
+-- Função para adicionar uma avaliação física ao arquivo
+adicionarAvaliacaoFisica :: AvaliacaoFisica -> IO ()
+adicionarAvaliacaoFisica nova_avaliacao = do
+    conexao <- openFile "avaliacoes_fisicas.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let linhas = lines conteudo
+        ids = primeirosElementos linhas
+        idNovo = avaliacaoId nova_avaliacao
+    if verificandoId (show idNovo) ids
+      then putStrLn "ID já em uso. Escolha um ID diferente."
+      else appendFile "avaliacoes_fisicas.txt" (toStringAvaliacaoFisica nova_avaliacao ++ "\n")
+    hClose conexao
 
 -- Função auxiliar para delimitar a data no formato "DD/MM/AAAA"
 delimitarData :: String -> Maybe String
@@ -271,37 +394,62 @@ delimitarData dataAvaliacao
         ano = drop 4 numeros
         dataFormatada = intercalate "/" [dia, mes, ano]
 
--- Função para adicionar uma avaliação física ao arquivo
-adicionarAvaliacaoFisica :: IO ()
-adicionarAvaliacaoFisica = do
-    nova_avaliacao <- criarAvaliacaoFisica
-    appendFile "avaliacoes_fisicas.txt" (toStringAvaliacaoFisica nova_avaliacao ++ "\n")
-
-
 -- Função auxiliar para converter uma lista de strings em uma AvaliacaoFisica
-parseAvaliacaoFisica :: String -> Maybe AvaliacaoFisica.AvaliacaoFisica
+parseAvaliacaoFisica :: String -> Maybe AvaliacaoFisica
 parseAvaliacaoFisica linha = case words linha of
-    [dataAvaliacao, peso, altura, idade, objetivo] ->
-        Just (AvaliacaoFisica.AvaliacaoFisica dataAvaliacao (Atributos (read peso) (read altura) (read idade) (read objetivo)))
+    [avaliacaoId, dataAvaliacao, peso, altura, idade, objetivo] ->
+        Just (AvaliacaoFisica (read avaliacaoId) dataAvaliacao (read peso) (read altura) (read idade) objetivo)
     _ -> Nothing
 
--- Função para converter uma AvaliacaoFisica em uma string no formato esperado
-toStringAvaliacaoFisica :: AvaliacaoFisica.AvaliacaoFisica -> String
-toStringAvaliacaoFisica (AvaliacaoFisica.AvaliacaoFisica dataAvaliacao atributos) =
-    intercalate " "
-        [show dataAvaliacao, show (peso atributos), show (altura atributos), show (idade atributos), show (objetivo atributos)]
+toStringAvaliacaoFisica :: AvaliacaoFisica -> String
+toStringAvaliacaoFisica avaliacao =
+    intercalate "," [show (avaliacaoId avaliacao), dataAvaliacao avaliacao, show (peso avaliacao), show (altura avaliacao), show (idade avaliacao), objetivo avaliacao]
+
+verificarIMC :: Int -> IO ()
+verificarIMC alunoId = do
+    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    contents <- hGetContents handle
+    let linhas = lines contents
+        ids = primeirosElementos linhas
+    if not (verificandoId (show alunoId) ids)
+        then putStrLn "ID do aluno não encontrado."
+        else do
+            let avaliacaoAluno = filtrarId alunoId linhas
+            if null avaliacaoAluno
+                then putStrLn "Avaliação física do aluno não encontrada."
+                else do
+                    let [_, _, pesoStr, alturaStr, _, _] = head avaliacaoAluno
+                        pesoAluno = read pesoStr :: Float
+                        alturaAluno = read alturaStr :: Float
+                        imcAluno = calcularIMC pesoAluno alturaAluno
+                        faixaIMC = calcularFaixaIMC imcAluno
+                        recomendacao = obterRecomendacaoIMC faixaIMC
+                    putStrLn $ "IMC do aluno: " ++ show imcAluno ++ " - " ++ faixaIMC
+                    putStrLn $ "Recomendação: " ++ recomendacao
+    hClose handle
+
+obterRecomendacaoIMC :: String -> String
+obterRecomendacaoIMC faixaIMC
+    | faixaIMC == "Baixo peso Grau III" = "Recomenda-se procurar um médico imediatamente."
+    | faixaIMC == "Baixo peso Grau II" = "Recomenda-se aumentar a ingestão calórica e buscar orientação médica."
+    | faixaIMC == "Baixo peso Grau I" = "Recomenda-se aumentar a ingestão calórica e praticar exercícios físicos regularmente."
+    | faixaIMC == "Peso normal" = "Parabéns! Seu peso está dentro da faixa saudável. Continue mantendo hábitos saudáveis."
+    | faixaIMC == "Sobrepeso" = "Recomenda-se controlar a dieta e aumentar a prática de exercícios físicos."
+    | faixaIMC == "Obesidade Grau I" = "Recomenda-se uma dieta balanceada e acompanhamento médico regular."
+    | faixaIMC == "Obesidade Grau II" = "Recomenda-se buscar orientação médica para iniciar um programa de perda de peso."
+    | otherwise = "Recomenda-se procurar um médico para avaliação detalhada."
 
 
--- Função para calcular o idade e determinar a faixa
-calcularidade :: Float -> Float -> String
-calcularidade peso altura
-    | altura <= 0 = "Altura inválida"
-    | peso <= 0 = "Peso inválido"
-    | otherwise = faixaidade (peso / (altura * altura))
 
--- Função para determinar a faixa do idade
-faixaidade :: Float -> String
-faixaidade imc
+-- Função para calcular o IMC
+calcularIMC :: Float -> Float -> Float
+calcularIMC peso altura
+    | altura <= 0 = 0
+    | otherwise = peso / (altura * altura)
+
+-- Função para determinar a faixa de IMC
+calcularFaixaIMC :: Float -> String
+calcularFaixaIMC imc
     | imc < 16.0 = "Baixo peso Grau III"
     | imc < 16.9 = "Baixo peso Grau II"
     | imc < 18.4 = "Baixo peso Grau I"
@@ -310,6 +458,8 @@ faixaidade imc
     | imc < 34.9 = "Obesidade Grau I"
     | imc < 39.9 = "Obesidade Grau II"
     | otherwise = "Obesidade Grau III"
+
+
 
 --TREINO
 

@@ -34,3 +34,4 @@ data Funcionario = Funcionario
     salario :: Salario
   }
   deriving (Show)
+

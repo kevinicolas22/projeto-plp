@@ -30,7 +30,7 @@ main = do
         "5" -> lerTodosFuncionarios
         "6" -> menuAvaliacaoFisica
         "7" -> menuTreinoF
-        "7" -> putStrLn "Saindo..."
+        "8" -> putStrLn "Saindo..."
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
 
 
@@ -110,24 +110,80 @@ menuAvaliacaoFisica :: IO ()
 menuAvaliacaoFisica = do
     putStrLn "Menu de Avaliação Física"
     putStrLn "1. Realizar Avaliação Física"
-    putStrLn "2. Visualizar Avaliações Físicas Anteriores"
-    putStrLn "3. Voltar ao Menu Principal"
+    putStrLn "2. Buscar Avaliação por ID"
+    putStrLn "3. Listar Todas as Avaliações Físicas"
+    putStrLn "4. Atualizar Avaliação Física"
+    putStrLn "5. Verificar IMC"
+    putStrLn "6. Remover Avaliação Física"
+    putStrLn "7. Voltar ao Menu Principal"
     opcao <- getLine
     case opcao of
         "1" -> do
             putStrLn "Realizando avaliação física..."
-            adicionarAvaliacaoFisica
+            nova_avaliacao <- criarAvaliacaoFisica
+            adicionarAvaliacaoFisica nova_avaliacao
             putStrLn "Avaliação física concluída."
-            main  
-        "2" -> visualizarAvaliacoesAnteriores
-        "3" -> putStrLn "Voltando ao Menu Principal..."
+            menuAvaliacaoFisica 
+        "2" -> do 
+            putStrLn "Digite o ID da avaliação física que deseja visualizar:"
+            id <- readLn :: IO Int
+            lerAvaliacaoFisicaPorId id
+            menuAvaliacaoFisica
+        "3" -> do
+            putStrLn "Listando todas as avaliações físicas..."
+            listarTodasAvaliacoesFisicas
+            menuAvaliacaoFisica
+        "4" -> atualizarAvaliacaoFisicaOpcao
+        "5" -> do
+            putStrLn "Verificar IMC. Digite o ID da avaliação fisica aluno para verificar o IMC:"
+            id <- readLn :: IO Int
+            verificarIMC id
+            menuAvaliacaoFisica
+        "6" -> do
+            putStrLn "Digite o ID da avaliação física que deseja remover:"
+            id <- readLn :: IO Int
+            removerAvaliacaoFisicaPorId id
+            menuAvaliacaoFisica
+        "7" -> do 
+            putStrLn "Voltando ao Menu Principal..."
+            main 
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAvaliacaoFisica
-      
 
 
--- Função para visualizar avaliações físicas anteriores
-visualizarAvaliacoesAnteriores :: IO ()
-visualizarAvaliacoesAnteriores = putStrLn "Visualizando avaliações físicas anteriores..."
+atualizarAvaliacaoFisicaOpcao :: IO ()
+atualizarAvaliacaoFisicaOpcao = do
+    putStrLn "Digite o ID da avaliação física que deseja atualizar:"
+    id <- getLine
+    putStrLn "Escolha o dado da avaliação física a ser atualizado:"
+    putStrLn "1. Data da Avaliação"
+    putStrLn "2. Peso"
+    putStrLn "3. Altura"
+    putStrLn "4. Idade"
+    putStrLn "5. Objetivo"
+    escolha <- getLine
+    case escolha of
+        "1" -> do
+            putStrLn "Digite a nova data da avaliação:"
+            novaData <- getLine
+            atualizarAvaliacaoFisicaPorId (read id) (AvaliacaoFisica {avaliacaoId = read id, dataAvaliacao = novaData, peso = 0.0, altura = 0.0, idade = 0, objetivo = ""})
+        "2" -> do
+            putStrLn "Digite o novo peso:"
+            novoPeso <- readLn :: IO Float
+            atualizarAvaliacaoFisicaPorId (read id) (AvaliacaoFisica {avaliacaoId = read id, dataAvaliacao = "", peso = novoPeso, altura = 0.0, idade = 0, objetivo = ""})
+        "3" -> do
+            putStrLn "Digite a nova altura:"
+            novaAltura <- readLn :: IO Float
+            atualizarAvaliacaoFisicaPorId (read id) (AvaliacaoFisica {avaliacaoId = read id, dataAvaliacao = "", peso = 0.0, altura = novaAltura, idade = 0, objetivo = ""})
+        "4" -> do
+            putStrLn "Digite a nova idade:"
+            novaIdade <- readLn :: IO Int
+            atualizarAvaliacaoFisicaPorId (read id) (AvaliacaoFisica {avaliacaoId = read id, dataAvaliacao = "", peso = 0.0, altura = 0.0, idade = novaIdade, objetivo = ""})
+        "5" -> do
+            putStrLn "Digite o novo objetivo:"
+            novoObjetivo <- getLine
+            atualizarAvaliacaoFisicaPorId (read id) (AvaliacaoFisica {avaliacaoId = read id, dataAvaliacao = "", peso = 0.0, altura = 0.0, idade = 0, objetivo = novoObjetivo})
+        _   -> putStrLn "Opção inválida."
+    menuAvaliacaoFisica
 
 --TREINO
 menuTreinoF :: IO()
