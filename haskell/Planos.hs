@@ -23,7 +23,7 @@ data Plano = Plano {
     horaEntradaMaxima:: HoraEntradaMaxima,
     horaEntradaMinima:: HoraEntradaMinima 
 }
-    deriving (Show, Eq)
+    
 
 -- Valores predefinidos para cada tipo de plano
 planoLight :: Plano
@@ -36,7 +36,8 @@ planoLight = Plano {
     horaEntradaMinima = 10
 }
 
-
+instance Show Plano where
+    show plano = show (tipo plano)
 
 planoGold :: Plano
 planoGold = Plano {
@@ -59,6 +60,12 @@ planoPremium = Plano {
     horaEntradaMinima = 5
 } 
 
+instance Read PlanoTipo where
+  readsPrec _ str = case str of
+    "Light" -> [(Light, "")]
+    "Gold"  -> [(Gold, "")]
+    "Premium" -> [(Premium, "")]
+    _       -> []
 
 detalhesPlano :: PlanoTipo -> String
 detalhesPlano Light = detalhesPlano'' planoLight

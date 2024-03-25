@@ -64,7 +64,9 @@ executable projeto-plp1
     -- Modules included in this executable, other than Main.
     other-modules: Aluno 
     other-modules: Planos
-    other-modules: AlunoController 
+    other-modules: AlunoController
+    other-modules: Aula 
+    other-modules: Treino 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
@@ -76,7 +78,11 @@ executable projeto-plp1
     build-depends:    network
     build-depends:    mime-mail
     build-depends:    text
-    
+    build-depends:    split == 0.2.5
+    build-depends:    aeson >= 1.5
+    build-depends:    directory >= 1.3 && < 1.4
+    build-depends:    http-conduit
+    build-depends:    bytestring >= 0.10 && < 0.12
 
     -- Directories containing source files.
     hs-source-dirs:   haskell
