@@ -79,15 +79,14 @@ menuFuncionarioG = do
     putStrLn "║   c. Listar funcionario                    ║"
     putStrLn "║   d. Consultar funcionario                 ║"
     putStrLn "║   e. Remover funcionario                   ║" 
-    putStrLn "║   f. Voltar para o menu                    ║"
+    putStrLn "║   f. Consultar funcionario                 ║"
+    putStrLn "║   g. Voltar para o menu                    ║"
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoFuncionarioG <- getLine
     case opcaoFuncionarioG of
         "a" -> -- nome das funcoes
         "f" -> main
         _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionarioG
-
-
 
 
 menuMaquinaG :: IO ()
@@ -136,8 +135,8 @@ listarEquipamentos = do
   lerMaquinas "maquina.txt" >> menuMaquina
 
 
-menuAlunoG :: IO()
-menuAlunoG = do
+menuFinanceiroG :: IO()
+menuFinanceiroG = do
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║           Opções sobre Financeiro:         ║"
     putStrLn "║                                            ║"
@@ -147,11 +146,19 @@ menuAlunoG = do
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoAlunoG <- getLine
     case opcaoAlunoG of
-        "a" -> ----
+        "a" -> folhaDePagamento
         "b" -> ----
         "c" -> main
-        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAlunoG
+        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFinanceiroG
 
+
+folhaDePagamento :: IO()
+folhaDePagamento = do
+    putStrLn "Digite o ID do funcionário para calcular a folha de pagamento:"
+    targetId <- getLine 
+    let numero = read targetId :: Int
+    folhaPagamentoFuncionario numero
+    menuFinanceiroG
 
 sair :: IO ()
 sair = do

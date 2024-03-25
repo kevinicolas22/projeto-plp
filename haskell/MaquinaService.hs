@@ -4,6 +4,7 @@ import Maquina
 import Data.List (intercalate)
 import System.IO
 import Data.List (sortOn)
+import Text.Read (readMaybe)
 import Data.List.Split
 import Data.Maybe (mapMaybe, maybeToList)
 import Data.List.Split (splitOn)
@@ -15,8 +16,8 @@ primeirosElementos linhas = map (\linha -> head(splitOn","linha))linhas
 
 
 -- Função que verifica se uma string está presente em uma lista de strings.
-verificandoId :: String -> [String] -> Bool
-verificandoId str xs = str `elem` xs
+verificandoIdG :: String -> [String] -> Bool
+verificandoIdG str xs = str `elem` xs
 
 -- Função para adicionar uma maquina arquivo
 adicionarMaquina :: Maquina -> IO ()
@@ -26,7 +27,7 @@ adicionarMaquina nova_maquina = do
   let linhas = lines conteudo
       ids = primeirosElementos linhas
       idNovo = codigoMaquina nova_maquina  
-  if verificandoId (show idNovo) ids
+  if verificandoIdG (show idNovo) ids
     then putStrLn "ID já em uso. Escolha um ID diferente."
     else appendFile "maquina.txt" (toStringMaquina nova_maquina ++ "\n")
   hClose conexao
@@ -81,7 +82,7 @@ adicionarMaquinaReparo reparo_maquina = do
   let linhas = lines conteudo
       ids = primeirosElementos linhas
       idNovo = codigoMaquina reparo_maquina
-  if verificandoId (show idNovo) ids
+  if verificandoIdG (show idNovo) ids
     then putStrLn "ID inexistente. Escolha um ID diferente."
     else appendFile "maquina_reparo.txt" (toStringMaquina reparo_maquina ++ "\n")
   hClose conexao

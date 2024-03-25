@@ -62,7 +62,7 @@ atualizarFuncionarioOpcao = do
     id <- getLine
     putStrLn "Escolha o dado do funcionário a ser atualizado:"
     putStrLn "1. Nome"
-    putStrLn "2. CPF"
+    putStrLn "2. cpfG"
     putStrLn "3. Endereço"
     putStrLn "4. Telefone"
     putStrLn "5. Data de Ingresso"
@@ -72,27 +72,27 @@ atualizarFuncionarioOpcao = do
         "1" -> do
             putStrLn "Digite o novo nome:"
             novoNome <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = novoNome, cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = novoNome, cpfG = "", endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
         "2" -> do
-            putStrLn "Digite o novo CPF:"
-            novoCPF <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = novoCPF, endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
+            putStrLn "Digite o novo cpfG:"
+            novocpfG <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpfG = novocpfG, endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
         "3" -> do
             putStrLn "Digite o novo endereço:"
             novoEndereco <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = novoEndereco, telefone = "", data_ingresso = "", salario = 0.0})
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpfG = "", endereco = novoEndereco, telefone = "", data_ingresso = "", salario = 0.0})
         "4" -> do
             putStrLn "Digite o novo telefone:"
             novoTelefone <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = novoTelefone, data_ingresso = "", salario = 0.0})
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpfG = "", endereco = "", telefone = novoTelefone, data_ingresso = "", salario = 0.0})
         "5" -> do
             putStrLn "Digite a nova data de ingresso:"
             novaData <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = novaData, salario = 0.0})
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpfG = "", endereco = "", telefone = "", data_ingresso = novaData, salario = 0.0})
         "6" -> do
             putStrLn "Digite o novo salário:"
             novoSalario <- readLn :: IO Float
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = novoSalario})
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpfG = "", endereco = "", telefone = "", data_ingresso = "", salario = novoSalario})
         _   -> putStrLn "Opção inválida."
     main
 

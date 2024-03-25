@@ -6,6 +6,12 @@ import Manager
 import System.IO
 import Data.List
 import Data.List.Split
+import Funcionario
+import FuncionarioService
+import Data.Maybe (listToMaybe)
+import Text.Read (readMaybe)
+import Data.List (find)
+import Text.Printf
 import Data.List (null) 
 import Data.Char (isDigit)
 import Data.List (intercalate)
@@ -22,39 +28,39 @@ criarGestor = do
     conexao <- openFile "manager.txt" ReadMode
     assunto <- hGetContents conexao
     let linhas = lines assunto
-        ids = primeirosElementos linhas
+        ids = primeirosElementosG linhas
     if id `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
             hClose conexao
             criarGestor
         else do
-            putStrLn "Digite o seu CPF (formatação 000.000.000-00): "
-            cpf <- getLine
-            case delimitarCpf cpf of
-                Just cpfDelimitado -> do
-                    putStrLn "Digite o seu nome: "
-                    nome <- getLine
+            putStrLn "Digite o seu cpfG (formatação 000.000.000-00): "
+            cpfG <- getLine
+            case delimitarCpfG cpfG of
+                Just cpfGDelimitado -> do
+                    putStrLn "Digite o seu nomeG: "
+                    nomeG <- getLine
 
                     putStrLn "Digite sua data de nascimento (formato dd/mm/aaaa): "
                     nascimento <- getLine
                     case delimitarNascimento nascimento of
                         Just nascimentoDelimitado -> do
-                            putStrLn "Digite seu telefone (formato DDD000000000): "
-                            telefone <- getLine
-                            case delimitarTelefone telefone of
-                                Just telefoneDelimitado -> do
+                            putStrLn "Digite seu telefoneG (formato DDD000000000): "
+                            telefoneG <- getLine
+                            case delimitarTelefoneG telefoneG of
+                                Just telefoneGDelimitado -> do
                                     putStrLn "Digite seu endereço: "
-                                    endereco <- getLine
-                                    return (Manager (read id) (show cpf) nome nascimentoDelimitado (show telefoneDelimitado) endereco)
+                                    enderecoG <- getLine
+                                    return (Manager (read id) (show cpfG) nomeG nascimentoDelimitado (show telefoneGDelimitado) enderecoG)
                                 Nothing -> do
-                                    putStrLn "Telefone inválido. Por favor, digite novamente."
+                                    putStrLn "telefoneG inválido. Por favor, digite novamente."
                                     criarGestor
                         Nothing -> do
                             putStrLn "Data de nascimento inválida. Por favor, digite novamente."
                             criarGestor
                 Nothing -> do
-                    putStrLn "CPF inválido. Por favor, digite novamente."
+                    putStrLn "cpfG inválido. Por favor, digite novamente."
                     criarGestor
 
 
@@ -65,9 +71,9 @@ adicionarGestor novo_gestor = do
   conexao <- openFile "manager.txt" ReadMode
   assunto <- hGetContents conexao
   let linhas = lines assunto
-      ids = primeirosElementos linhas
+      ids = primeirosElementosG linhas
       idNovo = managerId novo_gestor
-  if verificandoId (show idNovo) ids
+  if verificandoIdG (show idNovo) ids
     then putStrLn "ID já em uso. Escolha um ID diferente."
     else appendFile "manager.txt" (toStringManager novo_gestor ++ "\n")
   hClose conexao
@@ -79,11 +85,11 @@ lerGestorPorId targetId = do
     conexao <- openFile "manager.txt" ReadMode
     assunto <- hGetContents conexao
     let linhas = lines assunto
-        ids = primeirosElementos linhas
-    if not (verificandoId (show targetId) ids)
+        ids = primeirosElementosG linhas
+    if not (verificandoIdG (show targetId) ids)
         then putStrLn "ID não encontrado."
         else do 
-            let dadosGestor = filtrarId targetId linhas 
+            let dadosGestor = filtrarIdG targetId linhas 
             case dadosGestor of
                 Nothing -> putStrLn "Gestor não encontrado."
                 Just gestor -> do
@@ -97,13 +103,13 @@ atualizarGestorPorId targetId novoGestor = do
   handle <- openFile "manager.txt" ReadMode
   contents <- hGetContents handle
   let linhas = lines contents
-      ids = primeirosElementos linhas
-  if not (verificandoId (show targetId) ids)
+      ids = primeirosElementosG linhas
+  if not (verificandoIdG (show targetId) ids)
     then putStrLn "Gestor não encontrado."
     else do
       (tempName, tempHandle) <- openTempFile "." "temp"
       let linhasAtualizadas = map (\linha ->
-                                      if verificandoId (show targetId) (primeirosElementos [linha])
+                                      if verificandoIdG (show targetId) (primeirosElementosG [linha])
                                           then atualizarDadosGestor linha novoGestor
                                           else linha) linhas
       hPutStr tempHandle (unlines linhasAtualizadas)
@@ -114,12 +120,12 @@ atualizarGestorPorId targetId novoGestor = do
 
 --- Funçao para atualizar os dados de um gestor
 atualizarDadosGestor :: String -> Manager -> String
-atualizarDadosGestor linha (Manager id cpf nome endereco telefone dataNascimento) =
+atualizarDadosGestor linha (Manager id cpfG nomeG enderecoG telefoneG dataNascimento) =
   let dadosAntigos = splitOn "," linha
-      novosDados = [show id, if null cpf then dadosAntigos !! 1 else cpf,
-                    if null nome then dadosAntigos !! 2 else nome,
-                    if null endereco then dadosAntigos !! 3 else endereco,
-                    if null telefone then dadosAntigos !! 4 else telefone,
+      novosDados = [show id, if null cpfG then dadosAntigos !! 1 else cpfG,
+                    if null nomeG then dadosAntigos !! 2 else nomeG,
+                    if null enderecoG then dadosAntigos !! 3 else enderecoG,
+                    if null telefoneG then dadosAntigos !! 4 else telefoneG,
                     if null dataNascimento then dadosAntigos !! 5 else dataNascimento]
   in intercalate "," novosDados
 
@@ -129,12 +135,12 @@ removerGestorPorId targetId = do
     handle <- openFile "manager.txt" ReadMode
     contents <- hGetContents handle
     let linhas = lines contents
-        ids = primeirosElementos linhas
-    if not (verificandoId (show targetId) ids)
+        ids = primeirosElementosG linhas
+    if not (verificandoIdG (show targetId) ids)
       then putStrLn "Gestor não encontrado."
       else do
         (tempName, tempHandle) <- openTempFile "." "temp"
-        let linhasFiltradas = filter (\linha -> not $ verificandoId (show targetId) (primeirosElementos [linha])) linhas
+        let linhasFiltradas = filter (\linha -> not $ verificandoIdG (show targetId) (primeirosElementosG [linha])) linhas
         hPutStr tempHandle (unlines linhasFiltradas)
         hClose handle
         hClose tempHandle
@@ -161,18 +167,18 @@ mostrarGestores gestores = mapM_ mostrarGestor gestores
 mostrarGestor :: Manager -> IO ()
 mostrarGestor gestor = putStrLn $ unlines
     [ "Id: " ++ show (managerId gestor)
-    , "Nome: " ++ nome gestor
-    , "CPF: " ++ cpf gestor
-    , "Endereço: " ++ endereco gestor
-    , "Telefone: " ++ telefone gestor
+    , "nomeG: " ++ nomeG gestor
+    , "cpfG: " ++ cpfG gestor
+    , "Endereço: " ++ enderecoG gestor
+    , "telefoneG: " ++ telefoneG gestor
     , "Data de Nascimento: " ++ dataNascimento gestor
     ]
 
 --- Função para converter uma linha do arquivo em um Manager
 parseManager :: String -> Maybe Manager
 parseManager linha = case splitOn "," linha of
-    [managerId, cpf, nome, dataNascimento, telefone, endereco] ->
-        Just (Manager (read managerId) cpf nome dataNascimento telefone endereco)
+    [managerId, cpfG, nomeG, dataNascimento, telefoneG, enderecoG] ->
+        Just (Manager (read managerId) cpfG nomeG dataNascimento telefoneG enderecoG)
     _ -> Nothing
 
 
@@ -180,31 +186,73 @@ parseManager linha = case splitOn "," linha of
 
     --- Funções auxiliares
 
-verificandoId :: String -> [String] -> Bool
-verificandoId str xs = str `elem` xs
+verificandoIdG :: String -> [String] -> Bool
+verificandoIdG str xs = str `elem` xs
 
 toStringManager :: Manager -> String
-toStringManager gestor = intercalate ", " [show (managerId gestor), show (cpf gestor), nome gestor, dataNascimento gestor, show (telefone gestor), endereco gestor]
+toStringManager gestor = intercalate ", " [show (managerId gestor), show (cpfG gestor), nomeG gestor, dataNascimento gestor, show (telefoneG gestor), enderecoG gestor]
 
-primeirosElementos :: [String] -> [String]
-primeirosElementos linhas = map (\linha -> head(splitOn","linha))linhas
+primeirosElementosG :: [String] -> [String]
+primeirosElementosG linhas = map (\linha -> head(splitOn","linha))linhas
 
 
-filtrarId :: Int -> [String] -> Maybe Manager
-filtrarId id listaG = do
-    let listaP = primeirosElementos listaG
-        posicao = posicaoIdLista id listaP
+filtrarIdG :: Int -> [String] -> Maybe Manager
+filtrarIdG id listaG = do
+    let listaP = primeirosElementosG listaG
+        posicao = posicaoIdListaG id listaP
     --sabendo que a posicao da listaP e a mesma da listaG, com os mesmos valores
     let gestorDados = splitOn "," (listaG !! posicao)
     case gestorDados of
-        [managerId, cpf, nome, dataNascimento, telefone, endereco] ->
-            Just (Manager (read managerId) cpf nome dataNascimento telefone endereco)
+        [managerId, cpfG, nomeG, dataNascimento, telefoneG, enderecoG] ->
+            Just (Manager (read managerId) cpfG nomeG dataNascimento telefoneG enderecoG)
         _ -> Nothing
 
 -- Função que retorna a posição na lista do ID fornecido.
-posicaoIdLista :: Int -> [String] -> Int
-posicaoIdLista id lista = do
+posicaoIdListaG :: Int -> [String] -> Int
+posicaoIdListaG id lista = do
     let posUltimo = (length (lista) - 1)
     if id == read(lista !! posUltimo)
         then posUltimo
-        else posicaoIdLista id (take posUltimo lista)
+        else posicaoIdListaG id (take posUltimo lista)
+
+
+-- Função para calcular o benefício de 10%
+calcularBeneficio :: Float -> Float
+calcularBeneficio salario = salario * 0.1
+
+-- Função para imprimir a folha de pagamento
+imprimirFolhaPagamento :: Funcionario -> IO ()
+imprimirFolhaPagamento funcionario = do
+  let salarioBruto = salario funcionario
+      beneficio = calcularBeneficio salarioBruto
+      salarioTotal = salarioBruto + beneficio
+  putStrLn $ "| ID: " ++ show (funcId funcionario)
+  putStrLn $ "| Nome: " ++ nome funcionario
+  putStrLn $ "| Data de Ingresso: " ++ data_ingresso funcionario
+  putStrLn $ "| Benefício: " ++ show beneficio
+  putStrLn $ "| Salário Bruto: R$ " ++ show salarioBruto
+  putStrLn $ "| Salário com Benefício (10%): R$ " ++ show salarioTotal
+
+filtrarIdF :: Int -> [String] -> [[String]]
+filtrarIdF id listaG = do
+    let listaP = primeirosElementos listaG
+        posicao = posicaoIdLista id listaP
+    --sabendo que a posicao da listaP é a mesma da listaG, com os mesmos valores
+    return (splitOn "," (listaG !! posicao))
+
+folhaPagamentoFuncionario :: Int -> IO ()
+folhaPagamentoFuncionario targetId = do
+  conexao <- openFile "funcionario.txt" ReadMode
+  conteudo <- hGetContents conexao
+  let linhas = lines conteudo
+      funcionarioInfos = filtrarId targetId linhas
+  case listToMaybe funcionarioInfos of
+    Nothing -> putStrLn "ID não encontrado."
+    Just [] -> putStrLn "Funcionário não encontrado."
+    Just (idStr:nome:cpf:endereco:telefone:dataIngresso:salarioStr:_) -> do
+      let funcionario = Funcionario { funcId = read idStr, nome = nome, cpf = cpf, endereco = endereco, telefone = telefone, data_ingresso = dataIngresso, salario = read salarioStr }
+      putStrLn "FOLHA DE PAGAMENTO:"
+      imprimirFolhaPagamento funcionario
+  hClose conexao
+
+

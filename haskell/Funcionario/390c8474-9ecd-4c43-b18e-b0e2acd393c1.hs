@@ -67,7 +67,7 @@ criarFuncionario = do
       endereco <- getLine
 
       putStrLn "Digite o seu telefone 11 dígitos ex: 08391234567"
-      telefone <- obterInformacao "telefone" delimitarTelefone
+      telefone <- obterInformacao "telefone" delimitarTelefoneG
 
       putStrLn "Digite a data de ingresso 8 dígitos ex: DDMMAAAA"
       data_ingresso <- obterInformacao "data de ingresso" delimitarIngresso
@@ -201,8 +201,8 @@ imprimindoFuncionario (x:xs) = do
 
 
 --- Funçao para delimitar o telefone
-delimitarTelefone :: String -> Maybe String
-delimitarTelefone telefone
+delimitarTelefoneG :: String -> Maybe String
+delimitarTelefoneG telefone
     | length numeros == 11 = Just telefone
     | otherwise = Nothing
     where
