@@ -10,6 +10,7 @@ import Data.Char (toUpper)
 import AvaliacaoFisica
 import Treino
 
+-- menu voltado pra testes
 -- Função principal
 main :: IO ()
 main = do
@@ -34,6 +35,30 @@ main = do
         "8" -> putStrLn "Saindo..."
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
 
+--Esse menu menuFuncionarioF vai ser usado pelo gestor
+menuFuncionarioF :: IO()
+menuFuncionarioF = do
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║           Opções sobre Funcionario:        ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   a. Criar                                 ║"
+    putStrLn "║   b. Listar por id                         ║"
+    putStrLn "║   c. Listar todos funcionarios             ║"
+    putStrLn "║   d. Alterar                               ║"
+    putStrLn "║   e. Excluir                               ║"
+    putStrLn "║   f. Voltar para o menu principal          ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    putStrLn "Digite a opção: "
+    opcaoFuncionarioF <- getLine
+    let opcao = map toUpper opcaoFuncionarioF
+    case opcao of
+        "A" -> adicionarFuncionarioOpcao
+        "B" -> lerFuncionarioOpcao
+        "C" -> lerTodosFuncionarios
+        "D" -> atualizarFuncionarioOpcao
+        "E" -> removerFuncionarioOpcao
+        "F" -> main
+        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionarioF
 
 -- Opção para adicionar um funcionário
 adicionarFuncionarioOpcao :: IO ()
@@ -109,43 +134,48 @@ removerFuncionarioOpcao = do
 -- Função para o menu de avaliação física
 menuAvaliacaoFisica :: IO ()
 menuAvaliacaoFisica = do
-    putStrLn "Menu de Avaliação Física"
-    putStrLn "1. Realizar Avaliação Física"
-    putStrLn "2. Buscar Avaliação por ID"
-    putStrLn "3. Listar Todas as Avaliações Físicas"
-    putStrLn "4. Atualizar Avaliação Física"
-    putStrLn "5. Verificar IMC"
-    putStrLn "6. Remover Avaliação Física"
-    putStrLn "7. Voltar ao Menu Principal"
-    opcao <- getLine
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║         Menu de Avaliação Física           ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   a. Realizar Avaliação Física             ║"            
+    putStrLn "║   b. Buscar Avaliação por ID               ║"
+    putStrLn "║   c. Listar Todas as Avaliações Físicas    ║"
+    putStrLn "║   d. Atualizar Avaliação Física            ║"
+    putStrLn "║   e. Verificar IMC                         ║"
+    putStrLn "║   f. Remover Avaliação Física              ║"
+    putStrLn "║   g. Voltar ao Menu Principal              ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    putStrLn "Digite a opção: "
+    opcaoAvaliacaoFisica <- getLine
+    let opcao = map toUpper opcaoAvaliacaoFisica
     case opcao of
-        "1" -> do
+        "A" -> do
             putStrLn "Realizando avaliação física..."
             nova_avaliacao <- criarAvaliacaoFisica
             adicionarAvaliacaoFisica nova_avaliacao
             putStrLn "Avaliação física concluída."
             menuAvaliacaoFisica 
-        "2" -> do 
+        "B" -> do 
             putStrLn "Digite o ID da avaliação física que deseja visualizar:"
             id <- readLn :: IO Int
             lerAvaliacaoFisicaPorId id
             menuAvaliacaoFisica
-        "3" -> do
+        "C" -> do
             putStrLn "Listando todas as avaliações físicas..."
             listarTodasAvaliacoesFisicas
             menuAvaliacaoFisica
-        "4" -> atualizarAvaliacaoFisicaOpcao
-        "5" -> do
+        "D" -> atualizarAvaliacaoFisicaOpcao
+        "E" -> do
             putStrLn "Verificar IMC. Digite o ID da avaliação fisica aluno para verificar o IMC:"
             id <- readLn :: IO Int
             verificarIMC id
             menuAvaliacaoFisica
-        "6" -> do
+        "F" -> do
             putStrLn "Digite o ID da avaliação física que deseja remover:"
             id <- readLn :: IO Int
             removerAvaliacaoFisicaPorId id
             menuAvaliacaoFisica
-        "7" -> do 
+        "G" -> do 
             putStrLn "Voltando ao Menu Principal..."
             main 
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAvaliacaoFisica
