@@ -1,4 +1,4 @@
-001;0;joao;938.802.834-02;Rua professor lima - 140;83 982899382;Light;[("Peito", ["supino","flexao","esteira"])];True;jp22;Everton@gmail;[("DAN\199A COLETIVA","Segunda e quarta, das 18:00 \224s 19:30",["Light", "Gold", "Premium"])]
+001;0;joao;938.802.834-02;Rua professor lima - 140;83 982899382;Premium;[("Peito",["supino","flexao","esteira"])];False;jp22;Everton@gmail;[("DAN\199A COLETIVA","Segunda e quarta, das 18:00 \224s 19:30",["Light", "Gold", "Premium"])]
 002;0;Joao pedro;066.399.304-04;aa;jdo;Premium;[];False;jp14;jpcros@;[("BOXE","Ter\231a e Quinta, das 20:00 \224s 21:30",["Premium"])]
 003;0;jo;999.999.999-99;jo;jo;Light;[];False;1234;jo;[]
 004;0;nata;222.222.222-22;rara;joaodka;Light;[];False;natacavalcante28@gmail.com;joaadad;[]

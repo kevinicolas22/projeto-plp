@@ -156,7 +156,6 @@ loginAluno= do
             then do exibirMensagemTemporaria "\n!! Matricula não encontrada. Tente novamente... !!"
                     loginAluno
       else do
-            
             alunoEncontrado<- recuperaAlunoMatricula matriculaAluno
             if not(matriculaAluno == matricula alunoEncontrado)
                   then do
@@ -335,7 +334,7 @@ meusDados aluno= do
       limparTerminal
       putStrLn ("   ======= "++nome aluno++ " =======\n")
       putStr (exibirAluno aluno)
-      putStrLn "\n\n>       [0] Voltar ao menu     [1] Editar dados "
+      putStrLn "\n\n>  [0] Voltar ao menu     [1] Editar dados "
       opçao <- getLine
       case opçao of
             "0"-> homeAluno aluno
@@ -416,7 +415,7 @@ enviarEmail aluno opçao= do
         subject    = T.pack "Pagamento de Mensalidade"
         body       = plainTextPart (TL.pack (nomeCaps++" EFETUOU O PAGAMENTO DO MÊS\n\n R$"++ show (valorMensal planoAtual)++"\n FORMA DE PAGAMENTO: "++ opçao++ "\n MATRÍCULA: "++ show(matricula aluno)))
     let mail = simpleMail from to cc bcc subject [body]
-    sendMailWithLoginSTARTTLS "smtp.gmail.com" "jpcros40414@gmail.com" "sudx dymy kypg ocez" mail
+    sendMailWithLoginSTARTTLS "smtp.gmail.com" "alunocodefit@gmail.com" "dhvz rvdb bhsv goqu" mail
 
 
 
