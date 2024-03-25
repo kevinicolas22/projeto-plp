@@ -1,5 +1,5 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Main where
+
+module MainAluno where
 import AlunoController
 import Aluno
 import System.Console.ANSI

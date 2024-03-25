@@ -17,7 +17,7 @@ import Data.List.Split
 
 
 
-criarAluno :: IO Aluno
+criarAluno :: IO()
 criarAluno = do
   hFlush stdout
   clearScreen
@@ -93,7 +93,7 @@ criarAluno = do
             when (confirma /= '\n') $ void getChar -- Aguarda o Enter
             let alunoCriado = Aluno { alunoId = 0, nome = nomeAluno, cpf = cpfDelimitado, endereço = endereçoAluno, contato = contatoAluno, planoAluno = planoEscolhido, treinos = [], emDia = False, matricula= matriculaAluno, senha= senhaAluno, email = emailAluno, aulas = []}
             appendFile "haskell/Aluno.txt" (alunoToString alunoCriado ++ "\n") 
-            return alunoCriado  
+          
 
 
 

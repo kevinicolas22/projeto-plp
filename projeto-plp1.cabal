@@ -59,7 +59,7 @@ executable projeto-plp1
     import:           warnings
 
     -- .hs or .lhs file containing the Main module.
-    main-is:          mainAluno.hs
+    main-is:          mainPrincipal.hs
 
     -- Modules included in this executable, other than Main.
     other-modules: Aluno 
@@ -67,6 +67,13 @@ executable projeto-plp1
     other-modules: AlunoController
     other-modules: Aula 
     other-modules: Treino 
+    other-modules: MainAluno
+    other-modules: FuncionarioService
+    other-modules: AvaliacaoFisica
+    other-modules: Funcionario
+    other-modules: MainFuncionario
+    
+    
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
