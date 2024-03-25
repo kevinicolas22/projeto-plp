@@ -1,4 +1,4 @@
-module Main where
+module MenuFuncionario where
 
 import System.IO
 import Funcionario
@@ -12,8 +12,8 @@ import Treino
 
 -- menu voltado pra testes
 -- Função principal
-main :: IO ()
-main = do
+menuFuncionario :: IO ()
+menuFuncionario = do
     putStrLn "Escolha uma opção:"
     putStrLn "1. Adicionar um funcionário"
     putStrLn "2. Ler informações de um funcionário por Id"

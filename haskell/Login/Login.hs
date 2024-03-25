@@ -12,8 +12,8 @@ type PalavraChave = String
 
 data Login = Login
     {
-        tipoUsuario = TipoUsuario,
-        matricula = Matricula,
-        senha = Senha,
-        palavraChave = PalavraChave
+        tipoUsuario :: TipoUsuario,
+        matricula :: Matricula,
+        senha :: Senha,
+        palavraChave :: PalavraChave
     }deriving (Show)

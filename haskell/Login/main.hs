@@ -1,8 +1,9 @@
-module LoginInterface where
+module Main where
 
 import Login
 import LoginService
 import Data.Char (toUpper)
+import Aluno.MenuAluno
 
 --Interface sistema
 main :: IO()
@@ -15,20 +16,19 @@ main = do
     putStrLn "║   a. Aluno                                            ║"
     putStrLn "║   b. Gestor                                           ║"
     putStrLn "║   c. Funcionario                                      ║"
-    putStrLn "║   d. Cadastrar Usuario                                ║"
     putStrLn "╚═══════════════════════════════════════════════════════╝"
     putStrLn "Digite uma opção: "
     opcao <- getLine
     let opcaoUpper = map toUpper opcao
     case opcaoUpper of
-        "A" -> --menuAluno
-        "B" -> --menuGestor
-        "C" -> --menuFuncionario
-        "D" -> menuLogin
+        "A" -> menuAluno
+        --"B" -> --menuGestor
+        --"C" -> --menuFuncionario
+        --"D" -> menuLogin
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main 
 
 --Função para criar um login
-criarLogin :: IO()
+{-criarLogin :: IO()
 criarLogin = do
     putStrLn "Digite o tipo de usuario (ALUNO, GESTOR, FUNCIONARIO): "
     tipoUsuario <- getLine
@@ -40,3 +40,4 @@ criarLogin = do
     palavraChave <- getLine
 
     let matricula = cadastraLogin tipoUsuario senha confirmacaoSenha palavraChave
+    -}

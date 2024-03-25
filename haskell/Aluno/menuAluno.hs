@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Main where
+module MenuAluno where
 import AlunoController
 import Aluno
 import System.Console.ANSI
@@ -49,8 +49,8 @@ exibeAula :: Aula -> IO ()
 exibeAula aula = do
       putStrLn(showAula aula++"\n\n")
 
-main :: IO ()
-main = do 
+menuAluno :: IO ()
+menuAluno = do 
       loginAluno
 -- Funçao que inicia a pagina manuseada pelo aluno, necessitando da matricula e senha para acessa
 existeMatricula :: String -> String -> Bool
