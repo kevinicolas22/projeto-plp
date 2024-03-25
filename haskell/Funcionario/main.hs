@@ -8,6 +8,7 @@ import FuncionarioService
 import Data.Maybe (mapMaybe)
 import Data.Char (toUpper)
 import AvaliacaoFisica
+import Treino
 
 -- Função principal
 main :: IO ()
@@ -193,17 +194,187 @@ menuTreinoF = do
     putStrLn "║                                            ║"
     putStrLn "║   a. Gerar Treinos                         ║"
     putStrLn "║   b. Visualizar Treino(s)                  ║"
-    putStrLn "║   c. Progresso do aluno                    ║"
-    putStrLn "║   d. Avaliação fisíca do aluno             ║"
-    putStrLn "║   e. Voltar para o menu                    ║"
+    putStrLn "║   c. Visualizar Treinos da academia        ║"
+    putStrLn "║   d. Deletar Treino                        ║"
+    putStrLn "║   e. Alterar Treino                        ║"
+    putStrLn "║   f. Voltar para o menu principal          ║"
     putStrLn "╚════════════════════════════════════════════╝"
+    putStrLn "Digite a opção: "
     opcaoTreinoF <- getLine
-    case opcaoTreinoF of
-        "a" -> funcionarioCriaTreino
-        --"b" -> lerTreinoAluno
+    let opcao = map toUpper opcaoTreinoF
+    case opcao of
+        "A" -> funcionarioCriaTreino
+        "B" -> lerTreinoAluno
+        "C" -> lerTodosTreinosAcademia
+        "D" -> excluirTreino
+        "E" -> atualizarTreinoOpcao
+        "F" -> main
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuTreinoF
 
 
+--Função para o funcionario criar treino de um aluno
+funcionarioCriaTreino :: IO()
+funcionarioCriaTreino = do
+    --falta verificar se existe aluno tratar caso não existie
+    --falta puxar aluno
+    --provisorio
+    putStrLn "Digite a matricula do aluno: "
+    matricula <- readLn :: IO Int
+
+    putStrLn "Digite o tipo de treino (PS - Personalizado ou PR - Padronizado): "
+    tipo_treino <- getLine
+    tipoTreinoValidado <- tipoTreinoCorreto tipo_treino
+
+    putStrLn "Digite a data do treino (DDMMAAAA): "
+    dataTreino <- getLine
+    dataValidada <- dataCorreta dataTreino
+
+
+    let opcao = map toUpper tipoTreinoValidado
+    case opcao of
+        "PS" -> do
+            putStrLn "Insira o treino personalizado( ! :parar finalizar): "
+            personalizado <- lerLinhas '!'
+            cadastraTreino matricula "PS" personalizado dataValidada
+        "PR" -> do
+            putStrLn "Escolha o treino padrão: \n\
+                        \1 - Treino Cardiovascular\n\
+                        \2 - Treino de Definição\n\
+                        \3 - Treino de Forca\n\
+                        \4 - Treino Funcional\n\
+                        \5 - Treino HIIT\n\
+                        \6 - Treino de Hipertrofia\n\
+                        \7 - Treino de Resistência Muscular\n\
+                        \8 - Treino Terapêutico\n"
+
+            putStrLn "Escolha de 1-8: "
+            escolha <- readLn :: IO Int
+            opcaoValidada <- opcaoCorreta escolha
+
+            case opcaoValidada of
+                1 -> do
+                    cadastraTreino matricula "PR" "Treino Cardiovascular" dataValidada
+                2 -> do
+                    cadastraTreino matricula "PR" "Treino de Definição" dataValidada
+                3 -> do
+                    cadastraTreino matricula "PR" "Treino de Forca" dataValidada
+                4 -> do
+                    cadastraTreino matricula "PR" "Treino Funcional" dataValidada
+                5 -> do
+                    cadastraTreino matricula "PR" "Treino HIIT" dataValidada
+                6 -> do
+                    cadastraTreino matricula "PR" "Treino de Hipertrofia" dataValidada
+                7 -> do
+                    cadastraTreino matricula "PR" "Treino de Resistência Muscular" dataValidada
+                8 -> do
+                    cadastraTreino matricula "PR" "Treino Terapêutico" dataValidada
+    menuTreinoF     
+
+--Função para ler treino pela matricula
+lerTreinoAluno :: IO()
+lerTreinoAluno = do
+    putStrLn "Digite a matricula do aluno para visualizar seu treino(s): "
+    matricula <- readLn :: IO Int
+    viewTreinoAluno matricula
+    menuTreinoF
+
+--Função para ler todos os treinos da academia
+lerTodosTreinosAcademia :: IO()
+lerTodosTreinosAcademia = do
+    viewAllTreino
+    menuTreinoF
+
+--Função para escolher um treino, caso tenha mais de um e em seguida o excluir
+excluirTreino :: IO()
+excluirTreino = do
+    putStrLn "Para excluir um treino digite a matricula do aluno: "
+    matricula <- readLn :: IO Int
+    
+    qtdeTreinos <- quantidadeTreinoAluno matricula
+    putStrLn ("Aluno possui " ++ (show qtdeTreinos) ++ " treino(s)")
+
+    if not (qtdeTreinos == 0)
+        then do
+            if qtdeTreinos == 1
+                then do
+                    deleteTreinoMatriculaComUmTreino matricula
+                    menuTreinoF
+                else do
+                    putStrLn "Segue as opções abaixo, escolha apenas UMA opcão para excluir"
+                    putStrLn "(OBS: A opção está na ordem em que a lista geral é apresentada)"
+                    posicoes <- viewPosicoesTreinosMatricula matricula
+                    exibirPosicoesMatricula posicoes
+        
+                    escolha <- readLn :: IO Int
+                    posicaoValidada <- verificaPosicaoDeleteCorreta escolha posicoes
+        
+                    deleteTreinoMatriculaComVariosTreinos matricula posicaoValidada
+                    menuTreinoF
+        else do 
+            putStrLn "Não existe nenhum treino cadastrado com essa matricula"
+            menuTreinoF
+
+--Função para atualizar treino
+atualizarTreinoOpcao :: IO ()
+atualizarTreinoOpcao = do
+    putStrLn "Digite a matrícula do aluno que deseja atualizar:"
+    matricula <- readLn :: IO Int
+    putStrLn "Escolha o dado da avaliação física a ser atualizado:"
+    putStrLn "1. Tipo Treino"
+    putStrLn "2. Descrição"
+    putStrLn "3. Data"
+    escolha <- getLine
+    case escolha of
+        "1" -> do
+            putStrLn "Digite o novo tipo de treino: (PR ou PS)"
+            tipo_treino <- getLine
+            tipoTreinoValidado <- tipoTreinoCorreto tipo_treino
+            atualizarTreinoPelaMatricula (matricula) (Treino  matricula (map toUpper tipoTreinoValidado)  ""  "")
+        "2" -> do
+            putStrLn "Digite a nova descrição:"
+            novoDescricao <- getLine
+            atualizarTreinoPelaMatricula (matricula) (Treino  matricula ""  novoDescricao  "")
+        "3" -> do
+            putStrLn "Digite a nova data do treino:"
+            novaData <- getLine
+            dataValidada <- dataCorreta novaData
+            atualizarTreinoPelaMatricula (matricula) (Treino  matricula ""  ""  novaData)
+        _   -> putStrLn "Opção inválida."
+    menuTreinoF
+
+--FUNÇÕES AUXILIARES DE VALIDAÇÃO/IMPRESSÃO
+
+--Falta verificar se aluno existe 
+--Função recursiva para validar se a posicao passada pelo usuario está correta
+verificaPosicaoDeleteCorreta :: Int -> [Int] -> IO Int
+verificaPosicaoDeleteCorreta n lista = do
+    if n `elem` lista 
+        then return n
+        else do 
+            putStrLn "Posição inserida inválida, tente novamente" 
+            novaPosicao <- readLn :: IO Int
+            verificaPosicaoDeleteCorreta novaPosicao lista
+
+--Função para exibir as posições dos treinos de uma única matricula
+exibirPosicoesMatricula :: [Int] -> IO ()
+exibirPosicoesMatricula [] = return ()
+exibirPosicoesMatricula (x:xs) = do
+    --treinoTemp <- visualizarDadosTreino x
+    putStrLn ("Opção:("  ++ show x ++ ")")
+    exibirPosicoesMatricula xs
+
+
+--Funçãa recursiva para encontrar uma matricula valida no treino.txt
+matriculaCorreta :: Int -> IO Int
+matriculaCorreta matricula = do 
+    matriculaValidada <- verificaMatricula matricula
+    if matriculaValidada
+        then return matricula
+        else do
+            putStrLn "Treino com determinada matricula ainda não foi cadastrado, digite outra matricula"
+            novaOpcao <- getLine
+            let novaMatricula = read novaOpcao :: Int
+            matriculaCorreta novaMatricula
 
 --Função auxiliar para ler múltiplas linhas, até encontrar o caracter de parada
 lerLinhas :: Char -> IO String
@@ -230,53 +401,21 @@ opcaoCorreta valor =
             let novoValor = read novaOpcao :: Int
             opcaoCorreta novoValor
 
---Função para o funcionario criar treino de um aluno
-funcionarioCriaTreino :: IO()
-funcionarioCriaTreino = do
-    --falta verificar se existe aluno tratar caso não existie
-    --falta puxar aluno
-    --provisorio
-    putStrLn "Digite a matricula do aluno: "
-    matricula <- readLn :: IO Int
+dataCorreta :: String -> IO String
+dataCorreta dataTreino = do
+    case delimitarData dataTreino of
+        Just x -> return x
+        Nothing -> do
+            putStrLn "Data não está no formato DDMMAAAA, digite novamente: "
+            novaData <- getLine
+            dataCorreta novaData
 
-    putStrLn "Digite o tipo de treino (PS - Personalizado ou PR - Padronizado): "
-    tipo_treino <- getLine
-
-    let opcao = map toUpper tipo_treino
-    case opcao of
-        "PS" -> do
-            putStrLn "Insira o treino personalizado( ! :parar finalizar): "
-            personalizado <- lerLinhas '!'
-            cadastraTreino matricula "PS" personalizado
-        "PR" -> do
-            putStrLn "Escolha o treino padrão: \n\
-                        \1 - Treino Cardiovascular\n\
-                        \2 - Treino de Definição\n\
-                        \3 - Treino de Forca\n\
-                        \4 - Treino Funcional\n\
-                        \5 - Treino HIIT\n\
-                        \6 - Treino de Hipertrofia\n\
-                        \7 - Treino de Resistência Muscular\n\
-                        \8 - Treino Terapêutico\n"
-
-            escolha <- readLn :: IO Int
-            opcaoValidada <- opcaoCorreta escolha
-
-            case opcaoValidada of
-                1 -> do
-                    cadastraTreino matricula "PR" "Treino Cardiovascular"
-                2 -> do
-                    cadastraTreino matricula "PR" "Treino de Definição"
-                3 -> do
-                    cadastraTreino matricula "PR" "Treino de Forca"
-                4 -> do
-                    cadastraTreino matricula "PR" "Treino Funcional"
-                5 -> do
-                    cadastraTreino matricula "PR" "Treino HIIT"
-                6 -> do
-                    cadastraTreino matricula "PR" "Treino de Hipertrofia"
-                7 -> do
-                    cadastraTreino matricula "PR" "Treino de Resistência Muscular"
-                8 -> do
-                    cadastraTreino matricula "PR" "Treino Terapêutico"
-    main      
+tipoTreinoCorreto :: String -> IO String
+tipoTreinoCorreto tipoTreino = do 
+    let tipoTreinoUpper = map toUpper tipoTreino
+    if  tipoTreinoUpper == "PR" || tipoTreinoUpper == "PS"
+        then return tipoTreinoUpper
+        else do
+            putStrLn "Digite novamente o tipo de treino: (PR ou PS)"
+            novoTipoTreino <- getLine
+            tipoTreinoCorreto (map toUpper novoTipoTreino)

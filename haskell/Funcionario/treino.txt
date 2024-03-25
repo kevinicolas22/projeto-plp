@@ -1,2 +1,2 @@
-14,PS,treino de costa/treino peito/
-122,PS,
+6,PR,Treino Cardiovascular,02/02/2022
+2,PR,Treino HIIT,01/01/2014

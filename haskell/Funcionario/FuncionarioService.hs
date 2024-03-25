@@ -11,6 +11,8 @@ import Data.Char (isDigit)
 import Data.List.Split (splitOn)
 import Data.List (elemIndices)
 import AvaliacaoFisica
+import Data.Maybe (mapMaybe)
+import Text.Read (readMaybe)
 
 
 
@@ -463,8 +465,193 @@ calcularFaixaIMC imc
 
 --TREINO
 
---Função para cadastrar TREINO (primeiro paramêtro por enquanto é uma String)
-cadastraTreino :: Int -> String -> String -> IO()
-cadastraTreino matricula tipo_treino descricao = do
-  let novoTreino = Treino matricula tipo_treino descricao
+--Função para cadastrar TREINO (primeiro paramêtro por enquanto é a matricula)
+cadastraTreino :: Int -> String -> String -> String -> IO()
+cadastraTreino matricula tipo_treino descricao dataTreino= do
+  let novoTreino = Treino matricula tipo_treino descricao dataTreino
   appendFile "treino.txt" (toString novoTreino ++ "\n")
+
+--Função para visualizar treino de aluno com sua matricula
+viewTreinoAluno :: Int -> IO()
+viewTreinoAluno matricula = do
+    conexao <- openFile "treino.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let linhas = lines conteudo
+        matriculas = primeirosElementos linhas
+    if not (verificandoId (show matricula) matriculas) then 
+        putStrLn "Aluno não encontrado."
+    else do 
+        let posicoes = posicaoListaTreino (show matricula) matriculas
+            dadosTreino = filtrarTreinoEmLista posicoes linhas
+        imprimindoTreino dadosTreino
+    hClose conexao
+
+--Função para visualizar todos os treinos da academia
+viewAllTreino :: IO()
+viewAllTreino = do
+    handle <- openFile "treino.txt" ReadMode
+    conteudo <- hGetContents handle
+    let linhas = lines conteudo
+        treinos = map (splitOn ",") linhas
+    if null linhas
+        then putStrLn "\nNenhum treino encontrado."
+        else imprimindoTreino treinos
+    hClose handle
+
+--Função para deletar um treino
+deleteTreinoMatriculaComUmTreino :: Int -> IO()
+deleteTreinoMatriculaComUmTreino matricula = do
+    handle <- openFile "treino.txt" ReadMode
+    contents <- hGetContents handle
+    let linhas = lines contents
+        matriculas = primeirosElementos linhas
+    if not (verificandoId (show matricula) matriculas)
+        then putStrLn "Treino não encontrado."
+        else do
+            let linhasFiltradas = filter (\linha -> not $ verificandoId (show matricula) (primeirosElementos [linha])) linhas
+                
+            (tempName, tempHandle) <- openTempFile "." "temp"
+            hPutStr tempHandle (unlines linhasFiltradas)
+            hClose handle
+            hClose tempHandle
+                
+            removeFile "treino.txt"
+            renameFile tempName "treino.txt"
+            putStrLn "Treino removido com sucesso."
+
+--Função para deletar um treino dentre varios de mesma matricula
+deleteTreinoMatriculaComVariosTreinos :: Int-> Int -> IO ()
+deleteTreinoMatriculaComVariosTreinos matricula posicao = do
+    handle <- openFile "treino.txt" ReadMode
+    contents <- hGetContents handle
+    let linhas = lines contents
+        matriculas = primeirosElementos linhas
+    if not (verificandoId (show matricula) matriculas)
+        then putStrLn "Treino não encontrado."
+        else do
+            let linhasFiltradas = deleteAt posicao linhas
+                
+            (tempName, tempHandle) <- openTempFile "." "temp"
+            hPutStr tempHandle (unlines linhasFiltradas)
+            hClose handle
+            hClose tempHandle
+                
+            removeFile "treino.txt"
+            renameFile tempName "treino.txt"
+            putStrLn "Treino removido com sucesso."
+
+--Função para atualizar treino pela matricula
+atualizarTreinoPelaMatricula :: Int -> Treino -> IO ()
+atualizarTreinoPelaMatricula matricula novoTreino = do
+    handle <- openFile "treino.txt" ReadMode
+    contents <- hGetContents handle
+    let linhas = lines contents
+        matriculas = primeirosElementos linhas
+    if not (verificandoId (show matricula) matriculas)
+        then putStrLn "Treino não encontrada."
+        else do
+            (tempName, tempHandle) <- openTempFile "." "temp"
+            let linhasAtualizadas = map (\linha ->
+                    if verificandoId (show matricula) (primeirosElementos [linha])
+                        then atualizarDadosTreino linha novoTreino
+                        else linha) linhas
+            hPutStr tempHandle (unlines linhasAtualizadas)
+            hClose handle
+            hClose tempHandle
+            removeFile "treino.txt"
+            renameFile tempName "treino.txt"
+            putStrLn "Treino atualizado!"
+
+-- Função para atualizar os dados de uma avaliação física em uma linha específica
+atualizarDadosTreino :: String -> Treino -> String
+atualizarDadosTreino linha (Treino matricula tipoTreino descricao dataTreino) =
+    let dadosAntigos = splitOn "," linha
+        matriculaAntiga = dadosAntigos !! 0
+        tipoTreinoAntigo = dadosAntigos !! 1
+        descricaoAntiga = dadosAntigos !! 2
+        dataTreinoAntiga = dadosAntigos !! 3
+        novosDados = [matriculaAntiga,
+                      if null tipoTreino then tipoTreinoAntigo else tipoTreino,
+                      if null descricao then descricaoAntiga else descricao,
+                      if null dataTreino then dataTreinoAntiga else dataTreino]
+    in intercalate "," novosDados
+
+--Função para deletar o treino de determinada posição, retornando a lista sem a posicao 
+deleteAt :: Int -> [a] -> [a]
+deleteAt _ [] = []
+deleteAt 0 (_:xs) = xs
+deleteAt n (x:xs) = x : deleteAt (n - 1) xs
+
+
+--Exibir posicoes trinos de uma matricula
+viewPosicoesTreinosMatricula :: Int -> IO [Int]
+viewPosicoesTreinosMatricula matricula = do
+    conteudo <- readFile "treino.txt"
+    let linhas = lines conteudo
+        matriculas = primeirosElementos linhas
+        posicoes = posicaoListaTreino (show matricula) matriculas
+    return posicoes
+    
+
+--Função para verificar se matricula está no treino.txt (usar na main)
+verificaMatricula :: Int -> IO Bool
+verificaMatricula  matricula = do 
+    conteudo <- readFile "treino.txt"
+    let linhas = lines conteudo
+        matriculas = primeirosElementos linhas
+    return $ show matricula `elem` matriculas
+    
+
+--Função para informar a quantidade de Treinos que um aluno tem
+quantidadeTreinoAluno :: Int -> IO Int
+quantidadeTreinoAluno matricula = do
+    conteudo <- readFile "treino.txt"
+    let linhas = lines conteudo
+        matriculas = primeirosElementos linhas
+        posicoes = posicaoListaTreino (show matricula) matriculas
+        qtde = length posicoes
+    return qtde
+
+--Função para filtrar dados do treino na lista
+filtrarTreinoEmLista :: [Int] -> [String] -> [[String]]
+filtrarTreinoEmLista posicoes linhas = 
+    map (\p -> splitOn "," (linhas !! p)) posicoes
+
+
+--Função para visualizar dados de um treino apenas com a posicao, sem a necessidade de passar as linhas como parametro
+visualizarDadosTreino :: Int -> IO Treino
+visualizarDadosTreino posicao = do
+    conteudo <- readFile "treino.txt"
+    let linhas = lines conteudo
+        linha = linhas !! posicao
+        treinoTemp = parseTreino linha
+    return (treinoTemp)
+
+    
+
+
+--Função para retornar as ocorrencias da matricula numa lista
+posicaoListaTreino :: String -> [String] -> [Int]
+posicaoListaTreino matricula matriculas =
+    matricula `elemIndices` matriculas
+
+--Função auxiliar para imprimir um treino
+imprimindoTreino :: [[String]] -> IO()
+imprimindoTreino [] = return ()
+imprimindoTreino (x:xs) = do
+    if length x >= 4 then
+        putStrLn ("\nMatricula: " ++ (x !! 0) ++
+                "\nTipo de Treino: " ++ (x !! 1) ++
+                "\nDescrição: " ++ (x !! 2) ++ 
+                "\nData: " ++ (x !! 3) ++ "\n")
+    else
+        putStrLn "A lista não contém dados suficientes para um teste."
+    imprimindoTreino xs
+
+-- Função auxiliar para converter uma strings em um Treino
+parseTreino :: String -> Treino
+parseTreino str = 
+    let [matriculaStr, tipoTreino, descricao, dataTreino] = splitOn "," str
+        matricula = read matriculaStr :: Matricula
+    in Treino matricula tipoTreino descricao dataTreino
+    
