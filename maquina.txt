@@ -1,4 +1,0 @@
-Maquina {codigoMaquina = "\"9\"", nomeMaquina = "njad", dataManutencao = "\"02/02/1254\""}
-"\"9\"",njad,"\"02/02/1254\""
-Maquina {codigoMaquina = "\"6\"", nomeMaquina = "polia", dataManutencao = "\"02/02/2214\""}
-"\"6\"",polia,"\"02/02/2214\""

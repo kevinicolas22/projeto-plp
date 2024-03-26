@@ -1,3 +1,1 @@
-Manager {managerId = 7, cpfG = "014.025.025-48", nomeG = "n", dataNascimento = "02/02/0212", telefoneG = "83954548787", enderecoG = "bi"}
-7, "014.025.025-48", n, 02/02/0212, "83954548787", bi
-Manager {managerId = 6, cpfG = "025.025.025-45", nomeG = "jo", dataNascimento = "02/12/2013", telefoneG = "83945663245", enderecoG = "rua jo"}
+Manager {managerId = 23, cpfG = "123.456.785-21", nomeG = "laylay", dataNascimento = "22/02/2005", telefoneG = "83987542163", enderecoG = "almisa rosa"}5

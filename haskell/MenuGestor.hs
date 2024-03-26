@@ -48,10 +48,10 @@ menuGestorG = do
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║           Opções sobre Gestor:             ║"
     putStrLn "║                                            ║"
-    putStrLn "║   [1] Consultar gestor                     ║"
-    putStrLn "║   [2] Listar gestores                      ║"
-    putStrLn "║   [3] Criar novo gestor                    ║"
-    putStrLn "║   [4] Atualizar gestor                     ║"
+    putStrLn "║   [1] Criar novo gestor                    ║"
+    putStrLn "║   [2] Atualizar gestor                     ║"
+    putStrLn "║   [3] Listar gestores                      ║"
+    putStrLn "║   [4] Consultar gestor                     ║"
     putStrLn "║   [5] Remover gestores                     ║"
     putStrLn "║   [6] Voltar para o menu                   ║"
     putStrLn "║                                            ║"
@@ -59,10 +59,10 @@ menuGestorG = do
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoGestorG <- getLine
     case opcaoGestorG of
-        "1" -> consultarGestor
-        "2" -> listarGestores
-        "3" -> criarNovoGestor
-        "4" -> atualizarGestor
+        "1" -> criarNovoGestor
+        "2" -> atualizarGestor
+        "3" -> listarGestores
+        "4" -> consultarGestor
         "5" -> removerGestor
         "6" -> menuGestor -- 
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestorG
@@ -82,7 +82,6 @@ listarGestores = do
     listarTodosGestores
     menuGestor
  
-
 criarNovoGestor :: IO ()
 criarNovoGestor = do
   novoGestor <- criarGestor
@@ -131,15 +130,18 @@ atualizarGestor = do
         _ -> putStrLn "Opção inválida."
     menuGestor
 
-
 removerGestor :: IO ()
 removerGestor = do
-  putStrLn "Digite o ID do gestor que deseja remover:"
-  id <- getLine
-  removerGestorPorId (read id)
-  putStrLn "Gestor removido com sucesso!"
-  menuGestor 
-
+  numGestores <- contarGestores "manager.txt"-- Obtém o número de gestores
+  if numGestores > 2 then
+    do
+      putStrLn "Digite o ID do gestor que deseja remover:"
+      id <- getLine
+      removerGestorPorId (read id)
+      putStrLn "Gestor removido com sucesso!"
+  else do
+    putStrLn "Impossível remover gestor no momento..."
+  menuGestor
 
 menuFuncionarioG :: IO()
 menuFuncionarioG = do
@@ -167,7 +169,7 @@ criarNovoFuncionario = do
   novoFuncionario <- criarFuncionario
   adicionarFuncionario novoFuncionario
   putStrLn "Funcionario criado com sucesso!"
-  menuFuncionarioG
+  --menuFuncionarioG
 
 
 
@@ -178,10 +180,10 @@ menuMaquinaG = do
     putStrLn "║           Opções sobre Máquina:                       ║"
     putStrLn "║                                                       ║"
     putStrLn "║   [1] Criar máquina                                   ║"
-    putStrLn "║   [2] Verificar datas de manutenção dos equipamentos  ║"
+    putStrLn "║   [2] Adicionar máquina com necessidade de reparo     ║"
     putStrLn "║   [3] Listar equipamentos cadastrados                 ║"
-    putStrLn "║   [4] Adicionar máquina com necessidade de reparo     ║"
-    putStrLn "║   [5] Listar máquinas com necessidades de reparo      ║"
+    putStrLn "║   [4] Listar máquinas com necessidades de reparo      ║"
+    putStrLn "║   [5] Verificar datas de manutenção dos equipamentos  ║"
     putStrLn "║   [6] Verificar quantidade de máquinas cadastradas    ║"
     putStrLn "║   [7] Voltar ao menu principal                        ║"
     putStrLn "║                                                       ║"
@@ -190,18 +192,17 @@ menuMaquinaG = do
     opcaoMaquinaG <- getLine
     case opcaoMaquinaG of 
       "1" -> criarMaquinas
-      "2" -> listarMaquinasOrdemAlfabetica 
-      "3" -> listarEquipamentos
-      "4" -> do
+      "2" -> do
         putStrLn "Informe o ID: "
-        id <- getLine
-        putStrLn "Informe o nomeG: "
+        id <- getLine 
+        putStrLn "Informe o nome: "
         nomeG <- getLine
         putStrLn "Informe a data de manutenção: "
         dataMan <- getLine
-        adicionarMaquinaReparo (Maquina (show id) nomeG dataMan) -- maquina adiconada -- case para voltar ou manter, tirar o voltar automatico 
-         
-      "5" -> imprimirMaquinasReparo "haskell/maquina_reparo.txt" -- case para voltar ou manter, tirar o voltar automatico 
+        adicionarMaquinaReparo id -- maquina adiconada -- case para voltar ou manter, tirar o voltar automatico 
+      "3" -> listarEquipamentos
+      "4" -> imprimirMaquinasReparo "haskell/maquina_reparo.txt" -- case para voltar ou manter, tirar o voltar automatico 
+      "5" -> listarMaquinasOrdemAlfabetica 
       "6" -> do
         numeroMaquinas <- contarMaquinas "maquina.txt"
         putStrLn $ "Número de máquinas registradas: " ++ show numeroMaquinas

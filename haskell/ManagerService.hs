@@ -157,6 +157,13 @@ removerGestorPorId targetId = do
         removeFile "manager.txt"  
         renameFile tempName "manager.txt" 
 
+-- Função para ler o arquivo e contar o número de linhas
+contarGestores :: FilePath -> IO Int
+contarGestores arquivo = do
+    conteudo <- readFile arquivo
+    let linhas = lines conteudo
+    return (length linhas)
+
 --- Função para listar todos os gestores do arquivo "manager.txt"
 listarTodosGestores :: IO ()
 listarTodosGestores = do
@@ -189,9 +196,10 @@ mostrarGestor gestor = putStrLn $ unlines
 parseManager :: String -> Maybe Manager
 parseManager linha = case splitOn "," linha of
     [managerId, cpfG, nomeG, dataNascimento, telefoneG, enderecoG] ->
-        Just (Manager (read managerId) cpfG nomeG dataNascimento telefoneG enderecoG)
+        case readMaybe managerId of
+            Just mId -> Just (Manager mId cpfG nomeG dataNascimento telefoneG enderecoG)
+            Nothing -> Nothing  -- Se a conversão falhar, retornamos Nothing
     _ -> Nothing
-
 
 --- Funcao para consultar gestor 
 

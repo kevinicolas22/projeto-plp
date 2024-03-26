@@ -7,7 +7,7 @@ import System.IO
 import Data.List (intercalate)
 import Data.Char (isDigit)
 
-type Codigo = String
+type Codigo = Int
 type Nome = String 
 type DataManutencao = String
 
