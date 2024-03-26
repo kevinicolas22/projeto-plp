@@ -1,6 +1,6 @@
 {-# LANGUAGE PackageImports #-}
 
-module MenuGestor where
+module Main where
 
 import Data.Maybe (mapMaybe)
 import Manager
@@ -12,7 +12,12 @@ import System.Exit
 import System.IO
 import "directory" System.Directory
 import FuncionarioService
+import System.Console.ANSI -- Importação do módulo System.Console.ANSI para usar as funções de controle de terminal
 
+
+main :: IO()
+main = do
+  menuGestor
 
 menuGestor :: IO()
 menuGestor = do
@@ -20,12 +25,11 @@ menuGestor = do
     putStrLn "║   Escolha o assunto da funcionalidade      ║"
     putStrLn "║   de Gestor:                               ║"
     putStrLn "║                                            ║"
-    putStrLn "║   [1]. Gestor                              ║"
-    putStrLn "║   [2]. Funcionário                         ║"
-    putStrLn "║   [3]. Máquina                             ║"
-    putStrLn "║   [4]. Aluno                               ║"
-    putStrLn "║   [5]. Financeiro                          ║"
-    putStrLn "║   [6]. Sair                                ║"
+    putStrLn "║   [1] Gestor                               ║"
+    putStrLn "║   [2] Funcionário                          ║"
+    putStrLn "║   [3] Máquina                              ║"
+    putStrLn "║   [4] Financeiro                           ║"
+    putStrLn "║   [5] Sair                                 ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
@@ -34,23 +38,22 @@ menuGestor = do
         "1" -> menuGestorG
         "2" -> menuFuncionarioG
         "3" -> menuMaquinaG
-        "4" -> menuAlunoG
-        "5" -> menuFinanceiroG
-        "6" -> main
-    _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestor
-
+        "4" -> menuFinanceiroG
+        "5" -> menuGestor -- 
+        _   -> (putStrLn "Opção inválida. Por favor, escolha novamente.") >> menuGestor
 
 menuGestorG :: IO()
 menuGestorG = do 
+    limparTerminal
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║           Opções sobre Gestor:             ║"
     putStrLn "║                                            ║"
-    putStrLn "║   [1]. Consultar gestor                    ║"
-    putStrLn "║   [2]. Listar gestores                     ║"
-    putStrLn "║   [3]. Criar novo gestor                   ║"
-    putStrLn "║   [4]. Atualizar gestor                    ║"
-    putStrLn "║   [5]. Remover gestores                    ║"
-    putStrLn "║   [6]. Voltar para o menu                  ║"
+    putStrLn "║   [1] Consultar gestor                     ║"
+    putStrLn "║   [2] Listar gestores                      ║"
+    putStrLn "║   [3] Criar novo gestor                    ║"
+    putStrLn "║   [4] Atualizar gestor                     ║"
+    putStrLn "║   [5] Remover gestores                     ║"
+    putStrLn "║   [6] Voltar para o menu                   ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
@@ -61,8 +64,8 @@ menuGestorG = do
         "3" -> criarNovoGestor
         "4" -> atualizarGestor
         "5" -> removerGestor
-        "6" -> main
-        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestor
+        "6" -> menuGestor -- 
+        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestorG
 
 consultarGestor :: IO ()
 consultarGestor = do
@@ -70,14 +73,15 @@ consultarGestor = do
   id <- getLine
   case readMaybe id of
     Just gestorId -> lerGestorPorId gestorId
-    Nothing -> putStrLn "ID inválido. Por favor, digite um número válido." >> main
-  main
-
+    Nothing -> putStrLn "ID inválido. Por favor, digite um número válido." >> menuGestor -- 
+  menuGestor -- 
+  
 listarGestores :: IO ()
 listarGestores = do
-  putStrLn "Lista de Todos os Gestores:"
-  listarTodosGestores
-  menuGestor  
+    putStrLn "Lista de Todos os Gestores:"
+    listarTodosGestores
+    menuGestor
+ 
 
 criarNovoGestor :: IO ()
 criarNovoGestor = do
@@ -89,42 +93,43 @@ criarNovoGestor = do
 
 atualizarGestor :: IO ()
 atualizarGestor = do
-  putStrLn "Digite o ID do gestor que deseja atualizar:"
-  id <- getLine
-  putStrLn "╔════════════════════════════════════════════╗"
-  putStrLn "║       Escolha o dado do gestor a ser       ║"
-  putStrLn "║              atualizado:                   ║"
-  putStrLn "║                                            ║"
-  putStrLn "║   1. CPF                                   ║"
-  putStrLn "║   2. Nome                                  ║"
-  putStrLn "║   3. Endereço                              ║"
-  putStrLn "║   4. Telefone                              ║"
-  putStrLn "║   5. Data de Nascimento                    ║"
-  putStrLn "╚════════════════════════════════════════════╝"
-  escolha <- getLine
-  case escolha of
-    "1" -> do
-        putStrLn "Digite o novo CPF: "
-        novoCPF <- getLine
-        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = novoCPF, nome = "", dataNascimento = "", telefone = "", endereco = ""})
-    "2" -> do
-        putStrLn "Digite o novo nome: "
-        novoNome <- getLine
-        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = novoNome, dataNascimento = "", telefone = "", endereco = ""})
-    "3" -> do
-      putStrLn "Digite o novo endereço: "
-      novoEndereco <- getLine
-      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = "", endereco = novoEndereco})
-    "4" -> do
-      putStrLn "Digite o novo telefone: "
-      novoTelefone <- getLine
-      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = novoTelefone, endereco = ""})
-    "5" -> do
-      putStrLn "Digite a nova data de nascimento: "
-      novaData <- getLine
-      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = novaData, telefone = "", endereco = ""})
-    _ -> putStrLn "Opção inválida."
-  menuGestor
+    limparTerminal
+    putStrLn "Digite o ID do gestor que deseja atualizar:"
+    id <- getLine
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║       Escolha o dado do gestor a ser       ║"
+    putStrLn "║              atualizado:                   ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   [1] CPF                                  ║"
+    putStrLn "║   [2] Nome                                 ║"
+    putStrLn "║   [3] Endereço                             ║"
+    putStrLn "║   [4] Telefone                             ║"
+    putStrLn "║   [5] Data de Nascimento                   ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    escolha <- getLine
+    case escolha of
+        "1" -> do
+            putStrLn "Digite o novo CPF: "
+            novoCPF <- getLine
+            atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = novoCPF, nomeG = "", dataNascimento = "", telefoneG = "", enderecoG = ""})
+        "2" -> do
+            putStrLn "Digite o novo nome: "
+            novoNome <- getLine
+            atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = novoNome, dataNascimento = "", telefoneG = "", enderecoG = ""})
+        "3" -> do
+            putStrLn "Digite o novo endereço: "
+            novoEndereco <- getLine
+            atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = "", dataNascimento = "", telefoneG = "", enderecoG = novoEndereco})
+        "4" -> do
+            putStrLn "Digite o novo telefone: "
+            novoTelefone <- getLine
+            atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = "", dataNascimento = "", telefoneG = novoTelefone, enderecoG = ""})
+        "5" -> do
+            putStrLn "Digite a nova data de nascimento: "
+            novaData <- getLine
+            atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = "", dataNascimento = novaData, telefoneG = "", enderecoG = ""})
+        _ -> putStrLn "Opção inválida."
+    menuGestor
 
 
 removerGestor :: IO ()
@@ -138,24 +143,25 @@ removerGestor = do
 
 menuFuncionarioG :: IO()
 menuFuncionarioG = do
+    limparTerminal
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║           Opções sobre Funcionario:        ║"
     putStrLn "║                                            ║"
-    putStrLn "║   [1]. Criar funcionario                   ║"
-    putStrLn "║   [2]. Atualizar funcionario               ║"
-    putStrLn "║   [3]. Listar funcionario                  ║"
-    putStrLn "║   [4]. Consultar funcionario               ║"
-    putStrLn "║   [5]. Remover funcionario                 ║" 
-    putStrLn "║   [6]. Consultar funcionario               ║"
-    putStrLn "║   [7]. Voltar para o menu                  ║"
+    putStrLn "║   [1] Criar funcionario                    ║"
+    putStrLn "║   [2] Atualizar funcionario                ║"
+    putStrLn "║   [3] Listar funcionario                   ║"
+    putStrLn "║   [4] Consultar funcionario                ║"
+    putStrLn "║   [5] Remover funcionario                  ║" 
+    putStrLn "║   [6] Consultar funcionario                ║"
+    putStrLn "║   [7] Voltar para o menu                   ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoFuncionarioG <- getLine
     case opcaoFuncionarioG of
         "1" -> criarNovoFuncionario
-        "7" -> main
-        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionarioG
+        "7" -> menuGestor -- 
+        _   -> (putStrLn "Opção inválida. Por favor, escolha novamente.") >> menuFuncionarioG
 
 criarNovoFuncionario :: IO ()
 criarNovoFuncionario = do
@@ -167,16 +173,17 @@ criarNovoFuncionario = do
 
 menuMaquinaG :: IO ()
 menuMaquinaG = do
+    limparTerminal
     putStrLn "╔═══════════════════════════════════════════════════════╗"
     putStrLn "║           Opções sobre Máquina:                       ║"
     putStrLn "║                                                       ║"
-    putStrLn "║   [1]. Criar máquina                                  ║"
-    putStrLn "║   [2]. Verificar datas de manutenção dos equipamentos ║"
-    putStrLn "║   [3]. Listar equipamentos cadastrados                ║"
-    putStrLn "║   [4]. Adicionar máquina com necessidade de reparo    ║"
-    putStrLn "║   [5]. Listar máquinas com necessidades de reparo     ║"
-    putStrLn "║   [6]. Verificar quantidade de máquinas cadastradas   ║"
-    putStrLn "║   [7]. Voltar ao menu principal                       ║"
+    putStrLn "║   [1] Criar máquina                                   ║"
+    putStrLn "║   [2] Verificar datas de manutenção dos equipamentos  ║"
+    putStrLn "║   [3] Listar equipamentos cadastrados                 ║"
+    putStrLn "║   [4] Adicionar máquina com necessidade de reparo     ║"
+    putStrLn "║   [5] Listar máquinas com necessidades de reparo      ║"
+    putStrLn "║   [6] Verificar quantidade de máquinas cadastradas    ║"
+    putStrLn "║   [7] Voltar ao menu principal                        ║"
     putStrLn "║                                                       ║"
     putStrLn "║   > Digite a opção:                                   ║"
     putStrLn "╚═══════════════════════════════════════════════════════╝"
@@ -192,14 +199,17 @@ menuMaquinaG = do
         nomeG <- getLine
         putStrLn "Informe a data de manutenção: "
         dataMan <- getLine
-        adicionarMaquinaReparo (Maquina (show id) nomeG dataMan) >> menuMaquina
-      "5" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquina
+        adicionarMaquinaReparo (Maquina (show id) nomeG dataMan) >> menuMaquinaG
+         
+      "5" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquinaG
       "6" -> do
         numeroMaquinas <- contarMaquinas "maquina.txt"
         putStrLn $ "Número de máquinas registradas: " ++ show numeroMaquinas
-        menuMaquina
-      "7" -> main
-      _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquinaG
+        menuMaquinaG
+         
+      "7" -> menuGestor -- 
+      _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquinaG
+    
 
 criarMaquinas :: IO ()
 criarMaquinas = do
@@ -208,28 +218,32 @@ criarMaquinas = do
   putStrLn "Maquina adicionada com sucesso!"
   menuMaquinaG
 
+
 listarEquipamentos :: IO ()
 listarEquipamentos = do
-  lerMaquinas "maquina.txt" >> menuMaquina
+  lerMaquinas "maquina.txt" >> menuMaquinaG
+   
 
 
-menuFinanceiroG :: IO()
+menuFinanceiroG :: IO ()
 menuFinanceiroG = do
+    limparTerminal
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║           Opções sobre Financeiro:         ║"
     putStrLn "║                                            ║"
-    putStrLn "║   [1]. Folha de Pagamento do funcionário   ║"
-    putStrLn "║   [2]. Renda e Gastos Mensais              ║"
-    putStrLn "║   [3]. Voltar para o menu                  ║"
+    putStrLn "║   [1] Folha de Pagamento do funcionário    ║"
+    putStrLn "║   [2] Renda e Gastos Mensais               ║"
+    putStrLn "║   [3] Voltar para o menu                   ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
-    opcaoAlunoG <- getLine
-    case opcaoAlunoG of
+
+    opcaoFinanceiroG <- getLine
+    case opcaoFinanceiroG of
         "1" -> folhaDePagamento
-        "2" -> ----
-        "3" -> main
-        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFinanceiroG
+        "3" -> menuGestor -- 
+        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFinanceiroG
+
 
 
 folhaDePagamento :: IO()
@@ -244,3 +258,9 @@ sair :: IO ()
 sair = do
   putStrLn "Saindo..."
   exitSuccess
+
+
+limparTerminal :: IO ()
+limparTerminal = do
+      clearScreen
+      setCursorPosition 0 0

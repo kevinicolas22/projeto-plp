@@ -18,6 +18,7 @@ import Data.List (intercalate)
 import Data.List.Split (chunksOf)
 import Data.Char (isDigit)
 import Data.Maybe (mapMaybe, maybeToList)
+import Control.Exception
 
 
 --- Funçao para criar Gestor e as delimitaçoes de cada dado do gestor 
@@ -25,43 +26,52 @@ criarGestor :: IO Manager
 criarGestor = do
     putStrLn "Digite o seu ID de gestor: "
     id <- getLine
-    conexao <- openFile "manager.txt" ReadMode
-    assunto <- hGetContents conexao
+
+    -- Tente abrir o arquivo, criando-o se não existir
+    handle <- openFile "manager.txt" ReadWriteMode `catch` \e -> do
+        let _ = e :: IOError
+        openFile "manager.txt" WriteMode
+
+    -- Leia o conteúdo do arquivo e verifique se o ID já existe
+    assunto <- hGetContents handle
     let linhas = lines assunto
         ids = primeirosElementosG linhas
+
     if id `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
-            hClose conexao
+            hClose handle  -- Feche o arquivo antes de chamar a função recursiva
             criarGestor
         else do
-            putStrLn "Digite o seu cpfG (formatação 000.000.000-00): "
+            hClose handle  -- Feche o arquivo antes de prosseguir
+            putStrLn "Digite o seu CPF (formatação 000.000.000-00): "
             cpfG <- getLine
             case delimitarCpfG cpfG of
                 Just cpfGDelimitado -> do
-                    putStrLn "Digite o seu nomeG: "
+                    putStrLn "Digite o seu nome: "
                     nomeG <- getLine
-
                     putStrLn "Digite sua data de nascimento (formato dd/mm/aaaa): "
                     nascimento <- getLine
                     case delimitarNascimento nascimento of
                         Just nascimentoDelimitado -> do
-                            putStrLn "Digite seu telefoneG (formato DDD000000000): "
+                            putStrLn "Digite seu telefone (formato DDD000000000): "
                             telefoneG <- getLine
                             case delimitarTelefoneG telefoneG of
                                 Just telefoneGDelimitado -> do
                                     putStrLn "Digite seu endereço: "
                                     enderecoG <- getLine
-                                    return (Manager (read id) (show cpfG) nomeG nascimentoDelimitado (show telefoneGDelimitado) enderecoG)
+                                    let novoGestor = Manager (read id) cpfGDelimitado nomeG nascimentoDelimitado telefoneGDelimitado enderecoG
+                                    appendFile "manager.txt" (show novoGestor ++ "\n")  -- Adiciona o novo gestor ao arquivo
+                                    return novoGestor
                                 Nothing -> do
-                                    putStrLn "telefoneG inválido. Por favor, digite novamente."
+                                    putStrLn "Telefone inválido. Por favor, digite novamente."
                                     criarGestor
                         Nothing -> do
                             putStrLn "Data de nascimento inválida. Por favor, digite novamente."
                             criarGestor
                 Nothing -> do
-                    putStrLn "cpfG inválido. Por favor, digite novamente."
-                    criarGestor
+                    putStrLn "CPF inválido. Por favor, digite novamente."
+                    criarGestor                      
 
 
 
@@ -154,23 +164,24 @@ listarTodosGestores = do
     assunto <- hGetContents handle
     let linhas = lines assunto
         gestores = mapMaybe parseManager linhas
-    if null gestores
-        then putStrLn "\nNenhum gestor encontrado."
-        else mostrarGestores gestores
+    mostrarGestores gestores
     hClose handle
 
 --- Função para imprimir os dados de uma lista de gestores
 mostrarGestores :: [Manager] -> IO ()
-mostrarGestores gestores = mapM_ mostrarGestor gestores
+mostrarGestores gestores =
+    if null gestores
+        then putStrLn "\nNenhum gestor encontrado."
+        else mapM_ mostrarGestor gestores
 
 --- Função para imprimir os dados de um gestor
 mostrarGestor :: Manager -> IO ()
 mostrarGestor gestor = putStrLn $ unlines
     [ "Id: " ++ show (managerId gestor)
-    , "nomeG: " ++ nomeG gestor
-    , "cpfG: " ++ cpfG gestor
+    , "Nome: " ++ nomeG gestor
+    , "Cpf: " ++ cpfG gestor
     , "Endereço: " ++ enderecoG gestor
-    , "telefoneG: " ++ telefoneG gestor
+    , "Telefone: " ++ telefoneG gestor
     , "Data de Nascimento: " ++ dataNascimento gestor
     ]
 

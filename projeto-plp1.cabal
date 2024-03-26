@@ -11,7 +11,7 @@ cabal-version:      3.0
 --   http://haskell.org/cabal/users-guide/
 --
 -- The name of the package.
-name:               projeto-plp1
+name:               haskell
 
 -- The package version.
 -- See the Haskell package versioning policy (PVP) for standards
@@ -35,10 +35,10 @@ license:            MIT
 license-file:       LICENSE
 
 -- The package author(s).
-author:             joaopedro1422
+author:             Ana Beatriz
 
 -- An email address to which users can send suggestions, bug reports, and patches.
-maintainer:         jpcros40414@gmail.com
+maintainer:         ana.beatriz.beckman.falcao@gmail.com
 
 -- A copyright notice.
 -- copyright:
@@ -59,23 +59,31 @@ executable projeto-plp1
     import:           warnings
 
     -- .hs or .lhs file containing the Main module.
-    main-is:          mainAluno.hs
+    main-is:          menuGestor.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules: Aluno 
-    other-modules: Planos
-    other-modules: AlunoController 
+    other-modules: Funcionario
+    other-modules: MaquinaService
+    other-modules: Maquina
+    other-modules: Manager
+    other-modules: FuncionarioService
+    other-modules: ManagerService
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.17.2.1 && <5
-    build-depends:    containers >= 0.6 && < 0.7
-    build-depends:    ansi-terminal
-    build-depends:    smtp-mail >=0.1 && <5
-    build-depends:    network
-    build-depends:    mime-mail
-    build-depends:    text
+    build-depends:
+        base >= 4.17.2.1 && < 5,
+        directory >= 1.3 && < 1.4,
+        split >= 0.2 && < 0.3,
+        containers >= 0.6 && < 0.7,
+        ansi-terminal,
+        smtp-mail >= 0.1 && < 5,
+        network,
+        mime-mail,
+        text
+
+
     
 
     -- Directories containing source files.
