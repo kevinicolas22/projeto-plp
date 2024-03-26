@@ -11,6 +11,7 @@ import MaquinaService
 import System.Exit
 import System.IO
 import "directory" System.Directory
+import FuncionarioService
 
 
 menuGestor :: IO()
@@ -46,7 +47,10 @@ menuGestorG = do
     putStrLn "║                                            ║"
     putStrLn "║   [1]. Consultar gestor                    ║"
     putStrLn "║   [2]. Listar gestores                     ║"
-    putStrLn "║   [3]. Voltar para o menu                  ║"
+    putStrLn "║   [3]. Criar novo gestor                   ║"
+    putStrLn "║   [4]. Atualizar gestor                    ║"
+    putStrLn "║   [5]. Remover gestores                    ║"
+    putStrLn "║   [6]. Voltar para o menu                  ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
@@ -54,7 +58,10 @@ menuGestorG = do
     case opcaoGestorG of
         "1" -> consultarGestor
         "2" -> listarGestores
-        "3" -> main
+        "3" -> criarNovoGestor
+        "4" -> atualizarGestor
+        "5" -> removerGestor
+        "6" -> main
         _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuGestor
 
 consultarGestor :: IO ()
@@ -70,7 +77,63 @@ listarGestores :: IO ()
 listarGestores = do
   putStrLn "Lista de Todos os Gestores:"
   listarTodosGestores
-  menuGestor   
+  menuGestor  
+
+criarNovoGestor :: IO ()
+criarNovoGestor = do
+  novoGestor <- criarGestor
+  adicionarGestor novoGestor
+  putStrLn "Gestor adicionado com sucesso!"
+  menuGestor
+
+
+atualizarGestor :: IO ()
+atualizarGestor = do
+  putStrLn "Digite o ID do gestor que deseja atualizar:"
+  id <- getLine
+  putStrLn "╔════════════════════════════════════════════╗"
+  putStrLn "║       Escolha o dado do gestor a ser       ║"
+  putStrLn "║              atualizado:                   ║"
+  putStrLn "║                                            ║"
+  putStrLn "║   1. CPF                                   ║"
+  putStrLn "║   2. Nome                                  ║"
+  putStrLn "║   3. Endereço                              ║"
+  putStrLn "║   4. Telefone                              ║"
+  putStrLn "║   5. Data de Nascimento                    ║"
+  putStrLn "╚════════════════════════════════════════════╝"
+  escolha <- getLine
+  case escolha of
+    "1" -> do
+        putStrLn "Digite o novo CPF: "
+        novoCPF <- getLine
+        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = novoCPF, nome = "", dataNascimento = "", telefone = "", endereco = ""})
+    "2" -> do
+        putStrLn "Digite o novo nome: "
+        novoNome <- getLine
+        atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = novoNome, dataNascimento = "", telefone = "", endereco = ""})
+    "3" -> do
+      putStrLn "Digite o novo endereço: "
+      novoEndereco <- getLine
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = "", endereco = novoEndereco})
+    "4" -> do
+      putStrLn "Digite o novo telefone: "
+      novoTelefone <- getLine
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = "", telefone = novoTelefone, endereco = ""})
+    "5" -> do
+      putStrLn "Digite a nova data de nascimento: "
+      novaData <- getLine
+      atualizarGestorPorId (read id) (Manager {managerId = read id, cpf = "", nome = "", dataNascimento = novaData, telefone = "", endereco = ""})
+    _ -> putStrLn "Opção inválida."
+  menuGestor
+
+
+removerGestor :: IO ()
+removerGestor = do
+  putStrLn "Digite o ID do gestor que deseja remover:"
+  id <- getLine
+  removerGestorPorId (read id)
+  putStrLn "Gestor removido com sucesso!"
+  menuGestor 
 
 
 menuFuncionarioG :: IO()
@@ -90,9 +153,16 @@ menuFuncionarioG = do
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoFuncionarioG <- getLine
     case opcaoFuncionarioG of
-        "1" -> -- nome das funcoes
+        "1" -> criarNovoFuncionario
         "7" -> main
         _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionarioG
+
+criarNovoFuncionario :: IO ()
+criarNovoFuncionario = do
+  novoFuncionario <- criarFuncionario
+  adicionarFuncionario novoFuncionario
+  putStrLn "Funcionario criado com sucesso!"
+  menuFuncionarioG
 
 
 menuMaquinaG :: IO ()
