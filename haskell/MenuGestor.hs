@@ -152,15 +152,14 @@ menuFuncionarioG = do
     putStrLn "║   [3] Listar funcionario                   ║"
     putStrLn "║   [4] Consultar funcionario                ║"
     putStrLn "║   [5] Remover funcionario                  ║" 
-    putStrLn "║   [6] Consultar funcionario                ║"
-    putStrLn "║   [7] Voltar para o menu                   ║"
+    putStrLn "║   [6] Voltar para o menu                   ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
     opcaoFuncionarioG <- getLine
     case opcaoFuncionarioG of
         "1" -> criarNovoFuncionario
-        "7" -> menuGestor -- 
+        "6" -> menuGestor -- 
         _   -> (putStrLn "Opção inválida. Por favor, escolha novamente.") >> menuFuncionarioG
 
 criarNovoFuncionario :: IO ()
