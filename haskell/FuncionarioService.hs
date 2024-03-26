@@ -471,7 +471,6 @@ cadastraTreino tipo_treino exercicios= do
 associarTreinoAluno:: String-> Treino -> IO()
 associarTreinoAluno matricula treino= do
     alunoEncontrado <- recuperaAlunoMatricula matricula
-    putStr(show alunoEncontrado)
     let novoAluno = alunoEncontrado { treinos = treino : treinos alunoEncontrado }
     substituirAlunoTxt novoAluno matricula
 

@@ -8,14 +8,15 @@ import MainFuncionario as MF
 --Interface sistema
 main :: IO()
 main = do
+    limparTerminal
     putStrLn "╔═══════════════════════════════════════════════════════╗"
     putStrLn "║               Seja Bem-vindo a CodeFit                ║"
     putStrLn "║                                                       ║"
     putStrLn "║   Escolha a forma de entrada:                         ║"
     putStrLn "║                                                       ║"
-    putStrLn "║   a. Aluno                                            ║"
-    putStrLn "║   b. Gestor                                           ║"
-    putStrLn "║   c. Funcionario                                      ║"
+    putStrLn "║   [1] Aluno                                           ║"
+    putStrLn "║   [2] Gestor                                          ║"
+    putStrLn "║   [3] Funcionario                                     ║"
     putStrLn "║                                                       ║"
     putStrLn "║   > Digite uma opção:                                 ║" 
     putStrLn "╚═══════════════════════════════════════════════════════╝"
@@ -23,9 +24,9 @@ main = do
     opcao <- getLine
     let opcaoUpper = map toUpper opcao
     case opcaoUpper of
-        "A" -> loginAluno
+        "1" -> loginAluno main
         --"B" -> --menuGestor
-        "C" -> MF.main
+        "3" -> menuFuncionario main
         --"D" -> menuLogin
        
 

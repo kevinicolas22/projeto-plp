@@ -1,2 +1,7 @@
 
 ("costas",["puxada frontal","remada alta","remada baixa","costas polia",""])
+("Bra\231o",["Triceps polia(Series:5 | Rep:10)","Triceps maquina(Series:4 | Rep:12)","Biceps Scott (Series:3 | Rep :10)",""])
+("Abdominal",["esteira",""])
+("Abdominal",["aaa",""])
+("Cardio",["bicicleta","esteira",""])
+("Panturrilha",["okadoad",""])

@@ -92,7 +92,7 @@ criarAluno = do
             putStrLn "\nConfirmar Cadastro... Pressione ENTER"
             confirma <- getChar
             when (confirma /= '\n') $ void getChar -- Aguarda o Enter
-            let alunoCriado = Aluno { alunoId = 0, nome = nomeAluno, cpf = cpfDelimitado, endereço = endereçoAluno, contato = contatoAluno, planoAluno = planoEscolhido, treinos = [], emDia = False, matricula= matriculaAluno, senha= senhaAluno, email = emailAluno, aulas = []}
+            let alunoCriado = Aluno { alunoId = 0, nomeAluno = nomeAluno, cpfAluno = cpfDelimitado, endereçoAluno = endereçoAluno, contatoAluno = contatoAluno, planoAluno = planoEscolhido, treinos = [], emDia = False, matricula= matriculaAluno, senhaAluno= senhaAluno, emailAluno = emailAluno, aulas = []}
             appendFile "haskell/Aluno.txt" (alunoToString alunoCriado ++ "\n") 
           
 
@@ -143,14 +143,14 @@ alunoToString alunoTo =
             Planos.Premium -> "Premium"
       in intercalate ";" [ matricula alunoTo
                         , show (alunoId alunoTo)
-                        , nome alunoTo
-                        , cpf alunoTo
-                        , endereço alunoTo
-                        , contato alunoTo
+                        , nomeAluno alunoTo
+                        , cpfAluno alunoTo
+                        , endereçoAluno alunoTo
+                        , contatoAluno alunoTo
                         , planoStr
                         , show (treinos alunoTo)
                         , show (emDia alunoTo)
-                        , senha alunoTo
-                        , email alunoTo
+                        , senhaAluno alunoTo
+                        , emailAluno alunoTo
                         , show (aulas alunoTo)
                         ]
