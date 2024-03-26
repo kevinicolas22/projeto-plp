@@ -5,6 +5,8 @@ module Main where
 import Data.Char (toUpper)
 import MainAluno
 import MainFuncionario as MF
+import Control.Concurrent (threadDelay)
+import System.Console.ANSI
 --Interface sistema
 main :: IO()
 main = do
@@ -28,6 +30,10 @@ main = do
         --"B" -> --menuGestor
         "3" -> menuFuncionario main
         --"D" -> menuLogin
+        _ -> do 
+            putStrLn "! Opção inválida !"
+            threadDelay (2 * 1000000)
+            main
        
 
 --Função para criar um login

@@ -11,8 +11,10 @@ import AvaliacaoFisica
 import Treino
 import MainAluno(limparTerminal,recuperaAlunoMatricula)
 import AlunoController
+import Control.Concurrent (threadDelay)
 import Aluno
 import Data.List.Split(splitOn)
+import Data.List
 
 -- menu voltado pra testes
 -- Função principal
@@ -238,7 +240,7 @@ menuTreinoF menuPrincipal= do
       --  "C" -> lerTodosTreinosAcademia
       --  "D" -> excluirTreino
       --  "E" -> atualizarTreinoOpcao
-        "F" -> menuFuncionario menuPrincipal
+        "6" -> menuFuncionario menuPrincipal
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuTreinoF menuPrincipal
 
 
@@ -248,10 +250,14 @@ funcionarioCriaTreino :: IO () -> IO ()
 funcionarioCriaTreino menuPrincipal = do
     limparTerminal
     putStrLn "   ==== Solicitações Pendentes ====\n"
-    solicitaçoes<- recuperaSolicitaçoes
-    if length solicitaçoes == 1
+    conexao <- openFile "haskell/solicitacoes.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let conteudoMaiusculo = map toUpper conteudo
+        linhas = lines conteudoMaiusculo
+        solicitacoes = map (splitOn ",")  linhas
+    if not(length solicitacoes == 0)
         then do
-            exibeSolicitacoes solicitaçoes
+            exibeSolicitacoes linhas
             putStrLn "\n [0] Voltar       [1] Atribuir Treino"
             opçao<- getLine
             case opçao of 
@@ -259,30 +265,59 @@ funcionarioCriaTreino menuPrincipal = do
                 "1"-> do
                     putStrLn "\nMatricula do aluno: "
                     matricula <- getLine
+                    let matriculaCaps = map toUpper matricula
                     -- verificar aluno.txt
                     putStrLn "Tipo de Treino requisitado: "
                     tipo_treino <- getLine
-
-                    putStrLn "Insira o treino personalizado( ! :parar finalizar): "
-                    personalizado <- lerLinhas '!'
-                    let personalizadoArray = toArray personalizado
-                    treino <- cadastraTreino tipo_treino personalizadoArray
-                    associarTreinoAluno matricula treino
-                    funcionarioCriaTreino menuPrincipal
+                    let tipoTreinoCaps = map toUpper tipo_treino
+                    solicitaçaoEncontrada<- existeSolicitacao tipoTreinoCaps matriculaCaps solicitacoes
+                    if solicitaçaoEncontrada
+                        then do
+                            putStrLn "Insira o treino personalizado( ! :parar finalizar): "
+                            personalizado <- lerLinhas '!'
+                            let personalizadoArray = toArray personalizado
+                            treino <- cadastraTreino tipoTreinoCaps personalizadoArray
+                            associarTreinoAluno matriculaCaps treino
+                            removerSolicitacao tipoTreinoCaps matricula
+                            putStrLn " TREINO ATRIBUÍDO COM SUCESSO !"
+                            threadDelay (2 * 1000000)
+                            funcionarioCriaTreino menuPrincipal
+                        else do
+                            putStrLn " Solicitação não encontrada! Preencha os campos corretamente"
+                            threadDelay (2 * 1000000)
+                            funcionarioCriaTreino menuPrincipal
+                _ -> funcionarioCriaTreino menuPrincipal
         else do
             putStrLn " Não há solicitações pendentes. \n\n [0] Voltar"
             opçao1<- getLine
             case opçao1 of
                 "0"-> menuTreinoF menuPrincipal
 
+removerSolicitacao :: String -> String -> IO ()
+removerSolicitacao tipoTreino matricula = do
+    handle <- openFile "haskell/solicitacoes.txt" ReadMode
+    contents <- hGetContents handle
+    (tempName, tempHandle) <- openTempFile "." "temp"
+    let conteudoMaiusculo = map toUpper contents
+        linhas = lines conteudoMaiusculo
+        solicitacoes = map (splitOn ",") linhas
+        novasSolicitacoes = filter (\[mat, tipo] -> mat /= matricula || tipo /= tipoTreino) solicitacoes
+        novoConteudo = unlines $ map (intercalate "," ) novasSolicitacoes
+    hPutStr tempHandle (novoConteudo)
+    hClose handle
+    hClose tempHandle
+    removeFile "haskell/solicitacoes.txt"
+    renameFile tempName "haskell/solicitacoes.txt"
+    
 
-recuperaSolicitaçoes :: IO [String]
-recuperaSolicitaçoes = do
-    conteudo <- readFile "haskell/solicitacoes.txt"
-    seq conteudo $ return ()
-    let linhas = lines conteudo
-    seq linhas $ return ()
-    return linhas
+
+existeSolicitacao :: String -> String -> [[String]] -> IO Bool
+existeSolicitacao tipoTreino matricula linhas = do
+    let existe = any (\[mat,tipo] -> mat == matricula && tipo == tipoTreino) linhas
+    return existe
+
+
+
 
 exibeSolicitacoes :: [String] -> IO ()
 exibeSolicitacoes [] = putStrLn " "

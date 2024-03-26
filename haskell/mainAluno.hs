@@ -224,10 +224,18 @@ menuTreinos aluno menuPrincipal= do
       putStrLn ("        ======= Meus Treinos =======\n")
       if (length (treinos aluno))==0
             then do
-                  putStrLn "\n > Você ainda não possui treinos cadastrados !\n\n [0] Voltar\n"
-                  opçao<- getLine
-                  case opçao of
+                  putStrLn "\n > Você ainda não possui treinos cadastrados !\n\n [0] Voltar    [1] Solicitar Treino\n"
+                  opçao1<- getLine
+                  case opçao1 of
                         "0"-> homeAluno aluno menuPrincipal
+                        "1"-> do
+                              putStr "\n> Informe o tipo de treino  desejado (Ex: peito, perna...):"
+                              hFlush stdout
+                              tipoDesejado<- getLine
+                              solicitaTreino aluno tipoDesejado
+                              putStrLn ("\x1b[32m" ++" TREINO SOLICITADO COM SUCESSO !\x1b[0m")
+                              threadDelay (2 * 1000000)
+                              menuTreinos aluno menuPrincipal
                         _  -> menuTreinos aluno menuPrincipal
       else do
             putStrLn (exibeTreinosAluno (treinos aluno))
