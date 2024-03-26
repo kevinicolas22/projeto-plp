@@ -22,6 +22,7 @@ criarAluno = do
   hFlush stdout
   clearScreen
   setCursorPosition 0 0
+  putStrLn "   ===== CADASTRO / ALUNO ===== "
   putStr "Nome do aluno: "
   hFlush stdout
   nomeAluno <- getLine

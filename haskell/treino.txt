@@ -1,0 +1,2 @@
+
+("costas",["puxada frontal","remada alta","remada baixa","costas polia",""])

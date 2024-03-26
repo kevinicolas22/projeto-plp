@@ -1,7 +1,7 @@
 module FuncionarioService where
 
 import Funcionario
---import Treino
+import Treino
 import Data.List (intercalate)
 import Data.Maybe (mapMaybe, maybeToList)
 import System.Directory
@@ -13,18 +13,13 @@ import Data.List (elemIndices)
 import AvaliacaoFisica
 import Data.Maybe (mapMaybe)
 import Text.Read (readMaybe)
+import MainAluno
+import Aluno
 
 
 
 --  Função que extrai os primeiros elementos de uma lista de strings.
-primeirosElementos :: [String] -> [String]
-primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
-  where
-    replace :: Char -> Char -> String -> String
-    replace _ _ [] = []
-    replace from to (c : cs)
-      | c == from = to : replace from to cs
-      | otherwise = c : replace from to cs
+
 
 -- Função que verifica se uma string está presente em uma lista de strings.
 verificandoId :: String -> [String] -> Bool
@@ -467,13 +462,23 @@ calcularFaixaIMC imc
 --TREINO
 
 --Função para cadastrar TREINO (primeiro paramêtro por enquanto é a matricula)
-{-cadastraTreino :: Int -> String -> String -> String -> IO()
-cadastraTreino matricula tipo_treino descricao dataTreino= do
-  let novoTreino = Treino matricula tipo_treino descricao dataTreino
-  appendFile "treino.txt" (toString novoTreino ++ "\n")
+cadastraTreino :: String -> [String]  -> IO Treino
+cadastraTreino tipo_treino exercicios= do
+  let novoTreino = Treino tipo_treino exercicios
+  appendFile "haskell//treino.txt" (show novoTreino ++ "\n")
+  return novoTreino
 
+associarTreinoAluno:: String-> Treino -> IO()
+associarTreinoAluno matricula treino= do
+    alunoEncontrado <- recuperaAlunoMatricula matricula
+    putStr(show alunoEncontrado)
+    let novoAluno = alunoEncontrado { treinos = treino : treinos alunoEncontrado }
+    substituirAlunoTxt novoAluno matricula
+
+toArray :: String -> [String]
+toArray exercicios = splitOn "/" exercicios
 --Função para visualizar treino de aluno com sua matricula
-viewTreinoAluno :: Int -> IO()
+{-viewTreinoAluno :: Int -> IO()
 viewTreinoAluno matricula = do
     conexao <- openFile "treino.txt" ReadMode
     conteudo <- hGetContents conexao
