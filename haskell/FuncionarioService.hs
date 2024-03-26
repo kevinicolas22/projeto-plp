@@ -31,14 +31,14 @@ verificandoId str xs = str `elem` xs
 -- Função para adicionar um funcionário ao arquivo
 adicionarFuncionario :: Funcionario -> IO ()
 adicionarFuncionario novo_funcionario = do
-  conexao <- openFile "funcionario.txt" ReadMode
+  conexao <- openFile "haskell/funcionario.txt" ReadMode
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
       idNovo = funcId novo_funcionario
   if verificandoId (show idNovo) ids
     then putStrLn "ID já em uso. Escolha um ID diferente."
-    else appendFile "funcionario.txt" (toStringFuncionario novo_funcionario ++ "\n")
+    else appendFile "haskell/funcionario.txt" (toStringFuncionario novo_funcionario ++ "\n")
   hClose conexao
 
 
@@ -47,7 +47,7 @@ criarFuncionario :: IO Funcionario
 criarFuncionario = do
   putStrLn "Digite o seu ID: "
   id <- readLn :: IO Int
-  conexao <- openFile "funcionario.txt" ReadMode
+  conexao <- openFile "haskell/funcionario.txt" ReadMode
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
@@ -82,7 +82,7 @@ criarFuncionario = do
 -- Função para ler um funcionário pelo ID e imprimir seus dados
 lerFuncionarioPorId :: Int -> IO ()
 lerFuncionarioPorId targetId = do
-  conexao <- openFile "funcionario.txt" ReadMode
+  conexao <- openFile "haskell/funcionario.txt" ReadMode
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
@@ -97,7 +97,7 @@ lerFuncionarioPorId targetId = do
 --- Função para listar todos os gestores do arquivo "funcionario.txt"
 listarTodosFuncionarios :: IO () 
 listarTodosFuncionarios = do
-    handle <- openFile "funcionario.txt" ReadMode
+    handle <- openFile "haskel/funcionario.txt" ReadMode
     assunto <- hGetContents handle
     let linhas = lines assunto
         funcionarios = map (splitOn ",") linhas
@@ -109,7 +109,7 @@ listarTodosFuncionarios = do
 -- Função que atualiza os dados de um funcionário no arquivo "funcionario.txt" com base no ID fornecido.
 atualizarFuncionarioPorId :: Int -> Funcionario -> IO ()
 atualizarFuncionarioPorId targetId novoFuncionario = do
-  handle <- openFile "funcionario.txt" ReadMode
+  handle <- openFile "haskell/funcionario.txt" ReadMode
   contents <- hGetContents handle
   let linhas = lines contents
       ids = primeirosElementos linhas
@@ -124,8 +124,8 @@ atualizarFuncionarioPorId targetId novoFuncionario = do
       hPutStr tempHandle (unlines linhasAtualizadas)
       hClose handle
       hClose tempHandle
-      removeFile "funcionario.txt"
-      renameFile tempName "funcionario.txt"
+      removeFile "haskell/funcionario.txt"
+      renameFile tempName "haskell/funcionario.txt"
 
 -- Função para atualizar os dados de um funcionário em uma linha específica
 atualizarDadosFuncionario :: String -> Funcionario -> String
@@ -142,7 +142,7 @@ atualizarDadosFuncionario linha (Funcionario id nome cpf endereco telefone dataI
 -- Função para remover um funcionário do arquivo pelo ID.
 removerFuncionarioPorId :: Int -> IO ()
 removerFuncionarioPorId targetId = do
-  handle <- openFile "funcionario.txt" ReadMode
+  handle <- openFile "haskell/funcionario.txt" ReadMode
   contents <- hGetContents handle
   let linhas = lines contents
       ids = primeirosElementos linhas
@@ -154,8 +154,8 @@ removerFuncionarioPorId targetId = do
       hPutStr tempHandle (unlines linhasFiltradas)
       hClose handle
       hClose tempHandle
-      removeFile "funcionario.txt"
-      renameFile tempName "funcionario.txt"
+      removeFile "haskell/funcionario.txt"
+      renameFile tempName "haskell/funcionario.txt"
 
 -- Função auxiliar para converter uma lista de strings em um Funcionario
 parseFuncionario :: [String] -> Maybe Funcionario
