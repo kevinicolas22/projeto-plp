@@ -253,7 +253,7 @@ filtrarIdF id listaG = do
 
 folhaPagamentoFuncionario :: Int -> IO ()
 folhaPagamentoFuncionario targetId = do
-  conexao <- openFile "funcionario.txt" ReadMode
+  conexao <- openFile "haskell/funcionario.txt" ReadMode
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       funcionarioInfos = filtrarId targetId linhas

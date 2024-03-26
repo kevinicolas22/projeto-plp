@@ -171,6 +171,7 @@ criarNovoFuncionario = do
   menuFuncionarioG
 
 
+
 menuMaquinaG :: IO ()
 menuMaquinaG = do
     limparTerminal
@@ -199,13 +200,13 @@ menuMaquinaG = do
         nomeG <- getLine
         putStrLn "Informe a data de manutenção: "
         dataMan <- getLine
-        adicionarMaquinaReparo (Maquina (show id) nomeG dataMan) >> menuMaquinaG
+        adicionarMaquinaReparo (Maquina (show id) nomeG dataMan) -- maquina adiconada -- case para voltar ou manter, tirar o voltar automatico 
          
-      "5" -> imprimirMaquinasReparo "maquina_reparo.txt" >> menuMaquinaG
+      "5" -> imprimirMaquinasReparo "haskell/maquina_reparo.txt" -- case para voltar ou manter, tirar o voltar automatico 
       "6" -> do
         numeroMaquinas <- contarMaquinas "maquina.txt"
         putStrLn $ "Número de máquinas registradas: " ++ show numeroMaquinas
-        menuMaquinaG
+        -- case para voltar ou manter, tirar o voltar automatico 
          
       "7" -> menuGestor -- 
       _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquinaG
@@ -216,12 +217,13 @@ criarMaquinas = do
   novaMaquina <- criarMaquina
   adicionarMaquina novaMaquina
   putStrLn "Maquina adicionada com sucesso!"
-  menuMaquinaG
+  
 
 
 listarEquipamentos :: IO ()
 listarEquipamentos = do
-  lerMaquinas "maquina.txt" >> menuMaquinaG
+  lerMaquinas "maquina.txt" 
+  -- case para voltar ou manter, tirar o voltar automatico 
    
 
 
@@ -252,7 +254,7 @@ folhaDePagamento = do
     targetId <- getLine 
     let numero = read targetId :: Int
     folhaPagamentoFuncionario numero
-    menuFinanceiroG
+    -- case para voltar ou manter, tirar o voltar automatico 
 
 sair :: IO ()
 sair = do

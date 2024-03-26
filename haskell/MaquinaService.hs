@@ -8,6 +8,7 @@ import Text.Read (readMaybe)
 import Data.List.Split
 import Data.Maybe (mapMaybe, maybeToList)
 import Data.List.Split (splitOn)
+import Control.Exception (catch, IOException)
 
 
 --  Função que extrai os primeiros elementos de uma lista de strings.
@@ -37,17 +38,24 @@ criarMaquina :: IO Maquina
 criarMaquina = do
     putStrLn "Digite o ID da máquina: "
     id <- getLine
-    conexao <- openFile "maquina.txt" ReadMode
-    conteudo <- hGetContents conexao
+    
+    -- Tente abrir o arquivo, criando-o se não existir
+    handle <- openFile "maquina.txt" ReadWriteMode `catch` \e -> do
+        let _ = e :: IOError
+        openFile "maquina.txt" WriteMode
+
+
+    conteudo <- hGetContents handle
     let linhas = lines conteudo
         ids = primeirosElementos linhas
 
     if id `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
-            hClose conexao
+            hClose handle
             criarMaquina
         else do
+            hClose handle
             putStrLn "Digite o nome da máquina: "
             nome <- getLine
             putStrLn "Digite a data de manutenção da máquina (formato: dd/mm/aaaa): "
@@ -55,7 +63,9 @@ criarMaquina = do
             case delimitarManutencao dataStr of
                 Just manutencaoDelimitada -> do
                     let dataManut = show manutencaoDelimitada :: DataManutencao
-                    return (Maquina id nome dataManut)
+                    let novaMaquina = Maquina (show id) nome dataManut
+                    appendFile "maquina.txt" (show novaMaquina ++ "\n")
+                    return novaMaquina
                 Nothing -> do
                     putStrLn "Data de manutenção inválida. Por favor, digite novamente."
                     criarMaquina
@@ -77,14 +87,14 @@ contarMaquinas arquivo = do
 -- Função para adicionar uma maquina arquivo
 adicionarMaquinaReparo :: Maquina -> IO ()
 adicionarMaquinaReparo reparo_maquina = do
-  conexao <- openFile "maquina_reparo.txt" ReadMode
+  conexao <- openFile "haskell/maquina_reparo.txt" ReadMode
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
       idNovo = codigoMaquina reparo_maquina
   if verificandoIdG (show idNovo) ids
     then putStrLn "ID inexistente. Escolha um ID diferente."
-    else appendFile "maquina_reparo.txt" (toStringMaquina reparo_maquina ++ "\n")
+    else appendFile "haskell/maquina_reparo.txt" (toStringMaquina reparo_maquina ++ "\n")
   hClose conexao
 
 -- Função para ler o arquivo e imprimir todas as máquinas cadastradas
@@ -130,7 +140,7 @@ mostrarMaquina (Maquina _ nome dataManutencao) =
 -- Função para listar as máquinas em ordem alfabética
 listarMaquinasOrdemAlfabetica :: IO ()
 listarMaquinasOrdemAlfabetica = do
-  conteudo <- readFile "maquina_reparo.txt"
+  conteudo <- readFile "haskell/maquina_reparo.txt"
   let linhas = lines conteudo
       maquinas = mapMaybe lerMaquinaR linhas
       maquinasOrdenadas = sortOn nomeMaquina maquinas
