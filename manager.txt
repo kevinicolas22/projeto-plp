@@ -1,1 +1,5 @@
-5, "025.025.025-78", ana, 02/02/1245, "83912361254", rua jo
+
+Manager {managerId = 1, cpfG = "025.025.025-02", nomeG = "bb", dataNascimento = "02/02/1245", telefoneG = "03965326532", enderecoG = "rua jo"}
+1, "025.025.025-02", bb, 02/02/1245, "03965326532", rua jo
+Manager {managerId = 2, cpfG = "025.025.025-45", nomeG = "an", dataNascimento = "02/02/1245", telefoneG = "02154215421", enderecoG = "rua j"}
+2, "025.025.025-45", an, 02/02/1245, "02154215421", rua j

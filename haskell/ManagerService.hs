@@ -19,14 +19,17 @@ import Data.List.Split (chunksOf)
 import Data.Char (isDigit)
 import Data.Maybe (mapMaybe, maybeToList)
 import Control.Exception
+import System.Console.ANSI
 import Control.Concurrent
+import Control.Exception (catch, IOException)
+import Control.Concurrent (threadDelay)
 
 
 
 --- Funçao para criar Gestor e as delimitaçoes de cada dado do gestor 
 criarGestor :: IO Manager
 criarGestor = do
-    putStrLn "Digite o seu ID de gestor: "
+    putStrLn ">> Digite o seu ID de gestor: "
     id <- getLine
 
     -- Tente abrir o arquivo, criando-o se não existir
@@ -42,37 +45,44 @@ criarGestor = do
     if id `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
+            threadDelay (1 * 1000000)
             hClose handle  -- Feche o arquivo antes de chamar a função recursiva
             criarGestor
         else do
             hClose handle  -- Feche o arquivo antes de prosseguir
-            putStrLn "Digite o seu CPF (formatação 000.000.000-00): "
+            putStrLn "\n>> Digite o seu CPF (formatação 000.000.000-00): "
             cpfG <- getLine
             case delimitarCpfG cpfG of
                 Just cpfGDelimitado -> do
-                    putStrLn "Digite o seu nome: "
+                    putStrLn "\n>> Digite o seu nome: "
                     nomeG <- getLine
-                    putStrLn "Digite sua data de nascimento (formato dd/mm/aaaa): "
+                    putStrLn "\n>> Digite sua data de nascimento (formato dd/mm/aaaa): "
                     nascimento <- getLine
                     case delimitarNascimento nascimento of
                         Just nascimentoDelimitado -> do
-                            putStrLn "Digite seu telefone (formato DDD000000000): "
+                            putStrLn "\n>> Digite seu telefone (formato DDD000000000): "
                             telefoneG <- getLine
                             case delimitarTelefoneG telefoneG of
                                 Just telefoneGDelimitado -> do
-                                    putStrLn "Digite seu endereço: "
+                                    putStrLn "\n>> Digite seu endereço: "
                                     enderecoG <- getLine
                                     let novoGestor = Manager (read id) cpfGDelimitado nomeG nascimentoDelimitado telefoneGDelimitado enderecoG
                                     appendFile "manager.txt" (show novoGestor ++ "\n")  -- Adiciona o novo gestor ao arquivo
                                     return novoGestor
                                 Nothing -> do
-                                    putStrLn "Telefone inválido. Por favor, digite novamente."
+                                    putStrLn "Telefone inválido. Por favor, inicie novamente seu cadastro."
+                                    threadDelay (1 * 1000000)
+                                    limpar
                                     criarGestor
                         Nothing -> do
-                            putStrLn "Data de nascimento inválida. Por favor, digite novamente."
+                            putStrLn "Data de nascimento inválida. Por favor, inicie novamente seu cadastro."
+                            threadDelay (1 * 1000000)
+                            limpar
                             criarGestor
                 Nothing -> do
-                    putStrLn "CPF inválido. Por favor, digite novamente."
+                    putStrLn "CPF inválido. Por favor, inicie novamente seu cadastro."
+                    threadDelay (1 * 1000000)
+                    limpar
                     criarGestor 
 
                      
@@ -101,13 +111,15 @@ lerGestorPorId targetId = do
     let linhas = lines assunto
         ids = primeirosElementosG linhas
     if not (verificandoIdG (show targetId) ids)
-        then putStrLn "ID não encontrado."
+        then putStrLn "ID não encontrado." 
         else do 
             let dadosGestor = filtrarIdG targetId linhas 
             case dadosGestor of
                 Nothing -> putStrLn "Gestor não encontrado."
                 Just gestor -> do
-                    putStrLn "Gestor encontrado"
+                    putStrLn "Procurando..."
+                    putStrLn "\nGestor encontrado"
+                    threadDelay (2 * 1000000)
                     mostrarGestor gestor
     hClose conexao
 
@@ -272,11 +284,14 @@ folhaPagamentoFuncionario targetId = do
       funcionarioInfos = filtrarId targetId linhas
   case listToMaybe funcionarioInfos of
     Nothing -> putStrLn "ID não encontrado."
-    Just [] -> putStrLn "Funcionário não encontrado."
+    Just [] -> putStrLn "Funcionário não encontrado." 
     Just (idStr:nome:cpf:endereco:telefone:dataIngresso:salarioStr:_) -> do
       let funcionario = Funcionario { funcId = read idStr, nome = nome, cpf = cpf, endereco = endereco, telefone = telefone, data_ingresso = dataIngresso, salario = read salarioStr }
-      putStrLn "FOLHA DE PAGAMENTO:"
+      putStrLn "\nFOLHA DE PAGAMENTO:"
       imprimirFolhaPagamento funcionario
   hClose conexao
 
-
+limpar :: IO ()
+limpar = do
+      clearScreen
+      setCursorPosition 0 0

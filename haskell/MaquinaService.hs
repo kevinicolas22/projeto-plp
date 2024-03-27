@@ -109,7 +109,9 @@ adicionarMaquinaReparo idStr = do
             -- Fecha o arquivo "maquinas.txt"
             hClose handleMaquinas
             putStrLn "Máquina adicionada com sucesso!"
-        Nothing -> putStrLn "Máquina não encontrada com o ID fornecido."
+        Nothing -> do
+            hClose handleMaquinas
+            putStrLn "Máquina não encontrada com o ID fornecido."
 
 
 
@@ -117,12 +119,15 @@ adicionarMaquinaReparo idStr = do
 parseMaquinas :: String -> [Maquina]
 parseMaquinas conteudo = mapMaybe parseMaquina (lines conteudo)
 
+
+
+
 -- Função para ler o arquivo e imprimir todas as máquinas cadastradas
 imprimirMaquinasReparo :: FilePath -> IO ()
 imprimirMaquinasReparo arquivo = do
     conteudo <- readFile arquivo
     let linhas = lines conteudo
-    putStrLn "Máquinas com necessidade de reparo:"
+    putStrLn ">> Máquinas com necessidade de reparo <<"
     mapM_ mostrarMaquinas linhas
 
 
@@ -131,7 +136,7 @@ lerMaquinas :: FilePath -> IO()
 lerMaquinas arquivo = do
   conteudo <- readFile arquivo
   let linhas = lines conteudo
-  putStrLn "Máquinas Cadatradas"
+  putStrLn ">> Máquinas Cadatradas <<\n"
   mapM_ mostrarMaquinas linhas  
 
 -- funcao auxiliar de ler maquinas

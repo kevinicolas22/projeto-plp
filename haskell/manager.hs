@@ -10,9 +10,8 @@ import Data.Char (isDigit)
 import Data.List (intercalate)
 import Data.List.Split (chunksOf)
 
-
-type CpfG = String
 type IdG = Int
+type CpfG = String
 type NomeG = String
 type DataNascimento = String
 type Email = String
@@ -20,8 +19,8 @@ type TelefoneG = String
 type EnderecoG = String
 
 data Manager = Manager {
-    cpfG :: CpfG,
     managerId :: IdG,
+    cpfG :: CpfG,
     nomeG :: NomeG,
     dataNascimento :: DataNascimento,
     telefoneG :: TelefoneG,
@@ -39,14 +38,18 @@ delimitarTelefoneG telefoneG
 --- Função data de nascimento delimitar em 00/00/0000
 delimitarNascimento :: String -> Maybe String
 delimitarNascimento nascimento
-    | length numeros == 8 = Just dataFormatada
+    | length numeros == 8 && validaData = Just dataFormatada
     | otherwise = Nothing
     where
         numeros = filter isDigit nascimento
         dia = take 2 numeros
-        mes = take 2(drop 2 numeros)
+        mes = take 2 (drop 2 numeros)
         ano = drop 4 numeros
-        dataFormatada = intercalate "/"[dia,mes,ano]
+        dataFormatada = intercalate "/" [dia, mes, ano]
+        diaInt = read dia :: Int
+        mesInt = read mes :: Int
+        anoInt = read ano :: Int
+        validaData = diaInt >= 1 && diaInt <= 31 && mesInt >= 1 && mesInt <= 12 && anoInt < 2021
 
 --- Função delimitar cpfG 11 numeros 000.000.000-00
 delimitarCpfG :: String -> Maybe String
