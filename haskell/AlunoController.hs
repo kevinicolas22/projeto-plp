@@ -15,8 +15,6 @@ import Aluno
 import Planos
 import Data.List.Split
 
-
-
 criarAluno :: IO()
 criarAluno = do
   hFlush stdout
@@ -72,7 +70,7 @@ criarAluno = do
         conteudo<- hGetContents conexao
         seq conteudo $ return ()
         let linhas = lines conteudo
-        matriculaAluno <- gerarMatriculaUnica 1 linhas
+        matriculaAluno <- gerarMatriculaUnica 1 linhas  -- funçao que gera uma matricula automaticamente
         if not(verificarString matriculaAluno)
           then do
             putStrLn("Formato inválido! ")
@@ -94,18 +92,15 @@ criarAluno = do
             let alunoCriado = Aluno { alunoId = 0, nomeAluno = nomeAluno, cpfAluno = cpfDelimitado, endereçoAluno = endereçoAluno, contatoAluno = contatoAluno, planoAluno = planoEscolhido, treinos = [], emDia = False, matricula= matriculaAluno, senhaAluno= senhaAluno, emailAluno = emailAluno, aulas = []}
             appendFile "haskell/Aluno.txt" (alunoToString alunoCriado ++ "\n") 
           
-
-
 -- Função para gerar uma matrícula única
 gerarMatriculaUnica :: Int-> [String]-> IO String
 gerarMatriculaUnica count linhas= do
-  
   let matriculas = primeirosElementos linhas
       matriculaAluno = "00" ++ show (count)
   if matriculaAluno `elem` matriculas
     then gerarMatriculaUnica (count+1) linhas -- Se a matrícula já existe, tente novamente
     else return matriculaAluno
-                      
+                    
 exibeTreinosAluno:: [Treino]-> String
 exibeTreinosAluno treinos = unlines (map exibeTreino treinos)
 
@@ -140,8 +135,6 @@ notNull:: String-> Bool
 notNull str = do
     not(length str==0)
   
-
-
 alunoToString :: Aluno -> String
 alunoToString alunoTo =
       let planoStr = case planoAluno alunoTo of

@@ -27,6 +27,8 @@ import qualified Network.HTTP.Conduit as HTTP
 import Control.Exception
 import qualified Data.ByteString.Lazy as BL
 import qualified Network.HTTP.Simple as Simple
+import AvaliacaoFisica
+
 
 
 defineAulas :: [Aula]
@@ -72,6 +74,7 @@ exibeAula aula = do
 existeMatricula :: String -> String -> Bool
 existeMatricula strMat conteudo = strMat `elem` primeirosElementos (lines conteudo)
 
+          
 -- Vai pro controller
 recuperaAlunoMatricula:: String-> IO Aluno
 recuperaAlunoMatricula matStr= do
@@ -203,7 +206,8 @@ homeAluno alunoAtual menuPrincipal= do
       putStrLn "║   [4] Aulas Coletivas                   ║"
       putStrLn "║   [5] Treinos                           ║"
       putStrLn "║   [6] Realizar Pagamento                ║"
-      putStrLn "║   [7] Sair                              ║"
+      putStrLn "║   [7] Calculo imc                       ║"
+      putStrLn "║   [8] Sair                              ║"
       putStrLn "║                                         ║"
       putStrLn "║   > Digite a opção:                     ║ "
       putStrLn "╚═════════════════════════════════════════╝"
@@ -215,11 +219,66 @@ homeAluno alunoAtual menuPrincipal= do
             "4"-> aulasColetivas alunoAtual menuPrincipal
             "5"-> menuTreinos alunoAtual menuPrincipal
             "6"-> realizaPagamento alunoAtual menuPrincipal
-            "7"-> funçaoSaida menuPrincipal 
+            "7"-> calculoImc alunoAtual menuPrincipal
+            "8"-> funçaoSaida menuPrincipal 
             _ -> do
                   putStr "Opção inválida!!"
                   homeAluno alunoAtual menuPrincipal
 
+calculoImc:: Aluno -> IO()-> IO()
+calculoImc aluno menuPrincipal = do
+      limparTerminal
+      putStrLn ("        ======= Calculo IMC =======\n")
+      conexao<- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
+      conteudo<- hGetContents conexao
+      let linhas = lines conteudo
+      existeAvaliacao<- verificaAvaliacao linhas (matricula aluno)
+      if not(existeAvaliacao)
+            then do
+                  putStrLn "\n Você ainda não realizou nenhuma avaliação física..."
+                  putStr "\n\n [0] Voltar"
+                  opçao<- getLine
+                  case opçao of
+                        "0" -> homeAluno aluno menuPrincipal
+                        _ -> calculoImc aluno menuPrincipal
+            else do
+                  avaliacaoEncontrada<- recuperaAvaliacaoAluno linhas (matricula aluno)
+                  exibeAvaliacao avaliacaoEncontrada 
+                  putStrln "\n\n [0] Voltar"
+                  opçao<- getLine
+                  case opçao of
+                        "0" -> homeAluno aluno menuPrincipal
+                        _ -> calculoImc aluno menuPrincipal
+
+exibeAvaliacao::  AvaliacaoFisica-> IO()
+exibeAvaliacao avaliacao = do
+      putStrLn $  "\nData da avaliação: " ++  (dataAvaliacao avaliacao) ++
+                  "\nPeso: " ++ (show(peso avaliacao)) ++
+                  "\nAltura: " ++  (show(altura avaliacao)) ++
+                  "\nIdade: " ++(show(idade avaliacao)) ++
+                  "\nObjetivo: " ++ (objetivo avaliacao)
+
+recuperaAvaliacaoAluno:: [String] -> String -> IO AvaliacaoFisica
+recuperaAvaliacaoAluno (x:xs) matAluno= do
+      let atual = splitOn "," x
+      if matAluno `elem` atual
+            then return (parseAvaliacao atual)
+            else do
+            recuperaAvaliacaoAluno xs matAluno
+
+parseAvaliacao :: [String] -> AvaliacaoFisica
+parseAvaliacao [id, dataAv, peso, altura, idade, objetivo, matricula] =
+      AvaliacaoFisica (read id) dataAv (read peso) (read altura) (read idade) objetivo matricula
+parseAvaliacao _ = error "Formato de avaliação inválido"
+
+verificaAvaliacao:: [String]->String-> IO Bool
+verificaAvaliacao [] _= return False
+verificaAvaliacao (x:xs) matAluno=do 
+      let atual = splitOn "," x
+      if matAluno `elem` atual
+            then return True
+      else do
+            verificaAvaliacao xs matAluno
 
 funçaoSaida:: IO() -> IO()
 funçaoSaida menuPrincipal= do

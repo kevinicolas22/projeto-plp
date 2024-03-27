@@ -244,7 +244,9 @@ criarAvaliacaoFisica :: IO AvaliacaoFisica
 criarAvaliacaoFisica = do
     putStrLn "Digite o ID da avaliação:"
     avaliacaoId <- readLn :: IO Int
-    conexao <- openFile "avaliacoes_fisicas.txt" ReadMode
+    putStrLn "Digite a matricula do aluno:"
+    matriculaAvaliacao <- getLine
+    conexao <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
     conteudo <- hGetContents conexao
     let linhas = lines conteudo
         ids = primeirosElementos linhas
@@ -256,19 +258,19 @@ criarAvaliacaoFisica = do
       else do
         putStrLn "Digite a data da avaliação (DD/MM/AAAA):"
         dataAvaliacao <- obterInformacao "Data da avaliação" delimitarData
-        putStrLn "Digite seu peso:"
+        putStrLn "Digite o peso:"
         peso <- readLn :: IO Float
-        putStrLn "Digite a sua altura (1.80):"
+        putStrLn "Digite a altura (1.80):"
         altura <- readLn :: IO Float
-        putStrLn "Digite sua idade:"
+        putStrLn "Digite a idade:"
         idade <- readLn :: IO Int
         putStrLn "Digite seu objetivo:"
         objetivo <- getLine
-        return (AvaliacaoFisica avaliacaoId dataAvaliacao peso altura idade objetivo)
+        return (AvaliacaoFisica avaliacaoId dataAvaliacao peso altura idade objetivo matriculaAvaliacao)
 
 lerAvaliacaoFisicaPorId :: Int -> IO ()
 lerAvaliacaoFisicaPorId targetId = do
-    conexao <- openFile "avaliacoes_fisicas.txt" ReadMode
+    conexao <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
     conteudo <- hGetContents conexao
     let linhas = lines conteudo
         ids = primeirosElementos linhas
@@ -284,7 +286,7 @@ lerAvaliacaoFisicaPorId targetId = do
 -- Função para listar todas as avaliações físicas do arquivo "avaliacoes_fisicas.txt"
 listarTodasAvaliacoesFisicas :: IO ()
 listarTodasAvaliacoesFisicas = do
-    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    handle <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
     conteudo <- hGetContents handle
     let linhas = lines conteudo
         avaliacoes = map (splitOn ",") linhas
@@ -296,7 +298,7 @@ listarTodasAvaliacoesFisicas = do
 -- Função para atualizar os dados de uma avaliação física no arquivo "avaliacoes_fisicas.txt" com base no ID fornecido.
 atualizarAvaliacaoFisicaPorId :: Int -> AvaliacaoFisica -> IO ()
 atualizarAvaliacaoFisicaPorId targetId novaAvaliacao = do
-    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    handle <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
     contents <- hGetContents handle
     let linhas = lines contents
         ids = primeirosElementos linhas
@@ -316,7 +318,7 @@ atualizarAvaliacaoFisicaPorId targetId novaAvaliacao = do
 
 -- Função para atualizar os dados de uma avaliação física em uma linha específica
 atualizarDadosAvaliacaoFisica :: String -> AvaliacaoFisica -> String
-atualizarDadosAvaliacaoFisica linha (AvaliacaoFisica id dataAvaliacao novoPeso novaAltura novaIdade novoObjetivo) =
+atualizarDadosAvaliacaoFisica linha (AvaliacaoFisica id dataAvaliacao novoPeso novaAltura novaIdade novoObjetivo matriculaAlunoAv) =
     let dadosAntigos = splitOn "," linha
         idAntigo = dadosAntigos !! 0
         dataAntiga = dadosAntigos !! 1
@@ -336,7 +338,7 @@ atualizarDadosAvaliacaoFisica linha (AvaliacaoFisica id dataAvaliacao novoPeso n
 -- Função para remover uma avaliação física do arquivo pelo ID.
 removerAvaliacaoFisicaPorId :: Int -> IO ()
 removerAvaliacaoFisicaPorId targetId = do
-    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    handle <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
     contents <- hGetContents handle
     let linhas = lines contents
         ids = primeirosElementos linhas
@@ -348,8 +350,8 @@ removerAvaliacaoFisicaPorId targetId = do
             hPutStr tempHandle (unlines linhasFiltradas)
             hClose handle
             hClose tempHandle
-            removeFile "avaliacoes_fisicas.txt"
-            renameFile tempName "avaliacoes_fisicas.txt"
+            removeFile "haskell/avaliacoes_fisicas.txt"
+            renameFile tempName "haskell/avaliacoes_fisicas.txt"
             putStrLn "Avaliação física removida com sucesso."
 
 -- Função para imprimir os dados de uma avaliação física representada por uma lista de listas de strings.
@@ -362,7 +364,8 @@ imprimindoAvaliacaoFisica (x:xs) = do
                   "\nPeso: " ++ (x !! 2) ++
                   "\nAltura: " ++  (x !! 3) ++
                   "\nIdade: " ++(x !! 4) ++
-                  "\nObjetivo: " ++ (x !! 5) 
+                  "\nObjetivo: " ++ (x !! 5) ++
+                  "\nMatricula Aluno: "++ (x!!6)
     else
         putStrLn "A lista não contém dados suficientes para uma avaliação física."
     imprimindoAvaliacaoFisica xs
@@ -370,14 +373,14 @@ imprimindoAvaliacaoFisica (x:xs) = do
 -- Função para adicionar uma avaliação física ao arquivo
 adicionarAvaliacaoFisica :: AvaliacaoFisica -> IO ()
 adicionarAvaliacaoFisica nova_avaliacao = do
-    conexao <- openFile "avaliacoes_fisicas.txt" ReadMode
+    conexao <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
     conteudo <- hGetContents conexao
     let linhas = lines conteudo
         ids = primeirosElementos linhas
         idNovo = avaliacaoId nova_avaliacao
     if verificandoId (show idNovo) ids
       then putStrLn "ID já em uso. Escolha um ID diferente."
-      else appendFile "avaliacoes_fisicas.txt" (toStringAvaliacaoFisica nova_avaliacao ++ "\n")
+      else appendFile "haskell/avaliacoes_fisicas.txt" (toStringAvaliacaoFisica nova_avaliacao ++ "\n")
     hClose conexao
 
 -- Função auxiliar para delimitar a data no formato "DD/MM/AAAA"
@@ -395,17 +398,17 @@ delimitarData dataAvaliacao
 -- Função auxiliar para converter uma lista de strings em uma AvaliacaoFisica
 parseAvaliacaoFisica :: String -> Maybe AvaliacaoFisica
 parseAvaliacaoFisica linha = case words linha of
-    [avaliacaoId, dataAvaliacao, peso, altura, idade, objetivo] ->
-        Just (AvaliacaoFisica (read avaliacaoId) dataAvaliacao (read peso) (read altura) (read idade) objetivo)
+    [avaliacaoId, dataAvaliacao, peso, altura, idade, objetivo, matriculaAlunoAv] ->
+        Just (AvaliacaoFisica (read avaliacaoId) dataAvaliacao (read peso) (read altura) (read idade) objetivo matriculaAlunoAv)
     _ -> Nothing
 
 toStringAvaliacaoFisica :: AvaliacaoFisica -> String
 toStringAvaliacaoFisica avaliacao =
-    intercalate "," [show (avaliacaoId avaliacao), dataAvaliacao avaliacao, show (peso avaliacao), show (altura avaliacao), show (idade avaliacao), objetivo avaliacao]
+    intercalate "," [show (avaliacaoId avaliacao), dataAvaliacao avaliacao, show (peso avaliacao), show (altura avaliacao), show (idade avaliacao), objetivo avaliacao, matriculaAlunoAv avaliacao]
 
 verificarIMC :: Int -> IO ()
 verificarIMC alunoId = do
-    handle <- openFile "avaliacoes_fisicas.txt" ReadMode
+    handle <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
     contents <- hGetContents handle
     let linhas = lines contents
         ids = primeirosElementos linhas
