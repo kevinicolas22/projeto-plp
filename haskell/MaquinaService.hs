@@ -80,7 +80,7 @@ obterInformacaoM tipo validador = do
 -- Função para converter uma maquina em uma string no formato esperado
 toStringMaquina :: Maquina -> String
 toStringMaquina (Maquina id nome dataManutencao) =  
-  intercalate "," [show id, nome, show dataManutencao]  
+  intercalate "," [show id, nome, show dataManutencao ]  
 
 -- Função para ler o arquivo e contar o número de linhas
 contarMaquinas :: FilePath -> IO Int
@@ -89,38 +89,17 @@ contarMaquinas arquivo = do
     let linhas = lines conteudo
     return (length linhas)
 
-adicionarMaquinaReparo :: String -> IO ()
-adicionarMaquinaReparo idStr = do
-    let id = read idStr :: Int  -- Convertendo o ID fornecido para um número inteiro
-    -- Abre o arquivo "maquinas.txt" em modo de leitura
-    handleMaquinas <- openFile "haskell/maquina.txt" ReadMode
-    -- Lê o conteúdo do arquivo "maquinas.txt"
-    conteudoMaquinas <- hGetContents handleMaquinas
-    -- Encontra a linha correspondente ao ID fornecido
-    let maquina = find (\m -> codigoMaquina m == id) (parseMaquinas conteudoMaquinas)
-    case maquina of
-        Just m -> do
-            -- Abre o arquivo "maquina_reparo.txt" em modo de anexar
-            handleReparo <- openFile "haskell/maquina_reparo.txt" AppendMode
-            -- Adiciona o ID e o nome da máquina ao arquivo "maquina_reparo.txt"
-            hPutStrLn handleReparo (show (codigoMaquina m) ++ ", " ++ nomeMaquina m)
-            -- Fecha o arquivo "maquina_reparo.txt"
-            hClose handleReparo
-            -- Fecha o arquivo "maquinas.txt"
-            hClose handleMaquinas
-            putStrLn "Máquina adicionada com sucesso!"
-        Nothing -> do
-            hClose handleMaquinas
-            putStrLn "Máquina não encontrada com o ID fornecido."
-
-
-
--- Função para analisar o conteúdo do arquivo "maquinas.txt"
-parseMaquinas :: String -> [Maquina]
-parseMaquinas conteudo = mapMaybe parseMaquina (lines conteudo)
-
-
-
+adicionarMaquinaReparo :: Maquina -> IO ()
+adicionarMaquinaReparo reparo_maquina = do
+  conexao <- openFile "haskell/maquina_reparo.txt" ReadMode
+  conteudo <- hGetContents conexao
+  let linhas = lines conteudo
+      ids = primeirosElementos linhas
+      idNovo = codigoMaquina reparo_maquina
+  if verificandoIdG (show idNovo) ids
+    then putStrLn "ID inexistente. Escolha um ID diferente."
+    else appendFile "haskell/maquina_reparo.txt" (toStringMaquina reparo_maquina ++ "\n")
+  hClose conexao
 
 -- Função para ler o arquivo e imprimir todas as máquinas cadastradas
 imprimirMaquinasReparo :: FilePath -> IO ()
@@ -128,7 +107,8 @@ imprimirMaquinasReparo arquivo = do
     conteudo <- readFile arquivo
     let linhas = lines conteudo
     putStrLn ">> Máquinas com necessidade de reparo <<"
-    mapM_ mostrarMaquinas linhas
+    mapM_ mostrarMaquinasM linhas
+
 
 
 -- ler maquinas

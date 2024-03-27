@@ -301,10 +301,6 @@ removerFuncionarioOpcao = do
     threadDelay (2 * 1000000)
     menuFuncionarioG
 
-
-
-
-
 menuMaquinaG :: IO ()
 menuMaquinaG = do
     limparTerminal
@@ -325,16 +321,16 @@ menuMaquinaG = do
     case opcaoMaquinaG of 
       "1" -> criarMaquinas
       "2" -> do
-        limparTerminal
-        putStrLn ">> Informe o ID: "
-        id <- getLine 
-        putStrLn "\n>> Informe o nome: "
-        nomeG <- getLine
-        putStrLn "\n>> Informe a data de manutenção: "
+        putStrLn "Informe o ID: "
+        targetId <- getLine
+        let id = read targetId :: Int 
+        putStrLn "Informe o nome: "
+        nome <- getLine
+        putStrLn "Informe a data de manutenção: "
         dataMan <- getLine
         putStrLn"Adicionando..."
         threadDelay (2 * 1000000)
-        adicionarMaquinaReparo id
+        adicionarMaquinaReparo (Maquina id nome dataMan)
         putStrLn "\n\n [0] Voltar"
         op <- getLine
         case op of
@@ -369,7 +365,7 @@ criarMaquinas = do
 listarEquipamentos :: IO ()
 listarEquipamentos = do
   limparTerminal
-  lerMaquinas "haskell/maquina.txt" 
+  lerMaquinas "maquina.txt" 
   putStrLn "\n\n [0] Voltar"
   op <- getLine
   case op of
