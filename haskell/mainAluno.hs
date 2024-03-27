@@ -2,6 +2,7 @@
 module MainAluno where
 import AlunoController
 import Aluno
+import Debug.Trace
 import System.Console.ANSI
 import Planos
 import Control.Monad
@@ -39,6 +40,24 @@ defineAulas = [aulaDança, aulaBoxe]
                       horarioAula = "Terça e Quinta, das 20:00 às 21:30",
                       planosPermitidos = [Premium]
                     }
+                    
+recuperarAulas :: String -> [Aula]
+recuperarAulas conteudo = map parseLinha (lines conteudo)
+
+parseLinha :: String -> Aula
+parseLinha linha =  
+      let elems = splitOn ";" linha
+          planosStr = read (elems !! 2) :: [String]
+          nome = elems !! 0
+          horario = elems !! 1
+      in Aula {nomeAula=nome, horarioAula= horario, planosPermitidos= parsePlanos planosStr  }
+      
+            
+
+parsePlanos :: [String] -> [PlanoTipo]
+parsePlanos planosStrs = map readPlanosTipo (concatMap removeBrackets planosStrs)
+      where removeBrackets str = words (filter (\c -> c /= '[' && c /= ']') str)
+
 
 
 exibeAulas :: [Aula] -> IO()
@@ -98,13 +117,6 @@ readPlanosTipo "Gold" = Gold
 readPlanosTipo "Premium" = Premium
 readPlanosTipo _ = error "Tipo de plano desconhecido"
 
-parseTreinos :: String -> [(TipoTreino, Exercicios)]
-parseTreinos treinosStr = map parseTreino (splitOn ";" treinosStr)
-
-parseTreino :: String -> (TipoTreino, Exercicios)
-parseTreino treinoStr =
-      let (tipoTreino:exerciciosStr) = splitOn ":" treinoStr
-      in (tipoTreino, map trim exerciciosStr)
 
 trim :: String -> String
 trim = f . f
@@ -262,9 +274,14 @@ aulasColetivas:: Aluno-> IO()->IO()
 aulasColetivas aluno menuPrincipal= do
       limparTerminal
       putStrLn ("        ======= Aulas Coletivas =======\n")
-      exibeAulas defineAulas
+      conexao<- openFile "haskell/aulas.txt" ReadMode
+      conteudo<- hGetContents conexao
+      
+      let aulas= recuperarAulas conteudo
+      exibeAulas aulas
       putStrLn "\n\n [0] Voltar     [1] Inscrever-se     [2] Minhas aulas"
       opçao<- getLine
+      hClose conexao
       case opçao of
             "0"-> homeAluno aluno menuPrincipal
             "1"-> inscriçaoAula aluno menuPrincipal
@@ -285,6 +302,10 @@ listarAulas aluno menuPrincipal= do
                   
 inscriçaoAula:: Aluno->IO()->IO()
 inscriçaoAula aluno menuPrincipal= do
+      conexao<- openFile "haskell/aulas.txt" ReadMode
+      conteudo<- hGetContents conexao
+      
+      let aulas= recuperarAulas conteudo
       if not(emDia aluno)
             then do
                   putStrLn "\n > Não é possível realizar inscrições com a mensalidade pendente. Efetue o pagamento..."
@@ -295,10 +316,10 @@ inscriçaoAula aluno menuPrincipal= do
                   hFlush stdout
                   aulaInsc<- getLine
                   let aulaInscMaiuscula = map toUpper aulaInsc
-                  if  existeAula aulaInscMaiuscula defineAulas
+                  if  existeAula aulaInscMaiuscula aulas
                         then do 
-                              if  aulaInscMaiuscula == nomeAula(verificaAula aulaInscMaiuscula defineAulas)
-                                    then if planoIncluido aluno (verificaAula aulaInsc defineAulas)
+                              if  aulaInscMaiuscula == nomeAula(verificaAula aulaInscMaiuscula aulas)
+                                    then if planoIncluido aluno (verificaAula aulaInsc aulas)
                                           then if (estaInscrito aluno aulaInsc)
                                                 then do
                                                       putStrLn " - Você já está Inscrito nessa aula !\n\n>Pressione ENTER para voltar"
@@ -307,7 +328,7 @@ inscriçaoAula aluno menuPrincipal= do
                                           else do        
                                                 putStrLn ("\x1b[32m" ++aulaInsc++ " adicionada na sua agenda de aulas." ++ "\x1b[0m")
                                                 threadDelay (2 * 1000000)
-                                                adicionaAulaAluno (verificaAula aulaInsc defineAulas) aluno menuPrincipal
+                                                adicionaAulaAluno (verificaAula aulaInsc aulas) aluno menuPrincipal
                                     else do
                                     
                                           putStrLn " - O seu Plano não permite a inscrição nesta aula\n   Vá ate a pagina 'Alterar plano' e adquira um plano compatível\n\n >Pressione ENTER para voltar..."
@@ -336,7 +357,7 @@ adicionaAulaAluno aula aluno menuPrincipal=do
       let alunoAtualizado = aluno { aulas = aula : aulas aluno }
       putStrLn " * Inscrição realizada com sucesso *"
       substituirAlunoTxt alunoAtualizado (matricula alunoAtualizado)
-      homeAluno alunoAtualizado menuPrincipal
+      aulasColetivas alunoAtualizado menuPrincipal
 
 
 existeAula:: String-> [Aula]-> Bool
@@ -480,6 +501,7 @@ realizaPagamento aluno menuPrincipal= do
                   else do      
                         exibirMensagemTemporaria "\n *Processando pagamento...*"
                         let alunoNovo = aluno{emDia = True}
+                        substituirAlunoTxt alunoNovo (matricula alunoNovo)
                         putStrLn $ "\x1b[32m" ++ " Pagamento Realizado." ++ "\x1b[0m"
                         threadDelay (2 * 1000000)
                         enviarEmail aluno opçaoPagamento
