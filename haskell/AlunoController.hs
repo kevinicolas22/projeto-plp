@@ -72,8 +72,7 @@ criarAluno = do
         conteudo<- hGetContents conexao
         seq conteudo $ return ()
         let linhas = lines conteudo
-            matriculas = primeirosElementos linhas
-            matriculaAluno = "00" ++ show(length matriculas+1)
+        matriculaAluno <- gerarMatriculaUnica 1 linhas
         if not(verificarString matriculaAluno)
           then do
             putStrLn("Formato inválido! ")
@@ -97,7 +96,15 @@ criarAluno = do
           
 
 
-
+-- Função para gerar uma matrícula única
+gerarMatriculaUnica :: Int-> [String]-> IO String
+gerarMatriculaUnica count linhas= do
+  
+  let matriculas = primeirosElementos linhas
+      matriculaAluno = "00" ++ show (count)
+  if matriculaAluno `elem` matriculas
+    then gerarMatriculaUnica (count+1) linhas -- Se a matrícula já existe, tente novamente
+    else return matriculaAluno
                       
 exibeTreinosAluno:: [Treino]-> String
 exibeTreinosAluno treinos = unlines (map exibeTreino treinos)

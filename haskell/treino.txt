@@ -10,3 +10,4 @@
 ("PEITO",["aodo",""])
 ("PERNA",["ojdaodajo",""])
 (" PEITO",["Supino reto (4 | 10)","Supino inclinado (4 | 12)","Cross-over (3 |12)",""])
+("COSTAS",["puxada ( 3 | 10 )","remada frontal ( 4 | 12 )",""])
