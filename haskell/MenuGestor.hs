@@ -12,6 +12,7 @@ import System.Exit
 import System.IO
 import "directory" System.Directory
 import FuncionarioService
+import Funcionario
 import System.Console.ANSI -- Importação do módulo System.Console.ANSI para usar as funções de controle de terminal
 
 
@@ -161,6 +162,10 @@ menuFuncionarioG = do
     opcaoFuncionarioG <- getLine
     case opcaoFuncionarioG of
         "1" -> criarNovoFuncionario
+        "2" -> atualizarFuncionarioOpcao
+        "3" -> lerTodosFuncionarios
+        "4" -> lerFuncionarioOpcao
+        "5" -> removerFuncionarioOpcao
         "6" -> menuGestor -- 
         _   -> (putStrLn "Opção inválida. Por favor, escolha novamente.") >> menuFuncionarioG
 
@@ -169,7 +174,76 @@ criarNovoFuncionario = do
   novoFuncionario <- criarFuncionario
   adicionarFuncionario novoFuncionario
   putStrLn "Funcionario criado com sucesso!"
+  -- colocar case -- colocar time
   --menuFuncionarioG
+
+lerTodosFuncionarios :: IO()
+lerTodosFuncionarios = 
+    listarTodosFuncionarios -- colocar case
+
+-- Opção para ler informações de um funcionário por id
+lerFuncionarioOpcao :: IO ()
+lerFuncionarioOpcao = do
+    putStrLn "Digite o ID do funcionário que deseja buscar:"
+    id <- getLine
+    lerFuncionarioPorId (read id)
+     -- colocar case -- colocar time
+
+-- Opção para atualizar um funcionário
+atualizarFuncionarioOpcao :: IO ()
+atualizarFuncionarioOpcao = do
+    putStrLn "Digite o ID do funcionário que deseja atualizar:"
+    id <- getLine
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║     Escolha o dado do funcionario a ser    ║"
+    putStrLn "║              atualizado:                   ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   [1] Nome                                 ║"
+    putStrLn "║   [2] CPF                                  ║"
+    putStrLn "║   [3] Endereço                             ║"
+    putStrLn "║   [4] Telefone                             ║"
+    putStrLn "║   [5] Data de Ingresso                     ║"
+    putStrLn "║   [6] Salário                              ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    escolha <- getLine
+    case escolha of
+        "1" -> do
+            putStrLn "Digite o novo nome:"
+            novoNome <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = novoNome, cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
+        "2" -> do
+            putStrLn "Digite o novo CPF:"
+            novoCPF <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = novoCPF, endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
+        "3" -> do
+            putStrLn "Digite o novo endereço:"
+            novoEndereco <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = novoEndereco, telefone = "", data_ingresso = "", salario = 0.0})
+        "4" -> do
+            putStrLn "Digite o novo telefone:"
+            novoTelefone <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = novoTelefone, data_ingresso = "", salario = 0.0})
+        "5" -> do
+            putStrLn "Digite a nova data de ingresso:"
+            novaData <- getLine
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = novaData, salario = 0.0})
+        "6" -> do
+            putStrLn "Digite o novo salário:"
+            novoSalario <- readLn :: IO Float
+            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = novoSalario})
+        _   -> putStrLn "Opção inválida."
+    menuFuncionarioG
+
+-- Opção para remover um funcionário
+removerFuncionarioOpcao :: IO ()
+removerFuncionarioOpcao = do
+    putStrLn "Digite o ID do funcionário que deseja remover:"
+    id <- getLine
+    removerFuncionarioPorId (read id)
+    putStrLn "Funcionário removido com sucesso!"
+    menuFuncionarioG
+
+
 
 
 

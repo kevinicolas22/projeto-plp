@@ -97,7 +97,7 @@ lerFuncionarioPorId targetId = do
 --- Função para listar todos os gestores do arquivo "funcionario.txt"
 listarTodosFuncionarios :: IO () 
 listarTodosFuncionarios = do
-    handle <- openFile "haskel/funcionario.txt" ReadMode
+    handle <- openFile "haskell/funcionario.txt" ReadMode
     assunto <- hGetContents handle
     let linhas = lines assunto
         funcionarios = map (splitOn ",") linhas

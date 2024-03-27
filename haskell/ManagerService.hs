@@ -19,6 +19,8 @@ import Data.List.Split (chunksOf)
 import Data.Char (isDigit)
 import Data.Maybe (mapMaybe, maybeToList)
 import Control.Exception
+import Control.Concurrent
+
 
 
 --- Funçao para criar Gestor e as delimitaçoes de cada dado do gestor 
@@ -71,7 +73,9 @@ criarGestor = do
                             criarGestor
                 Nothing -> do
                     putStrLn "CPF inválido. Por favor, digite novamente."
-                    criarGestor                      
+                    criarGestor 
+
+                     
 
 
 
@@ -225,6 +229,7 @@ filtrarIdG id listaG = do
         [managerId, cpfG, nomeG, dataNascimento, telefoneG, enderecoG] ->
             Just (Manager (read managerId) cpfG nomeG dataNascimento telefoneG enderecoG)
         _ -> Nothing
+
 
 -- Função que retorna a posição na lista do ID fornecido.
 posicaoIdListaG :: Int -> [String] -> Int

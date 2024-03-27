@@ -11,8 +11,8 @@ import Data.List (intercalate)
 import Data.List.Split (chunksOf)
 
 
+type CpfG = String
 type IdG = Int
-type CpfG = String 
 type NomeG = String
 type DataNascimento = String
 type Email = String
@@ -20,8 +20,8 @@ type TelefoneG = String
 type EnderecoG = String
 
 data Manager = Manager {
-    managerId :: IdG,
     cpfG :: CpfG,
+    managerId :: IdG,
     nomeG :: NomeG,
     dataNascimento :: DataNascimento,
     telefoneG :: TelefoneG,
@@ -57,3 +57,4 @@ delimitarCpfG cpfG
         numeros = filter isDigit cpfG
         cpfGFormatado = intercalate "."[chunk 0 3, chunk 3 6, chunk 6 9] ++ "-" ++ take 2(drop 9 numeros)
         chunk start end = take(end - start)(drop start numeros)
+
