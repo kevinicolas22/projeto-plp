@@ -1,19 +1,24 @@
 module Login where
 
-type TipoUsuario = String
+type Cpf = String
 
-type Matricula = Int
+type Senha = String
 
-type Senha = Int
-
-type PalavraChave = String
+type TipoUsuario = Int
 
 --Definição de um login
 
 data Login = Login
     {
-        tipoUsuario = TipoUsuario,
-        matricula = Matricula,
-        senha = Senha,
-        palavraChave = PalavraChave
+        cpf :: Cpf,
+        senha :: Senha,
+        tipoUsuario :: TipoUsuario
     }deriving (Show)
+
+class Stringify a where
+    toString :: a -> String
+        
+instance Stringify Login where
+    toString (Login cpf senha tipoUsuario) =  cpf ++ "," ++
+                                                senha  ++ "," ++
+                                                show tipoUsuario
