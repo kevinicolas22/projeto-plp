@@ -27,6 +27,8 @@ import qualified Network.HTTP.Conduit as HTTP
 import Control.Exception
 import qualified Data.ByteString.Lazy as BL
 import qualified Network.HTTP.Simple as Simple
+import AvaliacaoFisica
+
 
 
 defineAulas :: [Aula]
@@ -72,6 +74,7 @@ exibeAula aula = do
 existeMatricula :: String -> String -> Bool
 existeMatricula strMat conteudo = strMat `elem` primeirosElementos (lines conteudo)
 
+          
 -- Vai pro controller
 recuperaAlunoMatricula:: String-> IO Aluno
 recuperaAlunoMatricula matStr= do
@@ -203,7 +206,8 @@ homeAluno alunoAtual menuPrincipal= do
       putStrLn "║   [4] Aulas Coletivas                   ║"
       putStrLn "║   [5] Treinos                           ║"
       putStrLn "║   [6] Realizar Pagamento                ║"
-      putStrLn "║   [7] Sair                              ║"
+      putStrLn "║   [7] Consultar Avaliação física        ║"
+      putStrLn "║   [8] Sair                              ║"
       putStrLn "║                                         ║"
       putStrLn "║   > Digite a opção:                     ║ "
       putStrLn "╚═════════════════════════════════════════╝"
@@ -215,18 +219,74 @@ homeAluno alunoAtual menuPrincipal= do
             "4"-> aulasColetivas alunoAtual menuPrincipal
             "5"-> menuTreinos alunoAtual menuPrincipal
             "6"-> realizaPagamento alunoAtual menuPrincipal
-            "7"-> funçaoSaida menuPrincipal 
+            "7"-> calculoImc alunoAtual menuPrincipal
+            "8"-> funçaoSaida menuPrincipal 
             _ -> do
                   putStr "Opção inválida!!"
                   homeAluno alunoAtual menuPrincipal
 
+calculoImc:: Aluno -> IO()-> IO()
+calculoImc aluno menuPrincipal = do
+      limparTerminal
+      putStrLn ("        ======= Avaliação Física =======\n")
+      conexao<- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
+      conteudo<- hGetContents conexao
+      let linhas = lines conteudo
+      existeAvaliacao<- verificaAvaliacao linhas (matricula aluno)
+      if not(existeAvaliacao)
+            then do
+                  putStrLn "\n Você ainda não realizou nenhuma avaliação física..."
+                  putStrLn "\n\n [0] Voltar"
+                  opçao<- getLine
+                  case opçao of
+                        "0" -> homeAluno aluno menuPrincipal
+                        _ -> calculoImc aluno menuPrincipal
+            else do
+                  avaliacaoEncontrada<- recuperaAvaliacaoAluno linhas (matricula aluno)
+                  exibeAvaliacao avaliacaoEncontrada 
+                  putStrLn "\n\n [0] Voltar"
+                  opçao<- getLine
+                  case opçao of
+                        "0" -> homeAluno aluno menuPrincipal
+                        _ -> calculoImc aluno menuPrincipal
+
+exibeAvaliacao::  AvaliacaoFisica-> IO()
+exibeAvaliacao avaliacao = do
+      putStrLn $  "\nData da avaliação: " ++  (dataAvaliacao avaliacao) ++
+                  "\nPeso: " ++ (show(peso avaliacao)) ++
+                  "\nAltura: " ++  (show(altura avaliacao)) ++
+                  "\nIdade: " ++(show(idade avaliacao)) ++
+                  "\nObjetivo: " ++ (objetivo avaliacao)
+
+recuperaAvaliacaoAluno:: [String] -> String -> IO AvaliacaoFisica
+recuperaAvaliacaoAluno (x:xs) matAluno= do
+      let atual = splitOn "," x
+      if matAluno `elem` atual
+            then return (parseAvaliacao atual)
+            else do
+            recuperaAvaliacaoAluno xs matAluno
+
+parseAvaliacao :: [String] -> AvaliacaoFisica
+parseAvaliacao [id, dataAv, peso, altura, idade, objetivo, matricula] =
+      AvaliacaoFisica (read id) dataAv (read peso) (read altura) (read idade) objetivo matricula
+parseAvaliacao _ = error "Formato de avaliação inválido"
+
+verificaAvaliacao:: [String]->String-> IO Bool
+verificaAvaliacao [] _= return False
+verificaAvaliacao (x:xs) matAluno=do 
+      let atual = splitOn "," x
+      if matAluno `elem` atual
+            then return True
+      else do
+            verificaAvaliacao xs matAluno
 
 funçaoSaida:: IO() -> IO()
 funçaoSaida menuPrincipal= do
       limparTerminal
       putStrLn "\n SAINDO..."
-      menuPrincipal
       threadDelay (1 * 1000000)
+      menuPrincipal
+      
       
 
 
@@ -276,7 +336,6 @@ aulasColetivas aluno menuPrincipal= do
       putStrLn ("        ======= Aulas Coletivas =======\n")
       conexao<- openFile "haskell/aulas.txt" ReadMode
       conteudo<- hGetContents conexao
-      
       let aulas= recuperarAulas conteudo
       exibeAulas aulas
       putStrLn "\n\n [0] Voltar     [1] Inscrever-se     [2] Minhas aulas"
@@ -323,25 +382,31 @@ inscriçaoAula aluno menuPrincipal= do
                                           then if (estaInscrito aluno aulaInsc)
                                                 then do
                                                       putStrLn " - Você já está Inscrito nessa aula !\n\n>Pressione ENTER para voltar"
+                                                      hClose conexao
                                                       voltar2<-getLine
                                                       homeAluno aluno menuPrincipal
                                           else do        
                                                 putStrLn ("\x1b[32m" ++aulaInsc++ " adicionada na sua agenda de aulas." ++ "\x1b[0m")
                                                 threadDelay (2 * 1000000)
                                                 adicionaAulaAluno (verificaAula aulaInsc aulas) aluno menuPrincipal
+                                                hClose conexao 
+                                                menuPrincipal
                                     else do
                                     
                                           putStrLn " - O seu Plano não permite a inscrição nesta aula\n   Vá ate a pagina 'Alterar plano' e adquira um plano compatível\n\n >Pressione ENTER para voltar..."
                                           voltar<- getLine
+                                          hClose conexao
                                           homeAluno aluno menuPrincipal
                               else do
                                     putStrLn"\n Aula não encontrada !"
                                     limparTerminal
+                                    hClose conexao
                                     aulasColetivas aluno menuPrincipal
                         else do     
                               putStrLn"\n Aula não encontrada !"
                               threadDelay (2 * 1000000)
                               limparTerminal
+                              hClose conexao
                               aulasColetivas aluno menuPrincipal        
 
 

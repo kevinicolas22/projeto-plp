@@ -9,5 +9,6 @@ data AvaliacaoFisica = AvaliacaoFisica {
     peso :: Float,
     altura :: Float,
     idade :: Int,
-    objetivo :: String
+    objetivo :: String,
+    matriculaAlunoAv:: String
 } deriving (Show)
