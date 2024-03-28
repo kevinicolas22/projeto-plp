@@ -25,14 +25,10 @@ menuFuncionario menuPrincipal= do
     putStrLn "║                Funcionário Codefit                    ║"
     putStrLn "║                                                       ║"
     putStrLn "║   [1] Cadastrar Aluno                                 ║"
-    putStrLn "║   [2] Adicionar um funcionário                        ║"
-    putStrLn "║   [3] Ler informações de um funcionário por Id        ║"
-    putStrLn "║   [4] Atualizar um funcionário                        ║"
-    putStrLn "║   [5] Remover um funcionário                          ║"
-    putStrLn "║   [6] Listar todos os funcionarios                    ║"
-    putStrLn "║   [7] Menu de Avaliação Física                        ║"
-    putStrLn "║   [8] Menu de Treinos                                 ║"
-    putStrLn "║   [9] Sair                                            ║"
+    putStrLn "║   [2] Menu de Avaliação Física                        ║"
+    putStrLn "║   [3] Menu de Treinos                                 ║"
+    putStrLn "║   [4] Menu de Aulas                                   ║"
+    putStrLn "║   [5] Sair                                            ║"
     putStrLn "║                                                       ║"
     putStrLn "║   > Digite a opção:                                   ║" 
     putStrLn "╚═══════════════════════════════════════════════════════╝"
@@ -41,14 +37,10 @@ menuFuncionario menuPrincipal= do
         "1" -> do 
             criarAluno
             menuFuncionario menuPrincipal
-        "2" -> adicionarFuncionarioOpcao menuPrincipal
-        "3" -> lerFuncionarioOpcao menuPrincipal
-        "4" -> atualizarFuncionarioOpcao menuPrincipal
-        "5" -> removerFuncionarioOpcao menuPrincipal
-        "6" -> lerTodosFuncionarios menuPrincipal
-        "7" -> menuAvaliacaoFisica menuPrincipal
-        "8" -> menuTreinoF menuPrincipal
-        "9" -> do 
+        "2" -> menuAvaliacaoFisica menuPrincipal
+        "3" -> menuTreinoF menuPrincipal
+        --"4" -> menuAulas menuPrincipal
+        "5" -> do 
             putStrLn "Saindo..." 
             menuPrincipal
         _  -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionario menuPrincipal
