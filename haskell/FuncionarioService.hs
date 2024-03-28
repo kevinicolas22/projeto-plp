@@ -242,31 +242,42 @@ obterInformacao tipo validador = do
 -- Função para criar uma nova avaliação física
 criarAvaliacaoFisica :: IO AvaliacaoFisica
 criarAvaliacaoFisica = do
+    conexaoAluno <- openFile "haskell/aluno.txt" ReadMode
+    conteudoAluno<- hGetContents conexaoAluno
     putStrLn "Digite o ID da avaliação:"
     avaliacaoId <- readLn :: IO Int
     putStrLn "Digite a matricula do aluno:"
     matriculaAvaliacao <- getLine
-    conexao <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
-    conteudo <- hGetContents conexao
-    let linhas = lines conteudo
-        ids = primeirosElementos linhas
-    if verificandoId (show avaliacaoId) ids
-      then do
-        putStrLn "ID já em uso. Escolha um ID diferente."
-        hClose conexao
-        criarAvaliacaoFisica
-      else do
-        putStrLn "Digite a data da avaliação (DD/MM/AAAA):"
-        dataAvaliacao <- obterInformacao "Data da avaliação" delimitarData
-        putStrLn "Digite o peso:"
-        peso <- readLn :: IO Float
-        putStrLn "Digite a altura (1.80):"
-        altura <- readLn :: IO Float
-        putStrLn "Digite a idade:"
-        idade <- readLn :: IO Int
-        putStrLn "Digite seu objetivo:"
-        objetivo <- getLine
-        return (AvaliacaoFisica avaliacaoId dataAvaliacao peso altura idade objetivo matriculaAvaliacao)
+    let matriculaExistente= existeMatricula matriculaAvaliacao conteudoAluno
+    if not(matriculaExistente)
+        then do
+            putStrLn " > Matrícula não encontrada !"
+            hClose conexaoAluno
+            criarAvaliacaoFisica 
+        else do
+            conexao <- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
+            conteudo <- hGetContents conexao
+            let linhas = lines conteudo
+                ids = primeirosElementos linhas
+            if verificandoId (show avaliacaoId) ids
+            then do
+                putStrLn "ID já em uso. Escolha um ID diferente."
+                hClose conexaoAluno
+                hClose conexao
+                criarAvaliacaoFisica
+            else do
+                putStrLn "Digite a data da avaliação (DD/MM/AAAA):"
+                dataAvaliacao <- obterInformacao "Data da avaliação" delimitarData
+                putStrLn "Digite o peso:"
+                peso <- readLn :: IO Float
+                putStrLn "Digite a altura (1.80):"
+                altura <- readLn :: IO Float
+                putStrLn "Digite a idade:"
+                idade <- readLn :: IO Int
+                putStrLn "Digite seu objetivo:"
+                objetivo <- getLine
+                hClose conexaoAluno
+                return (AvaliacaoFisica avaliacaoId dataAvaliacao peso altura idade objetivo matriculaAvaliacao)
 
 lerAvaliacaoFisicaPorId :: Int -> IO ()
 lerAvaliacaoFisicaPorId targetId = do
