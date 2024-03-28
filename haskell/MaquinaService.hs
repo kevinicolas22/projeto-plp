@@ -106,7 +106,7 @@ imprimirMaquinasReparo :: FilePath -> IO ()
 imprimirMaquinasReparo arquivo = do
     conteudo <- readFile arquivo
     let linhas = lines conteudo
-    putStrLn ">> Máquinas com necessidade de reparo <<"
+    putStrLn ">> Máquinas com necessidade de reparo <<\n"
     mapM_ mostrarMaquinasM linhas
 
 

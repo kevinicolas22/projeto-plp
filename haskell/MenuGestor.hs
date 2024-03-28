@@ -42,7 +42,7 @@ menuGestor = do
         "2" -> menuFuncionarioG
         "3" -> menuMaquinaG
         "4" -> menuFinanceiroG
-        "5" -> menuGestor -- 
+        "5" -> sair
         _   -> (putStrLn "Opção inválida. Por favor, escolha novamente.") >> menuGestor
 
 menuGestorG :: IO()
@@ -82,6 +82,8 @@ consultarGestor = do
   op <- getLine
   case op of
     "0" -> menuGestorG
+    _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  consultarGestor
+
   
 listarGestores :: IO ()
 listarGestores = do
@@ -92,6 +94,8 @@ listarGestores = do
     op <- getLine
     case op of
       "0" -> menuGestorG
+      _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  listarGestores
+
     
  
 criarNovoGestor :: IO ()
@@ -124,34 +128,33 @@ atualizarGestor = do
         "1" -> do
             putStrLn ">> Digite o novo CPF: "
             novoCPF <- getLine
-            putStrLn"\nGestor Atualizado!"
             atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = novoCPF, nomeG = "", dataNascimento = "", telefoneG = "", enderecoG = ""})
             
         "2" -> do
             putStrLn "\n>> Digite o novo nome: "
             novoNome <- getLine
-            putStrLn"\nGestor Atualizado!"
             atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = novoNome, dataNascimento = "", telefoneG = "", enderecoG = ""})
             
         "3" -> do
             putStrLn "\n>> Digite o novo endereço: "
             novoEndereco <- getLine
-            putStrLn"\nGestor Atualizado!"
             atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = "", dataNascimento = "", telefoneG = "", enderecoG = novoEndereco})
             
         "4" -> do
             putStrLn "\n>> Digite o novo telefone: "
             novoTelefone <- getLine
-            putStrLn"\nGestor Atualizado!"
             atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = "", dataNascimento = "", telefoneG = novoTelefone, enderecoG = ""})
             
         "5" -> do
             putStrLn "\n>> Digite a nova data de nascimento: "
             novaData <- getLine
-            putStrLn"\nGestor Atualizado!"
             atualizarGestorPorId (read id) (Manager {managerId = read id, cpfG = "", nomeG = "", dataNascimento = novaData, telefoneG = "", enderecoG = ""})
             
         _ -> putStrLn "Opção inválida!"
+    putStrLn"\nAtualizando..."
+    threadDelay (2 * 1000000)
+    putStrLn"\nGestor Atualizado!"
+    threadDelay (2 * 1000000)
     limparTerminal
     menuGestorG
 
@@ -159,7 +162,7 @@ removerGestor :: IO ()
 removerGestor = do
   limparTerminal
   numGestores <- contarGestores "manager.txt"-- Obtém o número de gestores
-  if numGestores > 2 then
+  if numGestores > 1 then
     do
       putStrLn ">> Digite o ID do gestor que deseja remover:"
       id <- getLine
@@ -167,6 +170,7 @@ removerGestor = do
       putStrLn"Removendo..."
       threadDelay (2 * 1000000)
       putStrLn "Gestor removido com sucesso!"
+      threadDelay (2 * 1000000)
   else do
     putStrLn "Não foi possível remover gestor no momento..."
     threadDelay (2 * 1000000)  
@@ -215,6 +219,8 @@ lerTodosFuncionarios = do
     op <- getLine
     case op of
       "0" -> menuFuncionarioG
+      _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  listarTodosGestores
+
 
 -- Opção para ler informações de um funcionário por id
 lerFuncionarioOpcao :: IO ()
@@ -224,11 +230,14 @@ lerFuncionarioOpcao = do
     id <- getLine
     putStrLn"Procurando...\n"
     threadDelay (2 * 1000000)
+    putStrLn"Funcionário encontrado!"
     lerFuncionarioPorId (read id)
     putStrLn "\n\n [0] Voltar"
     op <- getLine
     case op of
       "0" -> menuFuncionarioG
+      _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  lerFuncionarioOpcao
+
 
 -- Opção para atualizar um funcionário
 atualizarFuncionarioOpcao :: IO ()
@@ -250,48 +259,48 @@ atualizarFuncionarioOpcao = do
     escolha <- getLine
     case escolha of
         "1" -> do
-            putStrLn "Digite o novo nome:"
+            putStrLn ">> Digite o novo nome:"
             novoNome <- getLine
-            putStrLn"Funcionário atualizado!"
             atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = novoNome, cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
-            
+
         "2" -> do
-            putStrLn "Digite o novo CPF:"
+            putStrLn ">> Digite o novo CPF:"
             novoCPF <- getLine
-            putStrLn"Funcionário atualizado!"
             atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = novoCPF, endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
             
         "3" -> do
-            putStrLn "Digite o novo endereço:"
+            putStrLn ">> Digite o novo endereço:"
             novoEndereco <- getLine
-            putStrLn"Funcionário atualizado!"
             atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = novoEndereco, telefone = "", data_ingresso = "", salario = 0.0})
+        
             
         "4" -> do
-            putStrLn "Digite o novo telefone:"
+            putStrLn ">> Digite o novo telefone:"
             novoTelefone <- getLine
-            putStrLn"Funcionário atualizado!"
             atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = novoTelefone, data_ingresso = "", salario = 0.0})
             
         "5" -> do
-            putStrLn "Digite a nova data de ingresso:"
+            putStrLn ">> Digite a nova data de ingresso:"
             novaData <- getLine
-            putStrLn"Funcionário atualizado!"
             atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = novaData, salario = 0.0})
             
         "6" -> do
-            putStrLn "Digite o novo salário:"
+            putStrLn ">> Digite o novo salário:"
             novoSalario <- readLn :: IO Float
-            putStrLn"Funcionário atualizado!"
             atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = novoSalario})
           
         _   -> putStrLn "Opção inválida."
+    putStrLn"\nAtualizando..."
+    threadDelay (2 * 1000000)
+    putStrLn"\nFuncionário Atualizado!"
+    threadDelay (2 * 1000000)
     limparTerminal
     menuFuncionarioG
 
 -- Opção para remover um funcionário
 removerFuncionarioOpcao :: IO ()
 removerFuncionarioOpcao = do
+    limparTerminal
     putStrLn ">> Digite o ID do funcionário que deseja remover:"
     id <- getLine
     removerFuncionarioPorId (read id)
@@ -326,7 +335,7 @@ menuMaquinaG = do
         let id = read targetId :: Int 
         putStrLn "Informe o nome: "
         nome <- getLine
-        putStrLn "Informe a data de manutenção: "
+        putStrLn "Informe a data de manutenção(formato: ddmmaaaa): "
         dataMan <- getLine
         putStrLn"Adicionando..."
         threadDelay (2 * 1000000)
@@ -336,18 +345,19 @@ menuMaquinaG = do
         case op of
           "0" -> menuMaquinaG
       "3" -> listarEquipamentos 
-      "4" -> imprimirMaquinasReparo  "haskell/maquina_reparo.txt" >> menuMaquinaG
-      "5" -> listarMaquinasOrdemAlfabetica 
+      "4" -> imprimirMaquinasReparoM 
+      "5" -> listarMaquinasOrdemAlfabeticaM
       "6" -> do
-        numeroMaquinas <- contarMaquinas "haskell/maquina.txt"
-        limparTerminal
+        numeroMaquinas <- contarMaquinas "maquina.txt"
         putStrLn $ ">> Número de máquinas registradas: " ++ show numeroMaquinas
         putStrLn "\n\n [0] Voltar"
         op <- getLine
         case op of
           "0" -> menuMaquinaG
+          _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  menuMaquinaG
+
          
-      "7" -> menuGestor -- 
+      "7" -> menuGestor 
       _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuMaquinaG
     
 
@@ -356,11 +366,8 @@ criarMaquinas = do
   novaMaquina <- criarMaquina
   adicionarMaquina novaMaquina
   putStrLn "Maquina adicionada com sucesso!"
-  threadDelay (2 * 1000000)
+  threadDelay (3 * 1000000)
   menuMaquinaG
-
-  
-
 
 listarEquipamentos :: IO ()
 listarEquipamentos = do
@@ -370,7 +377,31 @@ listarEquipamentos = do
   op <- getLine
   case op of
     "0" -> menuMaquinaG
+    _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  listarEquipamentos
+
+
+imprimirMaquinasReparoM :: IO()
+imprimirMaquinasReparoM = do
+  limparTerminal
+  imprimirMaquinasReparo "haskell/maquina_reparo.txt"
+  putStrLn "\n\n [0] Voltar"
+  op <- getLine
+  case op of
+    "0" -> menuMaquinaG
+    _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  imprimirMaquinasReparoM
+
    
+listarMaquinasOrdemAlfabeticaM :: IO()
+listarMaquinasOrdemAlfabeticaM = do
+  limparTerminal
+  putStrLn ">> Data de manutenção máquinas <<\n"
+  listarMaquinasOrdemAlfabetica
+  putStrLn "\n\n [0] Voltar"
+  op <- getLine
+  case op of
+    "0" -> menuMaquinaG
+    _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  listarMaquinasOrdemAlfabeticaM
+
 
 
 menuFinanceiroG :: IO ()
@@ -389,6 +420,7 @@ menuFinanceiroG = do
     opcaoFinanceiroG <- getLine
     case opcaoFinanceiroG of
         "1" -> folhaDePagamento
+        "2" -> renda
         "3" -> menuGestor 
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFinanceiroG
 
@@ -405,9 +437,23 @@ folhaDePagamento = do
     op <- getLine
     case op of
       "0" -> menuFinanceiroG
+      _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  folhaDePagamento
+
+
+renda :: IO ()
+renda = do
+    limparTerminal
+    (desempenhoFinanceiro, totalRecebido, totalAlunos, mediaPorAluno) <- relatorioFinanceiro
+    imprimirRelatorioFinanceiro desempenhoFinanceiro totalRecebido totalAlunos mediaPorAluno
+    putStrLn "\n\n [0] Voltar"
+    op <- getLine
+    case op of
+        "0" -> menuFinanceiroG
+        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  renda
 
 sair :: IO ()
 sair = do
+  threadDelay (3 * 1000000)
   putStrLn "Saindo..."
   exitSuccess
 

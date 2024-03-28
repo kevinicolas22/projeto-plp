@@ -66,9 +66,7 @@ criarGestor = do
                                 Just telefoneGDelimitado -> do
                                     putStrLn "\n>> Digite seu endereço: "
                                     enderecoG <- getLine
-                                    let novoGestor = Manager (read id) cpfGDelimitado nomeG nascimentoDelimitado telefoneGDelimitado enderecoG
-                                    appendFile "manager.txt" (show novoGestor ++ "\n")  -- Adiciona o novo gestor ao arquivo
-                                    return novoGestor
+                                    return(Manager (read id) cpfGDelimitado nomeG nascimentoDelimitado telefoneGDelimitado enderecoG)
                                 Nothing -> do
                                     putStrLn "Telefone inválido. Por favor, inicie novamente seu cadastro."
                                     threadDelay (1 * 1000000)
@@ -118,7 +116,8 @@ lerGestorPorId targetId = do
                 Nothing -> putStrLn "Gestor não encontrado."
                 Just gestor -> do
                     putStrLn "Procurando..."
-                    putStrLn "\nGestor encontrado"
+                    threadDelay (2 * 1000000)
+                    putStrLn "\nGestor encontrado!\n"
                     threadDelay (2 * 1000000)
                     mostrarGestor gestor
     hClose conexao
@@ -268,7 +267,8 @@ imprimirFolhaPagamento funcionario = do
   putStrLn $ "| Benefício: " ++ show beneficio
   putStrLn $ "| Salário Bruto: R$ " ++ show salarioBruto
   putStrLn $ "| Salário com Benefício (10%): R$ " ++ show salarioTotal
-
+  putStrLn "========================================"
+            
 filtrarIdF :: Int -> [String] -> [[String]]
 filtrarIdF id listaG = do
     let listaP = primeirosElementos listaG
@@ -287,9 +287,47 @@ folhaPagamentoFuncionario targetId = do
     Just [] -> putStrLn "Funcionário não encontrado." 
     Just (idStr:nome:cpf:endereco:telefone:dataIngresso:salarioStr:_) -> do
       let funcionario = Funcionario { funcId = read idStr, nome = nome, cpf = cpf, endereco = endereco, telefone = telefone, data_ingresso = dataIngresso, salario = read salarioStr }
-      putStrLn "\nFOLHA DE PAGAMENTO:"
+      putStrLn "\n========== FOLHA DE PAGAMENTO =========="
       imprimirFolhaPagamento funcionario
   hClose conexao
+
+
+
+-- Definição de tipos para facilitar o entendimento
+type ValorRecebido = Float
+type TotalAlunos = Int
+type MediaPorAluno = Float
+
+-- Função para calcular a média por aluno
+calcularMediaPorAluno :: Int -> Float -> Float
+calcularMediaPorAluno totalAlunos totalValor = totalValor / fromIntegral totalAlunos
+
+-- Função para ler os dados do arquivo e calcular o relatório financeiro
+relatorioFinanceiro :: IO (Bool, Float, Int, Float)
+relatorioFinanceiro = do
+    -- Abrir arquivo de pagamentos
+    conexao <- openFile "pagamentos.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let linhas = lines conteudo
+        pagamentos = map (splitOn ",") linhas
+        valoresPagamentos = map (read . head) pagamentos :: [Float]
+        totalValor = sum valoresPagamentos
+        totalAlunos = length valoresPagamentos
+        mediaPorAluno = calcularMediaPorAluno totalAlunos totalValor
+    -- Fechar conexão com arquivo
+    hClose conexao
+    -- Retornar o relatório financeiro
+    return (totalValor > mediaPorAluno, totalValor, totalAlunos, mediaPorAluno)
+
+-- Função para imprimir o relatório financeiro
+imprimirRelatorioFinanceiro :: Bool -> ValorRecebido -> TotalAlunos -> MediaPorAluno -> IO ()
+imprimirRelatorioFinanceiro desempenhoFinanceiro totalRecebido totalAlunos mediaPorAluno = do
+    putStrLn "========== Relatório Financeiro da Academia =========="
+    putStrLn $ "Total de valores recebidos: R$ " ++ show totalRecebido
+    putStrLn $ "Número total de alunos: " ++ show totalAlunos
+    putStrLn $ "Média de valor por aluno: R$ " ++ show mediaPorAluno
+    putStrLn $ "Desempenho financeiro: " ++ if desempenhoFinanceiro then "Alto" else "Regular"
+    putStrLn "======================================================="
 
 limpar :: IO ()
 limpar = do
