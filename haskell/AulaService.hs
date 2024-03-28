@@ -21,7 +21,7 @@ viewAulas = do
     conteudo <- readFile "haskell/aulas.txt"
     let aulas= recuperarAulas conteudo
     exibeAulas aulas
-    threadDelay (3 * 1000000)
+    
 
 -- Função para ler uma aula de uma lista de strings
 readAula :: String -> Aula

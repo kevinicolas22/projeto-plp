@@ -55,7 +55,13 @@ primeirosElementos = map (getFirstElement . replace ';' ' ')
         [] -> "" -- Tratar caso de linha vazia
         (firstWord:_) -> firstWord
 
-
+showAlunoLista:: Aluno -> String
+showAlunoLista aluno= 
+  "\n             ══════════════════════"++
+  "\n             Nome: "++ nomeAluno aluno++
+  "\n             Contato: "++ contatoAluno aluno++
+  "\n             Matrícula: "++ matricula aluno
+  
 instance Show Aluno where
   show (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas) =
     
