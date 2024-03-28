@@ -67,6 +67,10 @@ instance Read PlanoTipo where
     "Premium" -> [(Premium, "")]
     _       -> []
 
+
+showPlanos :: [PlanoTipo] -> String
+showPlanos planos = "[" ++ intercalate ", " (map (\p -> "\"" ++ show p ++ "\"") planos) ++ "]"
+
 detalhesPlano :: PlanoTipo -> String
 detalhesPlano Light = detalhesPlano'' planoLight
 detalhesPlano Gold = detalhesPlano'' planoGold

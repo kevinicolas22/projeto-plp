@@ -76,6 +76,7 @@ executable projeto-plp
     other-modules: MainFuncionario
     other-modules: Login
     other-modules: LoginService
+    other-modules: AulaService
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
