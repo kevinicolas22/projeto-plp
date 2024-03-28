@@ -424,14 +424,14 @@ menuFinanceiroG = do
         "3" -> menuGestor 
         _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFinanceiroG
 
-
-
 folhaDePagamento :: IO()
 folhaDePagamento = do
     limparTerminal
     putStrLn ">> Digite o ID do funcionário para calcular a folha de pagamento:"
     targetId <- getLine 
     let numero = read targetId :: Int
+    putStrLn"Aguarde... \n"
+    threadDelay (2 * 1000000)
     folhaPagamentoFuncionario numero
     putStrLn "\n\n [0] Voltar"
     op <- getLine
@@ -439,12 +439,12 @@ folhaDePagamento = do
       "0" -> menuFinanceiroG
       _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >>  folhaDePagamento
 
-
 renda :: IO ()
 renda = do
     limparTerminal
-    (desempenhoFinanceiro, totalRecebido, totalAlunos, mediaPorAluno) <- relatorioFinanceiro
-    imprimirRelatorioFinanceiro desempenhoFinanceiro totalRecebido totalAlunos mediaPorAluno
+    putStrLn"Aguarde, gerando relátorio... \n"
+    threadDelay (2 * 1000000)
+    gerarRelatorio
     putStrLn "\n\n [0] Voltar"
     op <- getLine
     case op of

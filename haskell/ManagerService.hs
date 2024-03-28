@@ -8,6 +8,7 @@ import Data.List
 import Data.List.Split
 import Funcionario
 import FuncionarioService
+import Data.Function
 import Data.Maybe (listToMaybe)
 import Text.Read (readMaybe)
 import Data.List (find)
@@ -291,43 +292,44 @@ folhaPagamentoFuncionario targetId = do
       imprimirFolhaPagamento funcionario
   hClose conexao
 
+type Valor = Double
+type Plano = String
+type Salario = Double
 
+-- Função para calcular o valor total recebido pela academia
+calcularReceita :: [(Valor, Plano)] -> Double
+calcularReceita = sum . map fst
 
--- Definição de tipos para facilitar o entendimento
-type ValorRecebido = Float
-type TotalAlunos = Int
-type MediaPorAluno = Float
+-- Função para contar a quantidade de alunos em cada plano
+contarAlunosPorPlano :: [(Valor, Plano)] -> [(Plano, Int)]
+contarAlunosPorPlano = map (\xs -> (snd $ head xs, length xs)) . groupBy ((==) `on` snd) . sortOn snd
 
--- Função para calcular a média por aluno
-calcularMediaPorAluno :: Int -> Float -> Float
-calcularMediaPorAluno totalAlunos totalValor = totalValor / fromIntegral totalAlunos
+-- Função para calcular a média de pagamento por aluno
+calcularMediaPagamento :: [(Valor, Plano)] -> Double
+calcularMediaPagamento pagamentos = (calcularReceita pagamentos) / fromIntegral (length pagamentos)
 
--- Função para ler os dados do arquivo e calcular o relatório financeiro
-relatorioFinanceiro :: IO (Bool, Float, Int, Float)
-relatorioFinanceiro = do
-    -- Abrir arquivo de pagamentos
-    conexao <- openFile "pagamentos.txt" ReadMode
-    conteudo <- hGetContents conexao
-    let linhas = lines conteudo
-        pagamentos = map (splitOn ",") linhas
-        valoresPagamentos = map (read . head) pagamentos :: [Float]
-        totalValor = sum valoresPagamentos
-        totalAlunos = length valoresPagamentos
-        mediaPorAluno = calcularMediaPorAluno totalAlunos totalValor
-    -- Fechar conexão com arquivo
-    hClose conexao
-    -- Retornar o relatório financeiro
-    return (totalValor > mediaPorAluno, totalValor, totalAlunos, mediaPorAluno)
+-- Função para calcular o total de dinheiro pago aos funcionários
+calcularSalarios :: [String] -> Double
+calcularSalarios = sum . map (read . last . splitOn ",")
 
--- Função para imprimir o relatório financeiro
-imprimirRelatorioFinanceiro :: Bool -> ValorRecebido -> TotalAlunos -> MediaPorAluno -> IO ()
-imprimirRelatorioFinanceiro desempenhoFinanceiro totalRecebido totalAlunos mediaPorAluno = do
+-- Função principal para gerar o relatório financeiro
+gerarRelatorio :: IO ()
+gerarRelatorio = do
+    pagamentosTxt <- readFile "pagamentos.txt"
+    funcionariosTxt <- readFile "haskell/funcionario.txt"
+    let pagamentos = map ((\[v, p] -> (read v, p)) . splitOn ",") (lines pagamentosTxt)
+    let funcionarios = lines funcionariosTxt
+    let receitaAcademia = calcularReceita pagamentos
+    let alunosPorPlano = contarAlunosPorPlano pagamentos
+    let mediaPagamento = calcularMediaPagamento pagamentos
+    let totalSalarios = calcularSalarios funcionarios
     putStrLn "========== Relatório Financeiro da Academia =========="
-    putStrLn $ "Total de valores recebidos: R$ " ++ show totalRecebido
-    putStrLn $ "Número total de alunos: " ++ show totalAlunos
-    putStrLn $ "Média de valor por aluno: R$ " ++ show mediaPorAluno
-    putStrLn $ "Desempenho financeiro: " ++ if desempenhoFinanceiro then "Alto" else "Regular"
+    putStrLn $ "| Alunos por Plano: " ++ show alunosPorPlano
+    putStrLn $ "| Média de Pagamento por Aluno: " ++ show mediaPagamento
+    putStrLn $ "| Total de Salários dos Funcionários: " ++ show totalSalarios
+    putStrLn $ "| Receita Total: " ++ show receitaAcademia
     putStrLn "======================================================="
+    
 
 limpar :: IO ()
 limpar = do
