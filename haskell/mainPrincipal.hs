@@ -9,6 +9,7 @@ import Control.Concurrent (threadDelay)
 import System.Console.ANSI
 import System.Exit (exitSuccess)
 import Data.Char (toUpper)
+import System.IO
 --Interface sistema
 
 main :: IO()
@@ -17,18 +18,30 @@ main = do
     putStrLn "╔═══════════════════════════════════════════════════════╗"
     putStrLn "║               Seja Bem-vindo a CodeFit                ║"
     putStrLn "╚═══════════════════════════════════════════════════════╝"
-    putStrLn "══════════════════════Faça seu login═════════════════════"
-    putStrLn "Digite o seu cpf: "
+    putStrLn "\n > Tipo de usuario:"
+    putStrLn "\n   1. ALUNO"
+    putStrLn "   2. GESTOR"
+    putStrLn "   3. FUNCIONÁRIO\n"
+    putStr " >"
+    hFlush stdout
+    tipoFuncionario <- readLn :: IO Int
+    tipoFuncionarioValidado <- tipoUsuarioCorreto tipoFuncionario
+    if tipoFuncionarioValidado == 1
+        then do loginAluno main
+    else return()
+    limparTerminal
+    putStrLn "╔═══════════════════════════════════════════════════════╗"
+    putStrLn "║               Seja Bem-vindo a CodeFit                ║"
+    putStrLn "╚═══════════════════════════════════════════════════════╝"   
+    putStrLn "══════════════════════════LOGIN══════════════════════════"   
+    putStrLn "\n> Digite o seu cpf: "
     cpf <- getLine
     cpfValido <- cpfCorreto cpf
 
-    putStrLn "Digite sua senha: "
+    putStrLn "> Digite sua senha: "
     senha <- getLine
     senhaValida <- senhaCorreta senha 
 
-    putStrLn "Digite o tipo de usuario (1 - ALUNO, 2 - GESTOR, 3 - FUNCIONARIO): "
-    tipoFuncionario <- readLn :: IO Int
-    tipoFuncionarioValidado <- tipoUsuarioCorreto tipoFuncionario
 
     putStrLn "Digite: (C - Confirmar o Login; E - Exit)"
     opcao <- getLine
@@ -51,7 +64,6 @@ main = do
                 then do
                     tipo <- tipoMenu cpfValido
                     case (tipo) of
-                        "1" -> loginAluno main 
                         --"2" -> putStrLn "Sou gestor" -- chama menu de gestor
                         "3" -> menuFuncionario main
                 else do

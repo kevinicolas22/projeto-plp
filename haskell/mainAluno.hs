@@ -154,7 +154,7 @@ filtrarMatricula matriculaStr listaG = do
 loginAluno::IO()-> IO()
 loginAluno menuPrincipal= do
       limparTerminal  -- funçao que limpa o terminal
-      putStrLn "   ==== LOGIN/ALUNO ==== "
+      putStrLn "══════════════════════LOGIN/ALUNO═══════════════════════ "
       putStrLn "Digite \"!\" para voltar."
       putStr   "\n> Matrícula: "
       hFlush stdout
@@ -228,7 +228,7 @@ homeAluno alunoAtual menuPrincipal= do
 calculoImc:: Aluno -> IO()-> IO()
 calculoImc aluno menuPrincipal = do
       limparTerminal
-      putStrLn ("        ======= Avaliação Física =======\n")
+      putStrLn ("═════════════════ Avaliação Física ════════════════════\n")
       conexao<- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
       conteudo<- hGetContents conexao
       let linhas = lines conteudo
@@ -288,12 +288,10 @@ funçaoSaida menuPrincipal= do
       menuPrincipal
       
       
-
-
 menuTreinos:: Aluno-> IO()-> IO()
 menuTreinos aluno menuPrincipal= do
       limparTerminal   
-      putStrLn ("        ======= Meus Treinos =======\n")
+      putStrLn ("════════════════ Meus Treinos ════════════════\n")
       if (length (treinos aluno))==0
             then do
                   putStrLn "\n > Você ainda não possui treinos cadastrados !\n\n [0] Voltar    [1] Solicitar Treino\n"
@@ -333,7 +331,7 @@ solicitaTreino aluno tipoTreino= do
 aulasColetivas:: Aluno-> IO()->IO()
 aulasColetivas aluno menuPrincipal= do
       limparTerminal
-      putStrLn ("        ======= Aulas Coletivas =======\n")
+      putStrLn (" ═════════════════ Aulas Coletivas ════════════════\n")
       conexao<- openFile "haskell/aulas.txt" ReadMode
       conteudo<- hGetContents conexao
       let aulas= recuperarAulas conteudo
@@ -352,13 +350,35 @@ aulasColetivas aluno menuPrincipal= do
 listarAulas:: Aluno->IO()->IO()
 listarAulas aluno menuPrincipal= do
       limparTerminal
-      putStrLn "    ===== MINHAS AULAS ====\n"
+      putStrLn "══════════════════ MINHAS AULAS ══════════════════\n"
       
       mapM_ exibeAula (aulas aluno)
-      putStrLn "\nPressione ENTER para voltar..."
+      putStrLn "\n [0] Voltar        [1] Excluir Aula"
       saida<- getLine
-      aulasColetivas aluno menuPrincipal 
-                  
+      case saida of
+            "0"->aulasColetivas aluno menuPrincipal 
+            "1"-> do
+                  putStrLn "\n > Nome da aula a ser excluída: "
+                  nomeExcluir<- getLine
+                  if estaInscrito aluno nomeExcluir
+                        then do
+                              alunoAtualizado<-removerAula aluno nomeExcluir
+                              putStrLn "\n AULA EXCLUÍDA COM SUCESSO !"
+                              threadDelay (2 * 1000000)
+                              listarAulas alunoAtualizado menuPrincipal
+                  else do
+                        putStrLn "\n !! Aula inexistente em sua agenda !!"
+                        threadDelay (2 * 1000000)
+                        listarAulas aluno menuPrincipal
+            _ -> listarAulas aluno menuPrincipal 
+            
+removerAula :: Aluno -> String -> IO Aluno
+removerAula aluno nomeAulaEx =do
+      let nomeAulaExCaps = map toUpper nomeAulaEx
+          novoAluno = aluno { aulas = filter (\aula -> nomeAulaExCaps /= nomeAula aula) (aulas aluno) }
+      substituirAlunoTxt novoAluno (matricula novoAluno)
+      return novoAluno
+      
 inscriçaoAula:: Aluno->IO()->IO()
 inscriçaoAula aluno menuPrincipal= do
       conexao<- openFile "haskell/aulas.txt" ReadMode
@@ -441,7 +461,7 @@ verificaAula nomeAulaStr (aula:outrasAulas) =
 meusDados:: Aluno-> IO()->IO() 
 meusDados aluno menuPrincipal= do
       limparTerminal
-      putStrLn ("   ======= "++nomeAluno aluno++ " =======\n")
+      putStrLn ("════════════════ "++nomeAluno aluno++ " ════════════════\n")
       putStr (exibirAluno aluno)
       putStrLn "\n\n>  [0] Voltar ao menu     [1] Editar dados "
       opçao <- getLine
@@ -531,7 +551,7 @@ enviarEmail aluno opçao= do
 realizaPagamento:: Aluno->IO()-> IO()
 realizaPagamento aluno menuPrincipal= do
       limparTerminal
-      putStrLn "   ===== FINANCEIRO =====\n"
+      putStrLn "════════════════ FINANCEIRO ════════════════\n"
       if emDia aluno
             then do 
                   putStrLn " - Sua mensalidade está em dia !" 
@@ -569,9 +589,14 @@ realizaPagamento aluno menuPrincipal= do
                         substituirAlunoTxt alunoNovo (matricula alunoNovo)
                         putStrLn $ "\x1b[32m" ++ " Pagamento Realizado." ++ "\x1b[0m"
                         threadDelay (2 * 1000000)
+                        adicionaPagamento (valorMensal planoAtual) (show planoAtual)
                         enviarEmail aluno opçaoPagamento
                         homeAluno alunoNovo menuPrincipal
 
+adicionaPagamento:: Float-> String-> IO()
+adicionaPagamento valor plano = do
+      appendFile "haskell//pagamentos.txt" (show(valor)++"," ++plano ++"\n")
+      
 alterarPlano:: Aluno->IO()-> IO()
 alterarPlano aluno menuPrincipal= do 
       clearScreen
