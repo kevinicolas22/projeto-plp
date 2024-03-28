@@ -3,6 +3,7 @@ import Planos
 import Data.List (intercalate)
 import Data.Text (Text)
 type Planos= [PlanoTipo]
+
 data Aula = Aula {
     nomeAula :: String,
     horarioAula :: String,
