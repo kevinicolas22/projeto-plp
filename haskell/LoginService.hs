@@ -16,16 +16,15 @@ primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha)))
       | otherwise = c : replace from to cs
 
 
-existeCadastro :: String -> IO Bool
-existeCadastro cpf = do
-    conexao<- openFile "haskell/login.txt" ReadMode
-    conteudo<- hGetContents conexao
-    seq conteudo $ return()
+
+existeCadastro :: String ->String-> IO Bool
+existeCadastro cpf conteudo= do
     let linhas = lines conteudo
         cpfs = primeirosElementos linhas
     seq cpfs $ return()
-    hClose conexao
-    return (cpf `elem` cpfs)
+    let existe =cpf `elem` cpfs
+   
+    return existe
 
 cadastroCondizComTipoESenha :: String -> Int -> String ->IO Bool
 cadastroCondizComTipoESenha cpf tipoUsuario senha = do

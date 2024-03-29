@@ -27,6 +27,7 @@ loginMembro tipoFuncionarioValidado = do
             main
         else return()
     cpfCorreto cpf tipoFuncionarioValidado
+    
     let cpfDelimitado = delimitarCpf cpf
     putStrLn "> Digite sua senha: "
     senha <- getLine
@@ -43,10 +44,13 @@ loginMembro tipoFuncionarioValidado = do
             putStrLn "Encerrando o programa!"
             exitSuccess
         else return()
-    existeCadastroR <- existeCadastro cpfDelimitado
-    tipoEsenhaCorreto <- cadastroCondizComTipoESenha cpfDelimitado tipoFuncionarioValidado senha
+    conexao<- openFile "haskell/login.txt" ReadMode
+    conteudo<- hGetContents conexao
+    existeCadastroR <- existeCadastro cpfDelimitado conteudo
     if existeCadastroR
         then do
+            hClose conexao
+            tipoEsenhaCorreto <- cadastroCondizComTipoESenha cpfDelimitado tipoFuncionarioValidado senha
             if tipoEsenhaCorreto
                 then do
                     tipo <- tipoMenu cpfDelimitado
@@ -58,6 +62,7 @@ loginMembro tipoFuncionarioValidado = do
                     threadDelay (2 * 1000000)
                     loginMembro tipoFuncionarioValidado
         else do
+            hClose conexao
             putStrLn " > Cadastro não encontrado !"
             threadDelay (2 * 1000000)
             loginMembro tipoFuncionarioValidado
