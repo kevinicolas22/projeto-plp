@@ -27,12 +27,10 @@ import Control.Concurrent (threadDelay)
 
 
 
---- Funçao para criar Gestor e as delimitaçoes de cada dado do gestor 
+
+-- Função para criar um gestor com ID automático
 criarGestor :: IO Manager
 criarGestor = do
-    putStrLn ">> Digite o seu ID de gestor: "
-    id <- getLine
-
     -- Tente abrir o arquivo, criando-o se não existir
     handle <- openFile "manager.txt" ReadWriteMode `catch` \e -> do
         let _ = e :: IOError
@@ -43,7 +41,10 @@ criarGestor = do
     let linhas = lines assunto
         ids = primeirosElementosG linhas
 
-    if id `elem` ids
+    idGestor <- gerarIdUnico 1 ids
+
+    -- Se o ID gerado já existe, gere um novo
+    if idGestor `elem` ids
         then do
             putStrLn "ID já em uso. Escolha um ID diferente."
             threadDelay (1 * 1000000)
@@ -51,6 +52,8 @@ criarGestor = do
             criarGestor
         else do
             hClose handle  -- Feche o arquivo antes de prosseguir
+            let idInt = read idGestor :: Int
+            putStrLn $ ">> Seu ID: " ++ show idInt
             putStrLn "\n>> Digite o seu CPF (formatação 000.000.000-00): "
             cpfG <- getLine
             case delimitarCpfG cpfG of
@@ -67,7 +70,7 @@ criarGestor = do
                                 Just telefoneGDelimitado -> do
                                     putStrLn "\n>> Digite seu endereço: "
                                     enderecoG <- getLine
-                                    return(Manager (read id) cpfGDelimitado nomeG nascimentoDelimitado telefoneGDelimitado enderecoG)
+                                    return (Manager (idInt) cpfGDelimitado nomeG nascimentoDelimitado telefoneGDelimitado enderecoG)
                                 Nothing -> do
                                     putStrLn "Telefone inválido. Por favor, inicie novamente seu cadastro."
                                     threadDelay (1 * 1000000)
@@ -82,10 +85,15 @@ criarGestor = do
                     putStrLn "CPF inválido. Por favor, inicie novamente seu cadastro."
                     threadDelay (1 * 1000000)
                     limpar
-                    criarGestor 
+                    criarGestor
 
-                     
 
+-- Função para gerar um ID único
+gerarIdUnico :: Int -> [String] -> IO String
+gerarIdUnico count ids = do
+    if show count `elem` ids
+        then gerarIdUnico (count + 1) ids
+        else return (show count)
 
 
 --- Funçao para adicionar gestor ao arquivo txt(banco de dados)
