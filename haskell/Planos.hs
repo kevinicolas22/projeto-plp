@@ -6,6 +6,7 @@ import System.IO
 import Data.List (intercalate)
 import Data.Maybe ( mapMaybe, maybeToList )
 import Data.Char(toUpper, isSpace)
+import Data.List.Split(splitOn)
 
 type ValorMensal= Float
 type ValorSemestre = Float
@@ -57,8 +58,8 @@ planoPremium = Plano {
     valorMensal = 100.0,
     valorSemestre = 510.0,
     valorAnual = 960.0,
-    horaEntradaMaxima = 23,
-    horaEntradaMinima = 5
+    horaEntradaMaxima = 25,
+    horaEntradaMinima = -1
 } 
 
 instance Read PlanoTipo where

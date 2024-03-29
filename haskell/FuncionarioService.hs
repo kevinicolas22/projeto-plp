@@ -19,7 +19,6 @@ import MainAluno
 import Aluno
 
 
-
 --  Função que extrai os primeiros elementos de uma lista de strings.
 
 
@@ -44,38 +43,45 @@ adicionarFuncionario novo_funcionario = do
 -- Função para criar um novo funcionário
 criarFuncionario :: IO Funcionario
 criarFuncionario = do
-  putStrLn "Digite o seu ID: "
-  id <- readLn :: IO Int
-  conexao <- openFile "haskell//funcionario.txt" ReadMode
-  conteudo <- hGetContents conexao
-  let linhas = lines conteudo
-      ids = primeirosElementos linhas
+    
+    conexao <- openFile "haskell/funcionario.txt" ReadMode
+    conteudo <- hGetContents conexao
 
-  if verificandoId (show id) ids
-    then do
-      putStrLn "ID já em uso. Escolha um ID diferente."
-      hClose conexao
-      criarFuncionario
-    else do
-      putStrLn "Digite o seu nome: "
-      nome <- getLine
+    let linhas = lines conteudo
+        ids = primeirosElementos linhas
 
-      putStrLn "Digite o seu CPF 11 dígitos ex: 12345678900: "
-      cpf <- obterInformacao "CPF" delimitarCpf
+    idFuncionario <- gerarMatricula 1 ids
+    
+    putStrLn "Digite o seu nome: "
+    nome <- getLine
 
-      putStrLn "Digite seu endereço: "
-      endereco <- getLine
+    putStrLn "Digite o seu CPF 11 dígitos ex: 12345678900: "
+    cpf <- obterInformacao "CPF" delimitarCpf
 
-      putStrLn "Digite o seu telefone 11 dígitos ex: 08391234567"
-      telefone <- obterInformacao "telefone" delimitarTelefone
+    putStrLn "Digite seu endereço: "
+    endereco <- getLine
 
-      putStrLn "Digite a data de ingresso 8 dígitos ex: DDMMAAAA"
-      data_ingresso <- obterInformacao "data de ingresso" delimitarIngresso
+    putStrLn "Digite o seu telefone 11 dígitos ex: 08391234567"
+    telefone <- obterInformacao "telefone" delimitarTelefone
 
-      putStrLn "Digite seu salário: "
-      salario <- readLn :: IO Float
+    putStrLn "Digite a data de ingresso 8 dígitos ex: DDMMAAAA"
+    data_ingresso <- obterInformacao "data de ingresso" delimitarIngresso
 
-      return (Funcionario id nome cpf endereco telefone data_ingresso salario)
+    putStrLn "Digite seu salário: "
+    salario <- readLn :: IO Float
+
+    return (Funcionario idFuncionario nome cpf endereco telefone data_ingresso salario)
+
+
+--Função para gerar um id único
+gerarMatricula :: Int -> [String] -> IO Int
+gerarMatricula cont linhas = do
+    let matriculas = primeirosElementos linhas
+        matriculaAluno = (cont + 1)
+    if show matriculaAluno `elem` matriculas
+        then gerarMatricula (cont + 1) linhas
+        else return matriculaAluno
+
 
 -- Função para ler um funcionário pelo ID e imprimir seus dados
 lerFuncionarioPorId :: Int -> IO ()
@@ -492,3 +498,28 @@ associarTreinoAluno matricula treino= do
 
 toArray :: String -> [String]
 toArray exercicios = splitOn "/" exercicios
+
+
+--Função para liberar o acesso do aluno na academia
+acessoLiberado :: String -> Int ->IO Bool
+acessoLiberado matriculaAluno hora = do 
+    aluno <- recuperaAlunoMatricula matriculaAluno
+    let tipoPlano = showPlanoAluno aluno
+    let plano = parsePlanoAlunoParaPlano tipoPlano
+        horamaxima = horaEntradaMaxima plano
+        horaminima = horaEntradaMinima plano
+    
+    let resultado = (hora >= horaminima) && (hora <= horamaxima)
+
+    return (resultado)
+
+showPlanoAluno :: Aluno -> String
+showPlanoAluno (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas) = show plano
+
+parsePlanoAlunoParaPlano :: String -> Plano
+parsePlanoAlunoParaPlano "Light" = planoLight
+parsePlanoAlunoParaPlano "Gold" = planoGold
+parsePlanoAlunoParaPlano "Premium" = planoPremium
+
+
+    

@@ -12,7 +12,7 @@ import System.IO
 import Planos
 -- Definição dos Tipos de dados do aluno
 type Id = Int
-type Nome = String
+type Nomew = String
 type Cpf = String
 type Endereço = String
 type Contato = String
@@ -27,7 +27,7 @@ type Aulas= [Aula]
 data Aluno = Aluno
   { matricula:: Matricula,
     alunoId :: Id,
-    nomeAluno :: Nome,
+    nomeAluno :: Nomew,
     cpfAluno :: Cpf,
     endereçoAluno :: Endereço,
     contatoAluno :: Contato,

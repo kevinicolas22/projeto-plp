@@ -10,6 +10,7 @@ import Data.Char (toUpper)
 import AvaliacaoFisica
 import Treino
 import Aula
+import MainAluno
 import MainAluno(limparTerminal,recuperaAlunoMatricula,exibeAlunos)
 import AlunoController
 import Control.Concurrent (threadDelay)
@@ -19,6 +20,9 @@ import Data.List.Split(splitOn)
 import Data.List
 import Control.Monad (when)
 import AulaService
+import Data.Time.LocalTime
+import Data.Time.Format
+import System.Console.ANSI
 
 -- menu voltado pra testes
 -- Função principal
@@ -32,8 +36,9 @@ menuFuncionario menuPrincipal= do
     putStrLn "║   [2] Solicitações de Treino                          ║"
     putStrLn "║   [3] Lista de Alunos                                 ║"
     putStrLn "║   [4] Menu de Aulas                                   ║"
-    putStrLn "║   [5] Menu de Avaliação Física                        ║"
-    putStrLn "║   [6] Sair                                            ║"
+    putStrLn "║   [5] Liberar Acesso Aluno                            ║"
+    putStrLn "║   [6] Menu de Avaliação Física                        ║"
+    putStrLn "║   [7] Sair                                            ║"
     putStrLn "║                                                       ║"
     putStrLn "║   > Digite a opção:                                   ║" 
     putStrLn "╚═══════════════════════════════════════════════════════╝"
@@ -42,11 +47,12 @@ menuFuncionario menuPrincipal= do
         "1" -> do 
             criarAluno
             menuFuncionario menuPrincipal
-        "3" -> listarAlunos menuPrincipal
-        "5" -> menuAvaliacaoFisica menuPrincipal
         "2" -> funcionarioCriaTreino menuPrincipal
+        "3" -> listarAlunos menuPrincipal
         "4" -> menuAulas menuPrincipal
-        "6" -> do 
+        "5" -> liberarAcessoAluno menuPrincipal
+        "6" -> menuAvaliacaoFisica menuPrincipal
+        "7" -> do 
             putStrLn "Saindo..." 
             menuPrincipal
         _  -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionario menuPrincipal
@@ -148,6 +154,7 @@ removerFuncionarioOpcao menuPrincipal= do
 -- Função para o menu de avaliação física
 menuAvaliacaoFisica :: IO()->IO ()
 menuAvaliacaoFisica menuPrincipal= do
+    limparTerminal
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║         Menu de Avaliação Física           ║"
     putStrLn "║                                            ║"
@@ -326,7 +333,8 @@ menuAulas menuPrincipal = do
     putStrLn "║                                            ║"
     putStrLn "║   [1] Criar aula                           ║"
     putStrLn "║   [2] Ler todas as aula                    ║"
-    putStrLn "║   [3] Voltar para o menu principal         ║"
+    putStrLn "║   [3] Deletar Aula                         ║"
+    putStrLn "║   [4] Voltar para o menu principal         ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
@@ -335,8 +343,13 @@ menuAulas menuPrincipal = do
     case opcao of
         "1" -> criarAula menuPrincipal
         "2" -> lerTodasAulas menuPrincipal
-        "3" -> menuFuncionario menuPrincipal
-        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAulas menuPrincipal
+        "3" -> deletarAulas menuPrincipal
+        "4" -> menuFuncionario menuPrincipal
+        _   -> do 
+            putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAulas menuPrincipal
+            
+        
+
 
 lerTodasAulas :: IO() -> IO ()
 lerTodasAulas menuPrincipal = do
@@ -349,6 +362,15 @@ lerTodasAulas menuPrincipal = do
         "0"-> menuAulas menuPrincipal
         _ -> lerTodasAulas menuPrincipal
     
+
+deletarAulas :: IO() -> IO()
+deletarAulas menuAulas = do
+    putStrLn "Digite o nome da aula que deseja deletar: "
+    nome <- getLine
+    let nomeUpper = map toUpper nome
+
+    deletarAulaPeloNome nomeUpper
+    menuAulas
 
 criarAula ::IO() -> IO()
 criarAula menuPrincipal= do
@@ -422,3 +444,35 @@ lerLinhas stopChar = do
             restante <- lerLinhas stopChar
             return (linha ++"/"++ restante)
 
+--Função para liberar acesso aluno
+liberarAcessoAluno :: IO() -> IO()
+liberarAcessoAluno menuAulas= do
+    putStrLn "Para liberar o acesso do ALUNO, digite a sua matricula: "
+    matriculaAluno <- getLine
+
+    currentTime <- getZonedTime
+    let horaAtual = localTimeOfDay $ zonedTimeToLocalTime currentTime
+    putStrLn $ "Hora atual: " ++ formatHour horaAtual
+
+    resultado <- acessoLiberado matriculaAluno (parseHourToInt(formatHour horaAtual))
+
+    printAcesso resultado
+    threadDelay (2 * 1000000)
+    menuAulas
+--Função para formatar a hora
+formatHour :: TimeOfDay -> String
+formatHour time = formatTime defaultTimeLocale "%H" time
+
+parseHourToInt :: String -> Int
+parseHourToInt formattedHour = read (takeWhile (/= ':') formattedHour) :: Int
+
+printAcesso :: Bool -> IO ()
+printAcesso False = do
+    setSGR [SetColor Foreground Vivid Red]
+    putStrLn "Acesso Negado"
+    setSGR [Reset]
+
+printAcesso True = do
+    setSGR [SetColor Foreground Vivid Green]
+    putStrLn "Acesso Autorizado"
+    setSGR [Reset]
