@@ -9,25 +9,31 @@ import Data.Maybe (mapMaybe)
 import Data.Char (toUpper)
 import AvaliacaoFisica
 import Treino
-import MainAluno(limparTerminal)
+import Aula
+import MainAluno(limparTerminal,recuperaAlunoMatricula,exibeAlunos)
 import AlunoController
+import Control.Concurrent (threadDelay)
+import Aluno
+import Planos
+import Data.List.Split(splitOn)
+import Data.List
+import Control.Monad (when)
+import AulaService
+
 -- menu voltado pra testes
 -- Função principal
-main :: IO ()
-main = do
+menuFuncionario :: IO()-> IO ()
+menuFuncionario menuPrincipal= do
     limparTerminal
     putStrLn "╔═══════════════════════════════════════════════════════╗"
     putStrLn "║                Funcionário Codefit                    ║"
     putStrLn "║                                                       ║"
-    putStrLn "║   1. Cadastrar Aluno                                  ║"
-    putStrLn "║   2. Adicionar um funcionário                         ║"
-    putStrLn "║   3. Ler informações de um funcionário por Id         ║"
-    putStrLn "║   4. Atualizar um funcionário                         ║"
-    putStrLn "║   5. Remover um funcionário                           ║"
-    putStrLn "║   6. Listar todos os funcionarios                     ║"
-    putStrLn "║   7. Menu de Avaliação Física                         ║"
-    putStrLn "║   8. Menu de Treinos                                  ║"
-    putStrLn "║   9. Sair                                             ║"
+    putStrLn "║   [1] Cadastrar Aluno                                 ║"
+    putStrLn "║   [2] Solicitações de Treino                          ║"
+    putStrLn "║   [3] Lista de Alunos                                 ║"
+    putStrLn "║   [4] Menu de Aulas                                   ║"
+    putStrLn "║   [5] Menu de Avaliação Física                        ║"
+    putStrLn "║   [6] Sair                                            ║"
     putStrLn "║                                                       ║"
     putStrLn "║   > Digite a opção:                                   ║" 
     putStrLn "╚═══════════════════════════════════════════════════════╝"
@@ -35,69 +41,61 @@ main = do
     case opcao of
         "1" -> do 
             criarAluno
-            main
-        "2" -> adicionarFuncionarioOpcao
-        "3" -> lerFuncionarioOpcao
-        "4" -> atualizarFuncionarioOpcao
-        "5" -> removerFuncionarioOpcao
-        "6" -> lerTodosFuncionarios
-        "7" -> menuAvaliacaoFisica
-        --"7" -> menuTreinoF
-        "9" -> putStrLn "Saindo..." 
-        _  -> putStrLn "Opção inválida. Por favor, escolha novamente." >> main
+            menuFuncionario menuPrincipal
+        "3" -> listarAlunos menuPrincipal
+        "5" -> menuAvaliacaoFisica menuPrincipal
+        "2" -> funcionarioCriaTreino menuPrincipal
+        "4" -> menuAulas menuPrincipal
+        "6" -> do 
+            putStrLn "Saindo..." 
+            menuPrincipal
+        _  -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionario menuPrincipal
 
---Esse menu menuFuncionarioF vai ser usado pelo gestor
-menuFuncionarioF :: IO()
-menuFuncionarioF = do
-    putStrLn "╔════════════════════════════════════════════╗"
-    putStrLn "║           Opções sobre Funcionario:        ║"
-    putStrLn "║                                            ║"
-    putStrLn "║   a. Criar                                 ║"
-    putStrLn "║   b. Listar por id                         ║"
-    putStrLn "║   c. Listar todos funcionarios             ║"
-    putStrLn "║   d. Alterar                               ║"
-    putStrLn "║   e. Excluir                               ║"
-    putStrLn "║   f. Voltar para o menu principal          ║"
-    putStrLn "╚════════════════════════════════════════════╝"
-    putStrLn "Digite a opção: "
-    opcaoFuncionarioF <- getLine
-    let opcao = map toUpper opcaoFuncionarioF
-    case opcao of
-        "A" -> adicionarFuncionarioOpcao
-        "B" -> lerFuncionarioOpcao
-        "C" -> lerTodosFuncionarios
-        "D" -> atualizarFuncionarioOpcao
-        "E" -> removerFuncionarioOpcao
-        "F" -> main
-        _ -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionarioF
+
+listarAlunos:: IO()->IO()
+listarAlunos menuPrincipal= do
+    limparTerminal
+    putStrLn "                     ALUNOS"
+    conexao <- openFile "haskell/Aluno.txt" ReadMode
+    conteudo<- hGetContents conexao
+    seq conteudo $ return ()
+    let linhas = lines conteudo
+        matriculas = primeirosElementos linhas
+    exibeAlunos matriculas
+    putStrLn "\n [0] Voltar"
+    opçao<- getLine
+    case opçao of
+        "0"-> menuFuncionario menuPrincipal
+        _ -> listarAlunos menuPrincipal
+
 
 -- Opção para adicionar um funcionário
-adicionarFuncionarioOpcao :: IO ()
-adicionarFuncionarioOpcao = do
+adicionarFuncionarioOpcao ::IO()-> IO ()
+adicionarFuncionarioOpcao menuPrincipal= do
     limparTerminal
     novoFuncionario <- criarFuncionario
     adicionarFuncionario novoFuncionario
     putStrLn "Funcionário adicionado com sucesso!"
-    main
+    menuFuncionario menuPrincipal
 
 -- Opção para ler todos funcionarios
-lerTodosFuncionarios :: IO()
-lerTodosFuncionarios = do
+lerTodosFuncionarios :: IO()->IO()
+lerTodosFuncionarios menuPrincipal= do
     limparTerminal
-    listarTodosFuncionarios >> main
+    listarTodosFuncionarios >> menuFuncionario menuPrincipal
 
 -- Opção para ler informações de um funcionário por id
-lerFuncionarioOpcao :: IO ()
-lerFuncionarioOpcao = do
+lerFuncionarioOpcao :: IO() ->IO ()
+lerFuncionarioOpcao menuPrincipal= do
     limparTerminal
     putStrLn "Digite o ID do funcionário que deseja buscar:"
     id <- getLine
     lerFuncionarioPorId (read id)
-    main  
+    menuFuncionario menuPrincipal
 
 -- Opção para atualizar um funcionário
-atualizarFuncionarioOpcao :: IO ()
-atualizarFuncionarioOpcao = do
+atualizarFuncionarioOpcao :: IO()-> IO ()
+atualizarFuncionarioOpcao menuPrincipal= do
     limparTerminal
     putStrLn "Digite o ID do funcionário que deseja atualizar:"
     id <- getLine
@@ -135,21 +133,21 @@ atualizarFuncionarioOpcao = do
             novoSalario <- readLn :: IO Float
             atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = novoSalario})
         _   -> putStrLn "Opção inválida."
-    main
+    menuFuncionario menuPrincipal
 
 -- Opção para remover um funcionário
-removerFuncionarioOpcao :: IO ()
-removerFuncionarioOpcao = do
+removerFuncionarioOpcao :: IO()->IO ()
+removerFuncionarioOpcao menuPrincipal= do
     limparTerminal
     putStrLn "Digite o ID do funcionário que deseja remover:"
     id <- getLine
     removerFuncionarioPorId (read id)
     putStrLn "Funcionário removido com sucesso!"
-    main
+    menuFuncionario menuPrincipal
 
 -- Função para o menu de avaliação física
-menuAvaliacaoFisica :: IO ()
-menuAvaliacaoFisica = do
+menuAvaliacaoFisica :: IO()->IO ()
+menuAvaliacaoFisica menuPrincipal= do
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║         Menu de Avaliação Física           ║"
     putStrLn "║                                            ║"
@@ -170,35 +168,35 @@ menuAvaliacaoFisica = do
             nova_avaliacao <- criarAvaliacaoFisica
             adicionarAvaliacaoFisica nova_avaliacao
             putStrLn "Avaliação física concluída."
-            menuAvaliacaoFisica 
+            menuAvaliacaoFisica menuPrincipal
         "B" -> do 
             putStrLn "Digite o ID da avaliação física que deseja visualizar:"
             id <- readLn :: IO Int
             lerAvaliacaoFisicaPorId id
-            menuAvaliacaoFisica
+            menuAvaliacaoFisica menuPrincipal
         "C" -> do
             putStrLn "Listando todas as avaliações físicas..."
             listarTodasAvaliacoesFisicas
-            menuAvaliacaoFisica
-        "D" -> atualizarAvaliacaoFisicaOpcao
+            menuAvaliacaoFisica menuPrincipal
+        "D" -> atualizarAvaliacaoFisicaOpcao menuPrincipal
         "E" -> do
             putStrLn "Verificar IMC. Digite o ID da avaliação fisica aluno para verificar o IMC:"
             id <- readLn :: IO Int
             verificarIMC id
-            menuAvaliacaoFisica
+            menuAvaliacaoFisica menuPrincipal
         "F" -> do
             putStrLn "Digite o ID da avaliação física que deseja remover:"
             id <- readLn :: IO Int
             removerAvaliacaoFisicaPorId id
-            menuAvaliacaoFisica
+            menuAvaliacaoFisica menuPrincipal
         "G" -> do 
             putStrLn "Voltando ao Menu Principal..."
-            main 
-        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAvaliacaoFisica
+            menuFuncionario menuPrincipal
+        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAvaliacaoFisica menuPrincipal
 
 
-atualizarAvaliacaoFisicaOpcao :: IO ()
-atualizarAvaliacaoFisicaOpcao = do
+atualizarAvaliacaoFisicaOpcao :: IO()->IO ()
+atualizarAvaliacaoFisicaOpcao menuPrincipal= do
     putStrLn "Digite o ID da avaliação física que deseja atualizar:"
     id <- getLine
     putStrLn "Escolha o dado da avaliação física a ser atualizado:"
@@ -230,197 +228,189 @@ atualizarAvaliacaoFisicaOpcao = do
             novoObjetivo <- getLine
             atualizarAvaliacaoFisicaPorId (read id) (AvaliacaoFisica {avaliacaoId = read id, dataAvaliacao = "", peso = 0.0, altura = 0.0, idade = 0, objetivo = novoObjetivo})
         _   -> putStrLn "Opção inválida."
-    menuAvaliacaoFisica
-{-
---TREINO
-menuTreinoF :: IO()
-menuTreinoF = do
-    putStrLn "╔════════════════════════════════════════════╗"
-    putStrLn "║           Opções sobre Treinos:            ║"
-    putStrLn "║                                            ║"
-    putStrLn "║   a. Gerar Treinos                         ║"
-    putStrLn "║   b. Visualizar Treino(s)                  ║"
-    putStrLn "║   c. Visualizar Treinos da academia        ║"
-    putStrLn "║   d. Deletar Treino                        ║"
-    putStrLn "║   e. Alterar Treino                        ║"
-    putStrLn "║   f. Voltar para o menu principal          ║"
-    putStrLn "╚════════════════════════════════════════════╝"
-    putStrLn "Digite a opção: "
-    opcaoTreinoF <- getLine
-    let opcao = map toUpper opcaoTreinoF
-    case opcao of
-        "A" -> funcionarioCriaTreino
-        "B" -> lerTreinoAluno
-        "C" -> lerTodosTreinosAcademia
-        "D" -> excluirTreino
-        "E" -> atualizarTreinoOpcao
-        "F" -> main
-        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuTreinoF
+    menuAvaliacaoFisica menuPrincipal
+
+
 
 
 --Função para o funcionario criar treino de um aluno
-funcionarioCriaTreino :: IO()
-funcionarioCriaTreino = do
-    --falta verificar se existe aluno tratar caso não existie
-    --falta puxar aluno
-    --provisorio
-    putStrLn "Digite a matricula do aluno: "
-    matricula <- readLn :: IO Int
 
-    putStrLn "Digite o tipo de treino (PS - Personalizado ou PR - Padronizado): "
-    tipo_treino <- getLine
-    tipoTreinoValidado <- tipoTreinoCorreto tipo_treino
-
-    putStrLn "Digite a data do treino (DDMMAAAA): "
-    dataTreino <- getLine
-    dataValidada <- dataCorreta dataTreino
-
-
-    let opcao = map toUpper tipoTreinoValidado
-    case opcao of
-        "PS" -> do
-            putStrLn "Insira o treino personalizado( ! :parar finalizar): "
-            personalizado <- lerLinhas '!'
-            cadastraTreino matricula "PS" personalizado dataValidada
-        "PR" -> do
-            putStrLn "Escolha o treino padrão: \n\
-                        \1 - Treino Cardiovascular\n\
-                        \2 - Treino de Definição\n\
-                        \3 - Treino de Forca\n\
-                        \4 - Treino Funcional\n\
-                        \5 - Treino HIIT\n\
-                        \6 - Treino de Hipertrofia\n\
-                        \7 - Treino de Resistência Muscular\n\
-                        \8 - Treino Terapêutico\n"
-
-            putStrLn "Escolha de 1-8: "
-            escolha <- readLn :: IO Int
-            opcaoValidada <- opcaoCorreta escolha
-
-            case opcaoValidada of
-                1 -> do
-                    cadastraTreino matricula "PR" "Treino Cardiovascular" dataValidada
-                2 -> do
-                    cadastraTreino matricula "PR" "Treino de Definição" dataValidada
-                3 -> do
-                    cadastraTreino matricula "PR" "Treino de Forca" dataValidada
-                4 -> do
-                    cadastraTreino matricula "PR" "Treino Funcional" dataValidada
-                5 -> do
-                    cadastraTreino matricula "PR" "Treino HIIT" dataValidada
-                6 -> do
-                    cadastraTreino matricula "PR" "Treino de Hipertrofia" dataValidada
-                7 -> do
-                    cadastraTreino matricula "PR" "Treino de Resistência Muscular" dataValidada
-                8 -> do
-                    cadastraTreino matricula "PR" "Treino Terapêutico" dataValidada
-    menuTreinoF     
-
---Função para ler treino pela matricula
-lerTreinoAluno :: IO()
-lerTreinoAluno = do
-    putStrLn "Digite a matricula do aluno para visualizar seu treino(s): "
-    matricula <- readLn :: IO Int
-    viewTreinoAluno matricula
-    menuTreinoF
-
---Função para ler todos os treinos da academia
-lerTodosTreinosAcademia :: IO()
-lerTodosTreinosAcademia = do
-    viewAllTreino
-    menuTreinoF
-
---Função para escolher um treino, caso tenha mais de um e em seguida o excluir
-excluirTreino :: IO()
-excluirTreino = do
-    putStrLn "Para excluir um treino digite a matricula do aluno: "
-    matricula <- readLn :: IO Int
-    
-    qtdeTreinos <- quantidadeTreinoAluno matricula
-    putStrLn ("Aluno possui " ++ (show qtdeTreinos) ++ " treino(s)")
-
-    if not (qtdeTreinos == 0)
+funcionarioCriaTreino :: IO () -> IO ()
+funcionarioCriaTreino menuPrincipal = do
+    limparTerminal
+    putStrLn "   ==== Solicitações Pendentes ====\n"
+    conexao <- openFile "haskell/solicitacoes.txt" ReadMode
+    conteudo <- hGetContents conexao
+    let conteudoMaiusculo = map toUpper conteudo
+        linhas = lines conteudoMaiusculo
+        solicitacoes = map (splitOn ",")  linhas
+    if not(length solicitacoes == 0)
         then do
-            if qtdeTreinos == 1
-                then do
-                    deleteTreinoMatriculaComUmTreino matricula
-                    menuTreinoF
-                else do
-                    putStrLn "Segue as opções abaixo, escolha apenas UMA opcão para excluir"
-                    putStrLn "(OBS: A opção está na ordem em que a lista geral é apresentada)"
-                    posicoes <- viewPosicoesTreinosMatricula matricula
-                    exibirPosicoesMatricula posicoes
-        
-                    escolha <- readLn :: IO Int
-                    posicaoValidada <- verificaPosicaoDeleteCorreta escolha posicoes
-        
-                    deleteTreinoMatriculaComVariosTreinos matricula posicaoValidada
-                    menuTreinoF
-        else do 
-            putStrLn "Não existe nenhum treino cadastrado com essa matricula"
-            menuTreinoF
-
---Função para atualizar treino
-atualizarTreinoOpcao :: IO ()
-atualizarTreinoOpcao = do
-    putStrLn "Digite a matrícula do aluno que deseja atualizar:"
-    matricula <- readLn :: IO Int
-    putStrLn "Escolha o dado da avaliação física a ser atualizado:"
-    putStrLn "1. Tipo Treino"
-    putStrLn "2. Descrição"
-    putStrLn "3. Data"
-    escolha <- getLine
-    case escolha of
-        "1" -> do
-            putStrLn "Digite o novo tipo de treino: (PR ou PS)"
-            tipo_treino <- getLine
-            tipoTreinoValidado <- tipoTreinoCorreto tipo_treino
-            atualizarTreinoPelaMatricula (matricula) (Treino  matricula (map toUpper tipoTreinoValidado)  ""  "")
-        "2" -> do
-            putStrLn "Digite a nova descrição:"
-            novoDescricao <- getLine
-            atualizarTreinoPelaMatricula (matricula) (Treino  matricula ""  novoDescricao  "")
-        "3" -> do
-            putStrLn "Digite a nova data do treino:"
-            novaData <- getLine
-            dataValidada <- dataCorreta novaData
-            atualizarTreinoPelaMatricula (matricula) (Treino  matricula ""  ""  novaData)
-        _   -> putStrLn "Opção inválida."
-    menuTreinoF
-
---FUNÇÕES AUXILIARES DE VALIDAÇÃO/IMPRESSÃO
-
---Falta verificar se aluno existe 
---Função recursiva para validar se a posicao passada pelo usuario está correta
-verificaPosicaoDeleteCorreta :: Int -> [Int] -> IO Int
-verificaPosicaoDeleteCorreta n lista = do
-    if n `elem` lista 
-        then return n
-        else do 
-            putStrLn "Posição inserida inválida, tente novamente" 
-            novaPosicao <- readLn :: IO Int
-            verificaPosicaoDeleteCorreta novaPosicao lista
-
---Função para exibir as posições dos treinos de uma única matricula
-exibirPosicoesMatricula :: [Int] -> IO ()
-exibirPosicoesMatricula [] = return ()
-exibirPosicoesMatricula (x:xs) = do
-    --treinoTemp <- visualizarDadosTreino x
-    putStrLn ("Opção:("  ++ show x ++ ")")
-    exibirPosicoesMatricula xs
-
-
---Funçãa recursiva para encontrar uma matricula valida no treino.txt
-matriculaCorreta :: Int -> IO Int
-matriculaCorreta matricula = do 
-    matriculaValidada <- verificaMatricula matricula
-    if matriculaValidada
-        then return matricula
+            exibeSolicitacoes linhas
+            putStrLn "\n [0] Voltar       [1] Atribuir Treino"
+            opçao<- getLine
+            case opçao of 
+                "0"->  menuPrincipal
+                "1"-> do
+                    putStrLn "\nMatricula do aluno: "
+                    matricula <- getLine
+                    let matriculaCaps = map toUpper matricula
+                    -- verificar aluno.txt
+                    putStrLn "Tipo de Treino requisitado: "
+                    tipo_treino <- getLine
+                    let tipoTreinoCaps = map toUpper tipo_treino
+                    solicitaçaoEncontrada<- existeSolicitacao tipoTreinoCaps matriculaCaps solicitacoes
+                    if solicitaçaoEncontrada
+                        then do
+                            putStrLn "Insira o treino personalizado( ! :parar finalizar): "
+                            personalizado <- lerLinhas '!'
+                            let personalizadoArray = toArray personalizado
+                            treino <- cadastraTreino tipoTreinoCaps personalizadoArray
+                            associarTreinoAluno matriculaCaps treino
+                            removerSolicitacao tipoTreinoCaps matricula
+                            putStrLn " TREINO ATRIBUÍDO COM SUCESSO !"
+                            threadDelay (2 * 1000000)
+                            funcionarioCriaTreino menuPrincipal
+                        else do
+                            putStrLn " Solicitação não encontrada! Preencha os campos corretamente"
+                            threadDelay (2 * 1000000)
+                            funcionarioCriaTreino menuPrincipal
+                _ -> funcionarioCriaTreino menuPrincipal
         else do
-            putStrLn "Treino com determinada matricula ainda não foi cadastrado, digite outra matricula"
-            novaOpcao <- getLine
-            let novaMatricula = read novaOpcao :: Int
-            matriculaCorreta novaMatricula
+            putStrLn " Não há solicitações pendentes. \n\n [0] Voltar"
+            opçao1<- getLine
+            case opçao1 of
+                "0"-> menuFuncionario menuPrincipal
+
+removerSolicitacao :: String -> String -> IO ()
+removerSolicitacao tipoTreino matricula = do
+    handle <- openFile "haskell/solicitacoes.txt" ReadMode
+    contents <- hGetContents handle
+    (tempName, tempHandle) <- openTempFile "." "temp"
+    let conteudoMaiusculo = map toUpper contents
+        linhas = lines conteudoMaiusculo
+        solicitacoes = map (splitOn ",") linhas
+        novasSolicitacoes = filter (\[mat, tipo] -> mat /= matricula || tipo /= tipoTreino) solicitacoes
+        novoConteudo = unlines $ map (intercalate "," ) novasSolicitacoes
+    hPutStr tempHandle (novoConteudo)
+    hClose handle
+    hClose tempHandle
+    removeFile "haskell/solicitacoes.txt"
+    renameFile tempName "haskell/solicitacoes.txt"
+    
+existeSolicitacao :: String -> String -> [[String]] -> IO Bool
+existeSolicitacao tipoTreino matricula linhas = do
+    let existe = any (\[mat,tipo] -> mat == matricula && tipo == tipoTreino) linhas
+    return existe
+
+exibeSolicitacoes :: [String] -> IO ()
+exibeSolicitacoes [] = putStrLn " "
+exibeSolicitacoes detalhesSolicitacao = mapM_ exibeSolicitacao detalhesSolicitacao
+
+exibeSolicitacao :: String -> IO ()
+exibeSolicitacao string= do
+    let partes = splitOn "," string
+    alunoEncontrado<- recuperaAlunoMatricula (partes !! 0)
+    putStrLn ("=> Aluno:"++ nomeAluno alunoEncontrado ++ 
+            "\n   Matricula:"++ matricula alunoEncontrado++
+            "\n   Tipo de treino requisitado:" ++ partes !! 1 ++"\n\n")
+
+--Aulas
+--Função para criar uma aula
+
+menuAulas ::IO() -> IO()
+menuAulas menuPrincipal = do
+    limparTerminal
+    putStrLn "╔════════════════════════════════════════════╗"
+    putStrLn "║                   AULAS                    ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   [1] Criar aula                           ║"
+    putStrLn "║   [2] Ler todas as aula                    ║"
+    putStrLn "║   [3] Voltar para o menu principal         ║"
+    putStrLn "║                                            ║"
+    putStrLn "║   > Digite a opção:                        ║"
+    putStrLn "╚════════════════════════════════════════════╝"
+    opcaoTreinoF <- getLine
+    let opcao = map toUpper opcaoTreinoF
+    case opcao of
+        "1" -> criarAula menuPrincipal
+        "2" -> lerTodasAulas menuPrincipal
+        "3" -> menuFuncionario menuPrincipal
+        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAulas menuPrincipal
+
+lerTodasAulas :: IO() -> IO ()
+lerTodasAulas menuPrincipal = do
+    limparTerminal
+    putStrLn "════════════════════AULAS DISPONÍVEIS════════════════════\n\n"
+    viewAulas
+    putStrLn "\n [0] Voltar"
+    opçao <- getLine
+    case opçao of
+        "0"-> menuAulas menuPrincipal
+        _ -> lerTodasAulas menuPrincipal
+    
+
+criarAula ::IO() -> IO()
+criarAula menuPrincipal= do
+    limparTerminal
+    putStrLn "═════════════════CADASTRO DE AULA═══════════════════\n"
+    putStrLn "> Nome da aula: "
+    nomeAula <- getLine
+    let nomeAulaCaps = map toUpper nomeAula
+    putStrLn "> Horario da aula: "
+    horario <- getLine
+    planos <- escolhaDePlanos
+    adcionaAula nomeAulaCaps horario planos
+    menuAulas menuPrincipal
+
+escolhaDePlanos :: IO [PlanoTipo]
+escolhaDePlanos = do
+    putStrLn "Escolha até 3 planos: "
+    putStrLn "1 - Plano Light"
+    putStrLn "2 - Plano Gold"
+    putStrLn "3 - Plano Premium"
+    loop []
+    
+--Função recursiva para let três
+loop :: [PlanoTipo] -> IO [PlanoTipo]
+loop lista = do
+    opcao <- getOpcaoPlano lista
+    case opcao of
+        Just plano -> do
+            
+            if length lista < 2
+                then loop (plano : lista)
+                else return (plano : lista)
+        Nothing -> do
+            if null lista
+                then do
+                    putStrLn "Nenhum plano escolhido. Por favor, escolha pelo menos um plano."
+                    loop lista
+                else return lista
+
+-- Function to associate a string with a plan
+getOpcaoPlano :: [PlanoTipo] -> IO (Maybe PlanoTipo)
+getOpcaoPlano lista = do
+    putStrLn "Digite o número do plano ou 0 para parar (default: Light):"
+    opcao <- getLine
+    case opcao of
+        "1" -> validarepeticao lista Light
+        "2" -> validarepeticao lista Gold
+        "3" -> validarepeticao lista Premium
+        "0" -> return Nothing
+        ""  -> validarepeticao lista Light
+        _ -> do
+            putStrLn "Opção inválida. Por favor, escolha entre 1, 2, 3 ou 0."
+            getOpcaoPlano lista
+
+-- Função auxiliar para validar repetição de planos
+validarepeticao :: [PlanoTipo] -> PlanoTipo -> IO (Maybe PlanoTipo)
+validarepeticao lista plano =
+    if plano `elem` lista
+        then do
+            putStrLn "Plano já escolhido. Por favor, escolha outro."
+            getOpcaoPlano lista  -- Corrigido para passar a lista de planos escolhidos
+        else return (Just plano)
 
 --Função auxiliar para ler múltiplas linhas, até encontrar o caracter de parada
 lerLinhas :: Char -> IO String
@@ -432,36 +422,3 @@ lerLinhas stopChar = do
             restante <- lerLinhas stopChar
             return (linha ++"/"++ restante)
 
---Função auxiliar para validar as entradas de cada opção de treino
-validarOpcaoTreino :: Int -> Bool
-validarOpcaoTreino n = n >= 1 && n <= 8
-
---Função auxiliar para ficar lendo recursivamente, até inserir a opção correta
-opcaoCorreta :: Int -> IO Int
-opcaoCorreta valor =
-    if validarOpcaoTreino valor
-        then return valor
-        else do
-            putStrLn "Opção inválida. Por favor, insira um número entre 1 e 8."
-            novaOpcao <- getLine
-            let novoValor = read novaOpcao :: Int
-            opcaoCorreta novoValor
-
-dataCorreta :: String -> IO String
-dataCorreta dataTreino = do
-    case delimitarData dataTreino of
-        Just x -> return x
-        Nothing -> do
-            putStrLn "Data não está no formato DDMMAAAA, digite novamente: "
-            novaData <- getLine
-            dataCorreta novaData
-
-tipoTreinoCorreto :: String -> IO String
-tipoTreinoCorreto tipoTreino = do 
-    let tipoTreinoUpper = map toUpper tipoTreino
-    if  tipoTreinoUpper == "PR" || tipoTreinoUpper == "PS"
-        then return tipoTreinoUpper
-        else do
-            putStrLn "Digite novamente o tipo de treino: (PR ou PS)"
-            novoTipoTreino <- getLine
-            tipoTreinoCorreto (map toUpper novoTipoTreino)-}

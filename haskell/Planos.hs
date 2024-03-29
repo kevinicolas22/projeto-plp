@@ -5,6 +5,7 @@ import System.Environment
 import System.IO
 import Data.List (intercalate)
 import Data.Maybe ( mapMaybe, maybeToList )
+import Data.Char(toUpper, isSpace)
 
 type ValorMensal= Float
 type ValorSemestre = Float
@@ -67,13 +68,17 @@ instance Read PlanoTipo where
     "Premium" -> [(Premium, "")]
     _       -> []
 
+
+showPlanos :: [PlanoTipo] -> String
+showPlanos planos = "[" ++ intercalate ", " (map (\p -> "\"" ++ show p ++ "\"") planos) ++ "]"
+
 detalhesPlano :: PlanoTipo -> String
 detalhesPlano Light = detalhesPlano'' planoLight
 detalhesPlano Gold = detalhesPlano'' planoGold
 detalhesPlano Premium = detalhesPlano'' planoPremium
 
 detalhesPlano'' :: Plano -> String
-detalhesPlano'' plano = "    ======= " ++ show (tipo plano) ++ " =======" ++
+detalhesPlano'' plano = "    ======= " ++ map toUpper(show (tipo plano)) ++ " =======" ++
                         "\nHorario Maximo de entrada: " ++ show (horaEntradaMaxima plano) ++ " hrs"++
                         "\nHorario Minimo de entrada: " ++ show (horaEntradaMinima plano) ++ " hrs"++
                         "\nValor mensal: R$" ++ show (valorMensal plano)

@@ -27,15 +27,15 @@ type Aulas= [Aula]
 data Aluno = Aluno
   { matricula:: Matricula,
     alunoId :: Id,
-    nome :: Nome,
-    cpf :: Cpf,
-    endereço :: Endereço,
-    contato :: Contato,
+    nomeAluno :: Nome,
+    cpfAluno :: Cpf,
+    endereçoAluno :: Endereço,
+    contatoAluno :: Contato,
     planoAluno :: PlanoAluno,
     treinos :: Treinos,
     emDia :: EmDia,
-    senha:: Senha,
-    email:: Email,
+    senhaAluno:: Senha,
+    emailAluno:: Email,
     aulas:: Aulas
   }
 
@@ -55,30 +55,36 @@ primeirosElementos = map (getFirstElement . replace ';' ' ')
         [] -> "" -- Tratar caso de linha vazia
         (firstWord:_) -> firstWord
 
-
+showAlunoLista:: Aluno -> String
+showAlunoLista aluno= 
+  "\n             ══════════════════════"++
+  "\n             Nome: "++ nomeAluno aluno++
+  "\n             Contato: "++ contatoAluno aluno++
+  "\n             Matrícula: "++ matricula aluno
+  
 instance Show Aluno where
-  show (Aluno matricula alunoId nome cpf endereco contato plano treinos emDia senha email aulas) =
+  show (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas) =
     
     if emDia
       then 
-        " CPF: " ++ show cpf
-        ++ "\n Endereço: " ++  endereco
-        ++ "\n Contato: " ++  contato
+        " CPF: " ++ cpfAluno
+        ++ "\n Endereço: " ++  endereçoAluno
+        ++ "\n Contato: " ++  contatoAluno
         ++ "\n Plano: " ++ show plano
         ++ "\n Mensalidade: "++ "\x1b[32mEm dia\x1b[0m"
         ++ "\n Matrícula: " ++  matricula
-        ++ "\n Senha: " ++ senha
-        ++ "\n Email: " ++ email
+        ++ "\n Senha: " ++ senhaAluno
+        ++ "\n Email: " ++ emailAluno
     else
       do
-        " CPF: " ++ show cpf
-        ++ "\n Endereço: " ++  endereco
-        ++ "\n Contato: " ++  contato
+        " CPF: " ++ cpfAluno
+        ++ "\n Endereço: " ++  endereçoAluno
+        ++ "\n Contato: " ++  contatoAluno
         ++ "\n Plano: " ++ show plano
         ++ "\n Mensalidade: "++ "\x1b[31mPendente\x1b[0m"
         ++ "\n Matrícula: " ++  matricula
-        ++ "\n Senha: " ++ senha
-        ++ "\n Email: " ++ email
+        ++ "\n Senha: " ++ senhaAluno
+        ++ "\n Email: " ++ emailAluno
      
             
 
