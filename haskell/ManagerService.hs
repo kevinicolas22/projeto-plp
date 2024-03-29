@@ -278,27 +278,27 @@ imprimirFolhaPagamento funcionario = do
   putStrLn $ "| Salário com Benefício (10%): R$ " ++ show salarioTotal
   putStrLn "========================================"
             
-filtrarIdF :: Int -> [String] -> [[String]]
-filtrarIdF id listaG = do
-    let listaP = primeirosElementosG listaG
-        posicao = posicaoIdLista id listaP
-    --sabendo que a posicao da listaP é a mesma da listaG, com os mesmos valores
-    return (splitOn "," (listaG !! posicao))
+--Muda filtrar e folha
+filtrarFuncionarioPorId :: Int -> [String] -> Maybe Funcionario
+filtrarFuncionarioPorId targetId linhas = do
+  linha <- find (\linha -> case splitOn "," linha of { (idStr:_) -> readMaybe idStr == Just targetId; _ -> False }) linhas
+  let [idStr, nome, cpf, endereco, telefone, dataIngresso, salarioStr] = splitOn "," linha
+  salario <- readMaybe salarioStr
+  return (Funcionario { funcId = read idStr, nome = nome, cpf = cpf, endereco = endereco, telefone = telefone, data_ingresso = dataIngresso, salario = salario })
 
+-- Função para imprimir a folha de pagamento de um funcionário por ID
 folhaPagamentoFuncionario :: Int -> IO ()
 folhaPagamentoFuncionario targetId = do
-  conexao <- openFile "funcionario.txt" ReadMode
+  conexao <- openFile "haskell/funcionario.txt" ReadMode
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
-      funcionarioInfos = filtrarId targetId linhas
-  case listToMaybe funcionarioInfos of
-    Nothing -> putStrLn "ID não encontrado."
-    Just [] -> putStrLn "Funcionário não encontrado." 
-    Just (idStr:nome:cpf:endereco:telefone:dataIngresso:salarioStr:_) -> do
-      let funcionario = Funcionario { funcId = read idStr, nome = nome, cpf = cpf, endereco = endereco, telefone = telefone, data_ingresso = dataIngresso, salario = read salarioStr }
+  case filtrarFuncionarioPorId targetId linhas of
+    Nothing -> putStrLn "Funcionário não encontrado."
+    Just funcionario -> do
       putStrLn "\n========== FOLHA DE PAGAMENTO =========="
       imprimirFolhaPagamento funcionario
   hClose conexao
+
 
 type Valor = Double
 type Plano = String
@@ -324,7 +324,7 @@ calcularSalarios = sum . map (read . last . splitOn ",")
 gerarRelatorio :: IO ()
 gerarRelatorio = do
     pagamentosTxt <- readFile "haskell/pagamentos.txt"
-    funcionariosTxt <- readFile "funcionario.txt"
+    funcionariosTxt <- readFile "haskell/funcionario.txt"
     let pagamentos = map ((\[v, p] -> (read v, p)) . splitOn ",") (lines pagamentosTxt)
     let funcionarios = lines funcionariosTxt
     let receitaAcademia = calcularReceita pagamentos
