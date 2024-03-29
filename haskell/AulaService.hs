@@ -14,15 +14,15 @@ import Data.List (elemIndices)
 --Função para criar uma aula
 adcionaAula :: String ->  String -> [PlanoTipo] -> IO()
 adcionaAula nomeAula horarioAula planosPermitidos = do
-    let novaAula = Aula {
-        nomeAula = nomeAula,
-        horarioAula = horarioAula,
-        planosPermitidos = planosPermitidos
-    }
+    handle <- openFile "haskell/aulas.txt" ReadMode
+    conteudo <- hGetContents handle
+    let nomeUpper = map toUpper nomeAula
+        aulas = recuperarAulas conteudo
+        nomes = nomesDasAulas aulas
+        posicao = nomeUpper `elemIndices` nomes
 
-    existe <- verificaAulaExiste nomeAula
 
-    if null existe
+    if null posicao
         then do
             appendFile "haskell/aulas.txt" (nomeAula ++";"++ horarioAula ++ ";" ++ (showPlanos planosPermitidos) ++ "\n")
             putStrLn "Aula criada"
@@ -32,10 +32,11 @@ adcionaAula nomeAula horarioAula planosPermitidos = do
 
 viewAulas :: IO ()
 viewAulas = do
-    conteudo <- readFile "haskell/aulas.txt"
+    handle <- openFile "haskell/aulas.txt" ReadMode
+    conteudo <- hGetContents handle
     let aulas= recuperarAulas conteudo
     exibeAulas aulas
-    
+    hClose handle
 
 -- Função para deletar uma aula pelo nome
 deletarAulaPeloNome :: String -> IO ()
@@ -46,11 +47,10 @@ deletarAulaPeloNome nome = do
         nomes = nomesDasAulas aulas
         posicao = nome `elemIndices` nomes
 
-    existe <- verificaAulaExiste nome
-
-    if null existe
+    if null posicao
         then do
             putStrLn "Aula não existe"
+            hClose handle
             threadDelay (2 * 1000000)
         else do
             let novaListaAulas = filter (\aula -> nomeAula aula /= nome) aulas
@@ -75,16 +75,7 @@ readAula str =
     in Aula nome horario (map read planosStr)
 
     
-verificaAulaExiste :: String -> IO [Int]
-verificaAulaExiste nome = do
-    conteudo <- readFile "haskell/aulas.txt"
-    let nomeUpper = map toUpper nome
-        aulas = recuperarAulas conteudo
-        nomes = nomesDasAulas aulas
-        posicao = nomeUpper `elemIndices` nomes
-    return (posicao)
-    
-        
+
     
 pegarNomesDasAulas :: [Aula] -> [String]
 pegarNomesDasAulas aulas = map nomeAula (aulas)

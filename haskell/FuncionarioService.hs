@@ -55,8 +55,9 @@ criarFuncionario = do
     let linhas = lines conteudo
         ids = primeirosElementos linhas
 
-    idFuncionario <- gerarMatricula 1 ids
-    
+    idFuncionario <- gerarId 1 ids
+    let idInt = read idFuncionario :: Int
+
     putStrLn "Digite o seu nome: "
     nome <- getLine
 
@@ -75,17 +76,15 @@ criarFuncionario = do
     putStrLn "Digite seu salário: "
     salario <- readLn :: IO Float
 
-    return (Funcionario idFuncionario nome cpf endereco telefone data_ingresso salario)
+    return (Funcionario (idInt) nome cpf endereco telefone data_ingresso salario)
 
 
---Função para gerar um id único
-gerarMatricula :: Int -> [String] -> IO Int
-gerarMatricula cont linhas = do
-    let matriculas = primeirosElementos linhas
-        matriculaAluno = (cont + 1)
-    if show matriculaAluno `elem` matriculas
-        then gerarMatricula (cont + 1) linhas
-        else return matriculaAluno
+-- Função para gerar um ID único
+gerarId :: Int -> [String] -> IO String
+gerarId count ids = do
+    if show count `elem` ids
+        then gerarId (count + 1) ids
+        else return (show count)
 
 
 -- Função para ler um funcionário pelo ID e imprimir seus dados
