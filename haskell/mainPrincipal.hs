@@ -12,7 +12,54 @@ import System.Exit (exitSuccess)
 import Data.Char (toUpper)
 import System.IO
 --Interface sistema
+loginMembro:: Int->IO()
+loginMembro tipoFuncionarioValidado = do
+    limparTerminal
+    putStrLn "╔═══════════════════════════════════════════════════════╗"
+    putStrLn "║               Seja Bem-vindo a CodeFit                ║"
+    putStrLn "╚═══════════════════════════════════════════════════════╝"   
+    putStrLn "══════════════════════════LOGIN══════════════════════════"   
+    putStrLn "\n> Digite o seu cpf ('!' para sair): "
+    cpf <- getLine
+    if cpf=="!"
+        then do
+            main
+        else return()
+    cpfCorreto cpf tipoFuncionarioValidado
 
+    putStrLn "> Digite sua senha: "
+    senha <- getLine
+    senhaCorreta senha tipoFuncionarioValidado
+
+
+    putStrLn "Digite: (C - Confirmar o Login; E - Exit)"
+    opcao <- getLine
+    let opcaoUpper = map toUpper opcao
+    opcaoValida <- padraoCorreto opcaoUpper
+
+    if opcaoValida == "E"
+        then do 
+            putStrLn "Encerrando o programa!"
+            exitSuccess
+        else return()
+    existeCadastroR <- existeCadastro cpf
+    tipoEsenhaCorreto <- cadastroCondizComTipoESenha cpf tipoFuncionarioValidado senha
+    if existeCadastroR
+        then do
+            if tipoEsenhaCorreto
+                then do
+                    tipo <- tipoMenu cpf
+                    case (tipo) of
+                        "2" -> menuGestor main
+                        "3" -> menuFuncionario main
+                else do
+                    putStrLn "Senha inválida ou tipo de usuario inválido, tente novamente!"
+                    threadDelay (2 * 1000000)
+                    loginMembro tipoFuncionarioValidado
+        else do
+            putStrLn " > Cadastro não encontrado !"
+            threadDelay (2 * 1000000)
+            loginMembro tipoFuncionarioValidado
 main :: IO()
 main = do 
     limparTerminal
@@ -30,58 +77,16 @@ main = do
     if tipoFuncionarioValidado == 1
         then do loginAluno main
     else return()
-    limparTerminal
-    putStrLn "╔═══════════════════════════════════════════════════════╗"
-    putStrLn "║               Seja Bem-vindo a CodeFit                ║"
-    putStrLn "╚═══════════════════════════════════════════════════════╝"   
-    putStrLn "══════════════════════════LOGIN══════════════════════════"   
-    putStrLn "\n> Digite o seu cpf: "
-    cpf <- getLine
-    cpfValido <- cpfCorreto cpf
+    loginMembro tipoFuncionarioValidado
 
-    putStrLn "> Digite sua senha: "
-    senha <- getLine
-    senhaValida <- senhaCorreta senha 
-
-
-    putStrLn "Digite: (C - Confirmar o Login; E - Exit)"
-    opcao <- getLine
-    let opcaoUpper = map toUpper opcao
-    opcaoValida <- padraoCorreto opcaoUpper
-
-    if opcaoValida == "E"
-        then do 
-            putStrLn "Encerrando o programa!"
-            exitSuccess
-        else return()
-    existeCadastroR <- existeCadastro cpfValido
-    tipoEsenhaCorreto <- cadastroCondizComTipoESenha cpfValido tipoFuncionarioValidado senhaValida
-    if existeCadastroR
-        then do
-            if tipoEsenhaCorreto
-                then do
-                    tipo <- tipoMenu cpfValido
-                    case (tipo) of
-                        "2" -> menuGestor main
-                        "3" -> menuFuncionario main
-                else do
-                    putStrLn "Senha inválida ou tipo de usuario inválido, tente novamente!"
-                    threadDelay (2 * 1000000)
-                    main
-        else do
-            putStrLn " > Cadastro não encontrado !"
-            threadDelay (2 * 1000000)
-            main
-
-
-cpfCorreto :: String -> IO String
-cpfCorreto cpf = do
+cpfCorreto :: String ->Int-> IO ()
+cpfCorreto cpf tipoFuncionarioValidado= do
     case delimitarCpf cpf of
-        Just x -> return x
+        Just x -> putStrLn" "
         Nothing -> do
-            putStrLn "CPF não está no formato 000.000.000-00, digite novamente: "
-            novocpf <- getLine
-            cpfCorreto novocpf
+            putStrLn "CPF não está no formato 000.000.000-00 ! "
+            threadDelay (2 * 1000000)
+            loginMembro tipoFuncionarioValidado
 
 tipoUsuarioCorreto :: Int ->IO Int
 tipoUsuarioCorreto x = if verificarIntTipoFuncionario x
@@ -91,14 +96,16 @@ tipoUsuarioCorreto x = if verificarIntTipoFuncionario x
                                 novaOpcao <- readLn :: IO Int
                                 tipoUsuarioCorreto novaOpcao
 
-senhaCorreta :: String -> IO String
-senhaCorreta senha = do
+senhaCorreta :: String ->Int-> IO ()
+senhaCorreta senha tipoFuncionarioValidado = do
     if length senha >= 6
-        then return senha
+        then do
+            putStrLn " "
         else do
             putStrLn "Senha tem que possuir no mínimo 6 caracters, tente novamente!"
-            novaSenha <- getLine
-            senhaCorreta novaSenha 
+            threadDelay (2 * 1000000)
+            loginMembro tipoFuncionarioValidado
+            
 
 padraoCorreto :: String -> IO String
 padraoCorreto opcao = do

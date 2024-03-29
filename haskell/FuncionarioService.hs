@@ -40,7 +40,7 @@ adicionarFuncionario novo_funcionario cpfFunc senha= do
   if verificandoId (show idNovo) ids
     then putStrLn "ID já em uso. Escolha um ID diferente."
     else do
-        appendFile "haskell/login.txt" (cpfFunc++","++senha++",3")
+        appendFile "haskell/login.txt" (cpfFunc++","++senha++",3"++"\n")
         appendFile "haskell/funcionario.txt" (toStringFuncionario novo_funcionario ++ "\n")
 
   hClose conexao

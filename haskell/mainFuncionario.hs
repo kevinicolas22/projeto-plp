@@ -376,12 +376,13 @@ liberarAcessoAluno menuAulas= do
 
     currentTime <- getZonedTime
     let horaAtual = localTimeOfDay $ zonedTimeToLocalTime currentTime
-    putStrLn $ "Hora atual: " ++ formatHour horaAtual 
+    putStrLn $ "Hora atual: " ++ formatHour horaAtual ++":00"
 
     resultado <- acessoLiberado matriculaAluno (parseHourToInt(formatHour horaAtual))
 
     printAcesso resultado
-    threadDelay (4 * 1000000)
+    putStrLn"\nPressione ENTER para voltar..."
+    opçao<- getLine
     menuFuncionario menuAulas
 --Função para formatar a hora
 formatHour :: TimeOfDay -> String
