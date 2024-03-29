@@ -19,6 +19,9 @@ import Data.List.Split(splitOn)
 import Data.List
 import Control.Monad (when)
 import AulaService
+import Data.Time.LocalTime
+import Data.Time.Format
+import System.Console.ANSI
 
 -- menu voltado pra testes
 -- Função principal
@@ -32,7 +35,8 @@ menuFuncionario menuPrincipal= do
     putStrLn "║   [2] Menu de Avaliação Física                        ║"
     putStrLn "║   [3] Menu de Treinos                                 ║"
     putStrLn "║   [4] Menu de Aulas                                   ║"
-    putStrLn "║   [5] Sair                                            ║"
+    putStrLn "║   [5] Liberar Acesso Aluno                            ║"
+    putStrLn "║   [6] Sair                                            ║"
     putStrLn "║                                                       ║"
     putStrLn "║   > Digite a opção:                                   ║" 
     putStrLn "╚═══════════════════════════════════════════════════════╝"
@@ -44,7 +48,8 @@ menuFuncionario menuPrincipal= do
         "2" -> menuAvaliacaoFisica menuPrincipal
         "3" -> menuTreinoF menuPrincipal
         "4" -> menuAulas menuPrincipal
-        "5" -> do 
+        "5" -> liberarAcessoAluno menuPrincipal
+        "6" -> do 
             putStrLn "Saindo..." 
             menuPrincipal
         _  -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionario menuPrincipal
@@ -429,3 +434,35 @@ lerLinhas stopChar = do
             restante <- lerLinhas stopChar
             return (linha ++"/"++ restante)
 
+--Função para liberar acesso aluno
+liberarAcessoAluno :: IO() -> IO()
+liberarAcessoAluno menuAulas= do
+    putStrLn "Para liberar o acesso do ALUNO, digite a sua matricula: "
+    matriculaAluno <- getLine
+
+    currentTime <- getZonedTime
+    let horaAtual = localTimeOfDay $ zonedTimeToLocalTime currentTime
+    putStrLn $ "Hora atual: " ++ formatHour horaAtual
+
+    resultado <- acessoLiberado matriculaAluno (parseHourToInt(formatHour horaAtual))
+
+    printAcesso resultado
+    threadDelay (2 * 1000000)
+    menuAulas
+--Função para formatar a hora
+formatHour :: TimeOfDay -> String
+formatHour time = formatTime defaultTimeLocale "%H" time
+
+parseHourToInt :: String -> Int
+parseHourToInt formattedHour = read (takeWhile (/= ':') formattedHour) :: Int
+
+printAcesso :: Bool -> IO ()
+printAcesso False = do
+    setSGR [SetColor Foreground Vivid Red]
+    putStrLn "Acesso Negado"
+    setSGR [Reset]
+
+printAcesso True = do
+    setSGR [SetColor Foreground Vivid Green]
+    putStrLn "Acesso Autorizado"
+    setSGR [Reset]

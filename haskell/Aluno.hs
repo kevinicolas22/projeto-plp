@@ -55,7 +55,6 @@ primeirosElementos = map (getFirstElement . replace ';' ' ')
         [] -> "" -- Tratar caso de linha vazia
         (firstWord:_) -> firstWord
 
-
 instance Show Aluno where
   show (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas) =
     

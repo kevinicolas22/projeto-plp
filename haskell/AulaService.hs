@@ -6,14 +6,9 @@ import MainAluno
 import Control.Concurrent (threadDelay)
 import Data.Char (toUpper)
 import System.IO
-import Data.List.Split (splitOn)
-import Data.List (intercalate)
 import System.Directory (removeFile, renameFile)
-import Data.List (isPrefixOf)
-import Data.Char (toUpper)
-import Data.Maybe (mapMaybe)
 import Data.List (elemIndices)
-import Control.Exception (bracket)
+
 
 --Aulas
 --Função para criar uma aula
