@@ -10,7 +10,7 @@ import Data.Char (toUpper)
 import AvaliacaoFisica
 import Treino
 import Aula
-import MainAluno(limparTerminal,recuperaAlunoMatricula)
+import MainAluno
 import AlunoController
 import Control.Concurrent (threadDelay)
 import Aluno
@@ -130,6 +130,7 @@ removerFuncionarioOpcao menuPrincipal= do
 -- Função para o menu de avaliação física
 menuAvaliacaoFisica :: IO()->IO ()
 menuAvaliacaoFisica menuPrincipal= do
+    limparTerminal
     putStrLn "╔════════════════════════════════════════════╗"
     putStrLn "║         Menu de Avaliação Física           ║"
     putStrLn "║                                            ║"
@@ -325,7 +326,8 @@ menuAulas menuPrincipal = do
     putStrLn "║                                            ║"
     putStrLn "║   [1] Criar aula                           ║"
     putStrLn "║   [2] Ler todas as aula                    ║"
-    putStrLn "║   [3] Voltar para o menu principal         ║"
+    putStrLn "║   [3] Deletar Aula                         ║"
+    putStrLn "║   [4] Voltar para o menu principal         ║"
     putStrLn "║                                            ║"
     putStrLn "║   > Digite a opção:                        ║"
     putStrLn "╚════════════════════════════════════════════╝"
@@ -334,12 +336,24 @@ menuAulas menuPrincipal = do
     case opcao of
         "1" -> criarAula menuPrincipal
         "2" -> lerTodasAulas menuPrincipal
-        "3" -> menuFuncionario menuPrincipal
-        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuTreinoF menuPrincipal
+        "3" -> deletarAulas menuPrincipal
+        "4" -> menuFuncionario menuPrincipal
+        _   -> do 
+            putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAulas menuPrincipal
+            
 
 lerTodasAulas :: IO() -> IO ()
 lerTodasAulas menuAulas = do
     viewAulas
+    menuAulas
+
+deletarAulas :: IO() -> IO()
+deletarAulas menuAulas = do
+    putStrLn "Digite o nome da aula que deseja deletar: "
+    nome <- getLine
+    let nomeUpper = map toUpper nome
+
+    deletarAulaPeloNome nomeUpper
     menuAulas
 
 criarAula ::IO() -> IO()
@@ -347,10 +361,13 @@ criarAula menuAulas = do
     limparTerminal
     putStrLn "Digite o nome da aula: "
     nomeAula <- getLine
+    let nomeUpper = map toUpper nomeAula
+
+
     putStrLn "Digite o horario da aula: "
     horario <- getLine
     planos <- escolhaDePlanos
-    adcionaAula nomeAula horario planos
+    adcionaAula nomeUpper horario planos
     menuAulas
 
 escolhaDePlanos :: IO [PlanoTipo]

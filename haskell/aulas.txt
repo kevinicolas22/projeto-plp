@@ -1,4 +1,2 @@
-KARATE;segunda das 10:00 as 12:00;["Premium", "Gold", "Light"]
-danca;horario livre;["Premium", "Gold", "Light"]
-BOXE;QUINTA 18:00;["Premium"]
-VOLEI;quarta 10:00 as 12:00;["Premium", "Gold"]
+KARATE;Segunda as 15:00;["Gold"]
+BOX;quinta as 18:00;["Gold", "Premium"]

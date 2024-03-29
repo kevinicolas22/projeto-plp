@@ -6,6 +6,7 @@ import System.IO
 import Data.List (intercalate)
 import Data.Maybe ( mapMaybe, maybeToList )
 import Data.Char(toUpper, isSpace)
+import Data.List.Split(splitOn)
 
 type ValorMensal= Float
 type ValorSemestre = Float
