@@ -23,10 +23,10 @@ import Data.List (elemIndex,intercalate)
 import Treino
 import Data.List.Split(splitOn)
 import System.Directory (removeFile, renameFile)
-import qualified Network.HTTP.Conduit as HTTP
+--import qualified Network.HTTP.Conduit as HTTP
 import Control.Exception
 import qualified Data.ByteString.Lazy as BL
-import qualified Network.HTTP.Simple as Simple
+--import qualified Network.HTTP.Simple as Simple
 import AvaliacaoFisica
 
 

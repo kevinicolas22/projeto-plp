@@ -70,16 +70,6 @@
   (major1) == 1 && (major2) <  3 || \
   (major1) == 1 && (major2) == 3 && (minor) <= 7)
 #endif /* MIN_VERSION_directory */
-/* package http-conduit-2.3.8.3 */
-#ifndef VERSION_http_conduit
-#define VERSION_http_conduit "2.3.8.3"
-#endif /* VERSION_http_conduit */
-#ifndef MIN_VERSION_http_conduit
-#define MIN_VERSION_http_conduit(major1,major2,minor) (\
-  (major1) <  2 || \
-  (major1) == 2 && (major2) <  3 || \
-  (major1) == 2 && (major2) == 3 && (minor) <= 8)
-#endif /* MIN_VERSION_http_conduit */
 /* package mime-mail-0.5.1 */
 #ifndef VERSION_mime_mail
 #define VERSION_mime_mail "0.5.1"
@@ -221,15 +211,15 @@
   (major1) == 9 && (major2) <  4 || \
   (major1) == 9 && (major2) == 4 && (minor) <= 8)
 #endif /* MIN_TOOL_VERSION_runghc */
-/* tool strip-2.32 */
+/* tool strip-2.28 */
 #ifndef TOOL_VERSION_strip
-#define TOOL_VERSION_strip "2.32"
+#define TOOL_VERSION_strip "2.28"
 #endif /* TOOL_VERSION_strip */
 #ifndef MIN_TOOL_VERSION_strip
 #define MIN_TOOL_VERSION_strip(major1,major2,minor) (\
   (major1) <  2 || \
-  (major1) == 2 && (major2) <  32 || \
-  (major1) == 2 && (major2) == 32 && (minor) <= 0)
+  (major1) == 2 && (major2) <  28 || \
+  (major1) == 2 && (major2) == 28 && (minor) <= 0)
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_COMPONENT_ID
