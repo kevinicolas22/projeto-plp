@@ -4,6 +4,7 @@ module Main where
 import Login
 import LoginService
 import MainAluno
+import MainGestor
 import MainFuncionario as MF
 import Control.Concurrent (threadDelay)
 import System.Console.ANSI
@@ -64,7 +65,7 @@ main = do
                 then do
                     tipo <- tipoMenu cpfValido
                     case (tipo) of
-                        --"2" -> putStrLn "Sou gestor" -- chama menu de gestor
+                        "2" -> menuGestor main
                         "3" -> menuFuncionario main
                 else do
                     putStrLn "Senha inválida ou tipo de usuario inválido, tente novamente!"

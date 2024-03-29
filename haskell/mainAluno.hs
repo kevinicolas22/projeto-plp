@@ -74,7 +74,16 @@ exibeAula aula = do
 existeMatricula :: String -> String -> Bool
 existeMatricula strMat conteudo = strMat `elem` primeirosElementos (lines conteudo)
 
-          
+exibeAlunos:: [String]-> IO()
+exibeAlunos []= putStrLn "Não há nenhum Aluno cadastrado. "
+exibeAlunos matriculas = do
+  alunos <-mapM recuperaAlunoMatricula matriculas
+  mapM_ exibeAluno alunos
+
+exibeAluno :: Aluno -> IO ()
+exibeAluno aluno = putStrLn(showAlunoLista aluno++"\n")
+
+
 -- Vai pro controller
 recuperaAlunoMatricula:: String-> IO Aluno
 recuperaAlunoMatricula matStr= do

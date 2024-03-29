@@ -11,6 +11,7 @@ import AvaliacaoFisica
 import Treino
 import Aula
 import MainAluno
+import MainAluno(limparTerminal,recuperaAlunoMatricula,exibeAlunos)
 import AlunoController
 import Control.Concurrent (threadDelay)
 import Aluno
@@ -32,11 +33,12 @@ menuFuncionario menuPrincipal= do
     putStrLn "║                Funcionário Codefit                    ║"
     putStrLn "║                                                       ║"
     putStrLn "║   [1] Cadastrar Aluno                                 ║"
-    putStrLn "║   [2] Menu de Avaliação Física                        ║"
-    putStrLn "║   [3] Menu de Treinos                                 ║"
+    putStrLn "║   [2] Solicitações de Treino                          ║"
+    putStrLn "║   [3] Lista de Alunos                                 ║"
     putStrLn "║   [4] Menu de Aulas                                   ║"
     putStrLn "║   [5] Liberar Acesso Aluno                            ║"
-    putStrLn "║   [6] Sair                                            ║"
+    putStrLn "║   [6] Menu de Avaliação Física                        ║"
+    putStrLn "║   [7] Sair                                            ║"
     putStrLn "║                                                       ║"
     putStrLn "║   > Digite a opção:                                   ║" 
     putStrLn "╚═══════════════════════════════════════════════════════╝"
@@ -45,15 +47,32 @@ menuFuncionario menuPrincipal= do
         "1" -> do 
             criarAluno
             menuFuncionario menuPrincipal
-        "2" -> menuAvaliacaoFisica menuPrincipal
-        "3" -> menuTreinoF menuPrincipal
+        "2" -> funcionarioCriaTreino menuPrincipal
+        "3" -> listarAlunos menuPrincipal
         "4" -> menuAulas menuPrincipal
         "5" -> liberarAcessoAluno menuPrincipal
-        "6" -> do 
+        "6" -> menuAvaliacaoFisica menuPrincipal
+        "7" -> do 
             putStrLn "Saindo..." 
             menuPrincipal
         _  -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuFuncionario menuPrincipal
 
+
+listarAlunos:: IO()->IO()
+listarAlunos menuPrincipal= do
+    limparTerminal
+    putStrLn "                     ALUNOS"
+    conexao <- openFile "haskell/Aluno.txt" ReadMode
+    conteudo<- hGetContents conexao
+    seq conteudo $ return ()
+    let linhas = lines conteudo
+        matriculas = primeirosElementos linhas
+    exibeAlunos matriculas
+    putStrLn "\n [0] Voltar"
+    opçao<- getLine
+    case opçao of
+        "0"-> menuFuncionario menuPrincipal
+        _ -> listarAlunos menuPrincipal
 
 
 -- Opção para adicionar um funcionário
@@ -218,24 +237,7 @@ atualizarAvaliacaoFisicaOpcao menuPrincipal= do
         _   -> putStrLn "Opção inválida."
     menuAvaliacaoFisica menuPrincipal
 
---TREINO
-menuTreinoF :: IO()->IO()
-menuTreinoF menuPrincipal= do
-    limparTerminal
-    putStrLn "╔════════════════════════════════════════════╗"
-    putStrLn "║                 TREINOS                    ║"
-    putStrLn "║                                            ║"
-    putStrLn "║   [1] Solicitações                         ║"
-    putStrLn "║   [2] Voltar para o menu principal         ║"
-    putStrLn "║                                            ║"
-    putStrLn "║   > Digite a opção:                        ║"
-    putStrLn "╚════════════════════════════════════════════╝"
-    opcaoTreinoF <- getLine
-    let opcao = map toUpper opcaoTreinoF
-    case opcao of
-        "1" -> funcionarioCriaTreino menuPrincipal
-        "2" -> menuFuncionario menuPrincipal
-        _   -> putStrLn "Opção inválida. Por favor, escolha novamente." >> menuTreinoF menuPrincipal
+
 
 
 --Função para o funcionario criar treino de um aluno
@@ -255,7 +257,7 @@ funcionarioCriaTreino menuPrincipal = do
             putStrLn "\n [0] Voltar       [1] Atribuir Treino"
             opçao<- getLine
             case opçao of 
-                "0"-> menuTreinoF menuPrincipal
+                "0"->  menuPrincipal
                 "1"-> do
                     putStrLn "\nMatricula do aluno: "
                     matricula <- getLine
@@ -285,7 +287,7 @@ funcionarioCriaTreino menuPrincipal = do
             putStrLn " Não há solicitações pendentes. \n\n [0] Voltar"
             opçao1<- getLine
             case opçao1 of
-                "0"-> menuTreinoF menuPrincipal
+                "0"-> menuFuncionario menuPrincipal
 
 removerSolicitacao :: String -> String -> IO ()
 removerSolicitacao tipoTreino matricula = do
@@ -346,11 +348,20 @@ menuAulas menuPrincipal = do
         _   -> do 
             putStrLn "Opção inválida. Por favor, escolha novamente." >> menuAulas menuPrincipal
             
+        
+
 
 lerTodasAulas :: IO() -> IO ()
-lerTodasAulas menuAulas = do
+lerTodasAulas menuPrincipal = do
+    limparTerminal
+    putStrLn "════════════════════AULAS DISPONÍVEIS════════════════════\n\n"
     viewAulas
-    menuAulas
+    putStrLn "\n [0] Voltar"
+    opçao <- getLine
+    case opçao of
+        "0"-> menuAulas menuPrincipal
+        _ -> lerTodasAulas menuPrincipal
+    
 
 deletarAulas :: IO() -> IO()
 deletarAulas menuAulas = do
@@ -362,18 +373,17 @@ deletarAulas menuAulas = do
     menuAulas
 
 criarAula ::IO() -> IO()
-criarAula menuAulas = do
+criarAula menuPrincipal= do
     limparTerminal
-    putStrLn "Digite o nome da aula: "
+    putStrLn "═════════════════CADASTRO DE AULA═══════════════════\n"
+    putStrLn "> Nome da aula: "
     nomeAula <- getLine
-    let nomeUpper = map toUpper nomeAula
-
-
-    putStrLn "Digite o horario da aula: "
+    let nomeAulaCaps = map toUpper nomeAula
+    putStrLn "> Horario da aula: "
     horario <- getLine
     planos <- escolhaDePlanos
-    adcionaAula nomeUpper horario planos
-    menuAulas
+    adcionaAula nomeAulaCaps horario planos
+    menuAulas menuPrincipal
 
 escolhaDePlanos :: IO [PlanoTipo]
 escolhaDePlanos = do

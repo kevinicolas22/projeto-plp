@@ -91,7 +91,14 @@ criarAluno = do
             when (confirma /= '\n') $ void getChar -- Aguarda o Enter
             let alunoCriado = Aluno { alunoId = 0, nomeAluno = nomeAluno, cpfAluno = cpfDelimitado, endereçoAluno = endereçoAluno, contatoAluno = contatoAluno, planoAluno = planoEscolhido, treinos = [], emDia = False, matricula= matriculaAluno, senhaAluno= senhaAluno, emailAluno = emailAluno, aulas = []}
             appendFile "haskell/Aluno.txt" (alunoToString alunoCriado ++ "\n") 
-          
+            
+            
+            
+            
+
+
+
+  
 -- Função para gerar uma matrícula única
 gerarMatriculaUnica :: Int-> [String]-> IO String
 gerarMatriculaUnica count linhas= do
