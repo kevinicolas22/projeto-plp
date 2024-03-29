@@ -36,7 +36,9 @@ cadastroCondizComTipoESenha cpf tipoUsuario senha = do
         cpfs = primeirosElementos linhas
         posicao = cpf `elemIndices` cpfs
     if null posicao
-        then return False 
+        then do
+            hClose conexao
+            return False 
         else do
             let conjuntoDados = linhas !! head posicao
                 listaP = splitOn "," conjuntoDados
@@ -67,12 +69,3 @@ pegarPosicao cpf cpfs = do
         Just x -> x
         Nothing -> -1
 
---- Função delimitar CPF 11 numeros 000.000.000-00
-delimitarCpf :: String -> Maybe String
-delimitarCpf cpf
-    | length numeros == 11 = Just cpfFormatado
-    | otherwise = Nothing
-    where
-        numeros = filter isDigit cpf
-        cpfFormatado = intercalate "."[chunk 0 3, chunk 3 6, chunk 6 9] ++ "-" ++ take 2(drop 9 numeros)
-        chunk start end = take(end - start)(drop start numeros)

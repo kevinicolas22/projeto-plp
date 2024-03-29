@@ -11,6 +11,7 @@ import System.Console.ANSI
 import System.Exit (exitSuccess)
 import Data.Char (toUpper)
 import System.IO
+import AlunoController
 --Interface sistema
 loginMembro:: Int->IO()
 loginMembro tipoFuncionarioValidado = do
@@ -26,7 +27,7 @@ loginMembro tipoFuncionarioValidado = do
             main
         else return()
     cpfCorreto cpf tipoFuncionarioValidado
-
+    let cpfDelimitado = delimitarCpf cpf
     putStrLn "> Digite sua senha: "
     senha <- getLine
     senhaCorreta senha tipoFuncionarioValidado
@@ -42,13 +43,13 @@ loginMembro tipoFuncionarioValidado = do
             putStrLn "Encerrando o programa!"
             exitSuccess
         else return()
-    existeCadastroR <- existeCadastro cpf
-    tipoEsenhaCorreto <- cadastroCondizComTipoESenha cpf tipoFuncionarioValidado senha
+    existeCadastroR <- existeCadastro cpfDelimitado
+    tipoEsenhaCorreto <- cadastroCondizComTipoESenha cpfDelimitado tipoFuncionarioValidado senha
     if existeCadastroR
         then do
             if tipoEsenhaCorreto
                 then do
-                    tipo <- tipoMenu cpf
+                    tipo <- tipoMenu cpfDelimitado
                     case (tipo) of
                         "2" -> menuGestor main
                         "3" -> menuFuncionario main
@@ -81,12 +82,13 @@ main = do
 
 cpfCorreto :: String ->Int-> IO ()
 cpfCorreto cpf tipoFuncionarioValidado= do
-    case delimitarCpf cpf of
-        Just x -> putStrLn" "
-        Nothing -> do
+    if not(length cpf==11)
+        then do
             putStrLn "CPF não está no formato 000.000.000-00 ! "
             threadDelay (2 * 1000000)
             loginMembro tipoFuncionarioValidado
+        else do
+            putStrLn " "    
 
 tipoUsuarioCorreto :: Int ->IO Int
 tipoUsuarioCorreto x = if verificarIntTipoFuncionario x
