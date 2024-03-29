@@ -15,39 +15,41 @@ primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha)))
       | c == from = to : replace from to cs
       | otherwise = c : replace from to cs
 
---Função para cadastrar login no login.txt e retornar sua matricula
-cadastraLogin :: String -> String -> Int -> IO()
-cadastraLogin cpf senha tipoUsuario = do
-    
-    let novoLogin = Login cpf senha tipoUsuario
-    --putStrLn (show novoLogin)
-    appendFile "haskell/login.txt" (toString novoLogin ++ "\n")
 
 existeCadastro :: String -> IO Bool
 existeCadastro cpf = do
-    conteudo <- readFile "haskell/login.txt"
+    conexao<- openFile "haskell/login.txt" ReadMode
+    conteudo<- hGetContents conexao
+    seq conteudo $ return()
     let linhas = lines conteudo
         cpfs = primeirosElementos linhas
+    seq cpfs $ return()
+    hClose conexao
     return (cpf `elem` cpfs)
 
 cadastroCondizComTipoESenha :: String -> Int -> String ->IO Bool
 cadastroCondizComTipoESenha cpf tipoUsuario senha = do
-    withFile "haskell/login.txt" ReadMode $ \handle -> do
-        conteudo <- hGetContents handle
-        let linhas = lines conteudo
-            cpfs = primeirosElementos linhas
-            posicao = cpf `elemIndices` cpfs
-        if null posicao
-            then return False 
-            else do
-                let conjuntoDados = linhas !! head posicao
-                    listaP = splitOn "," conjuntoDados
-                    resultado = (listaP !! 2) == show tipoUsuario && (listaP !! 1) == senha
-                return resultado
+    conexao<- openFile "haskell/login.txt" ReadMode
+    conteudo<- hGetContents conexao
+    seq conteudo $ return()
+    let linhas = lines conteudo
+        cpfs = primeirosElementos linhas
+        posicao = cpf `elemIndices` cpfs
+    if null posicao
+        then return False 
+        else do
+            let conjuntoDados = linhas !! head posicao
+                listaP = splitOn "," conjuntoDados
+                resultado = (listaP !! 2) == show tipoUsuario && (listaP !! 1) == senha
+            seq resultado $ return()
+            hClose conexao
+            return resultado
 
 tipoMenu :: String ->IO String
 tipoMenu cpf = do
-    conteudo <- readFile "haskell/login.txt"
+    conexao<- openFile "haskell/login.txt" ReadMode
+    conteudo<- hGetContents conexao
+    seq conteudo $ return()
     let linhas = lines conteudo
         cpfs = primeirosElementos linhas
         --posicao = elemIndex cpf cpfs
@@ -55,6 +57,8 @@ tipoMenu cpf = do
         --posicao = cpf `elemIndices` cpfs
         conjuntoDados = linhas !! posicao
         listaP = splitOn "," conjuntoDados
+    seq listaP $ return()
+    hClose conexao    
     return (listaP !! 2)
 
 pegarPosicao :: String -> [String] -> Int

@@ -15,6 +15,7 @@ import FuncionarioService
 import Funcionario
 import MainAluno(limparTerminal)
 import Control.Concurrent
+import AlunoController(delimitarCpf)
 import System.Console.ANSI -- Importação do módulo System.Console.ANSI para usar as funções de controle de terminal
 
 
@@ -201,7 +202,9 @@ menuFuncionarioG  menuPrincipal= do
 criarNovoFuncionario :: IO() -> IO()
 criarNovoFuncionario  menuPrincipal= do
   novoFuncionario <- criarFuncionario
-  adicionarFuncionario novoFuncionario
+  putStrLn "Nova senha de acesso: "
+  senhaFunc<- getLine
+  adicionarFuncionario novoFuncionario (cpf novoFuncionario) senhaFunc
   putStrLn "\n Funcionario criado com sucesso!"
   threadDelay (2 * 1000000)
   limparTerminal

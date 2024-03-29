@@ -75,82 +75,6 @@ listarAlunos menuPrincipal= do
         _ -> listarAlunos menuPrincipal
 
 
--- Opção para adicionar um funcionário
-adicionarFuncionarioOpcao ::IO()-> IO ()
-adicionarFuncionarioOpcao menuPrincipal= do
-    limparTerminal
-    novoFuncionario <- criarFuncionario
-    adicionarFuncionario novoFuncionario
-    putStrLn "Funcionário adicionado com sucesso!"
-    menuFuncionario menuPrincipal
-
--- Opção para ler todos funcionarios
-lerTodosFuncionarios :: IO()->IO()
-lerTodosFuncionarios menuPrincipal= do
-    limparTerminal
-    listarTodosFuncionarios >> menuFuncionario menuPrincipal
-
--- Opção para ler informações de um funcionário por id
-lerFuncionarioOpcao :: IO() ->IO ()
-lerFuncionarioOpcao menuPrincipal= do
-    limparTerminal
-    putStrLn "Digite o ID do funcionário que deseja buscar:"
-    id <- getLine
-    lerFuncionarioPorId (read id)
-    menuFuncionario menuPrincipal
-
--- Opção para atualizar um funcionário
-atualizarFuncionarioOpcao :: IO()-> IO ()
-atualizarFuncionarioOpcao menuPrincipal= do
-    limparTerminal
-    putStrLn "Digite o ID do funcionário que deseja atualizar:"
-    id <- getLine
-    putStrLn "Escolha o dado do funcionário a ser atualizado:"
-    putStrLn "1. Nome"
-    putStrLn "2. CPF"
-    putStrLn "3. Endereço"
-    putStrLn "4. Telefone"
-    putStrLn "5. Data de Ingresso"
-    putStrLn "6. Salário"
-    escolha <- getLine
-    case escolha of
-        "1" -> do
-            putStrLn "Digite o novo nome:"
-            novoNome <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = novoNome, cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
-        "2" -> do
-            putStrLn "Digite o novo CPF:"
-            novoCPF <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = novoCPF, endereco = "", telefone = "", data_ingresso = "", salario = 0.0})
-        "3" -> do
-            putStrLn "Digite o novo endereço:"
-            novoEndereco <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = novoEndereco, telefone = "", data_ingresso = "", salario = 0.0})
-        "4" -> do
-            putStrLn "Digite o novo telefone:"
-            novoTelefone <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = novoTelefone, data_ingresso = "", salario = 0.0})
-        "5" -> do
-            putStrLn "Digite a nova data de ingresso:"
-            novaData <- getLine
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = novaData, salario = 0.0})
-        "6" -> do
-            putStrLn "Digite o novo salário:"
-            novoSalario <- readLn :: IO Float
-            atualizarFuncionarioPorId (read id) (Funcionario {funcId = read id, nome = "", cpf = "", endereco = "", telefone = "", data_ingresso = "", salario = novoSalario})
-        _   -> putStrLn "Opção inválida."
-    menuFuncionario menuPrincipal
-
--- Opção para remover um funcionário
-removerFuncionarioOpcao :: IO()->IO ()
-removerFuncionarioOpcao menuPrincipal= do
-    limparTerminal
-    putStrLn "Digite o ID do funcionário que deseja remover:"
-    id <- getLine
-    removerFuncionarioPorId (read id)
-    putStrLn "Funcionário removido com sucesso!"
-    menuFuncionario menuPrincipal
-
 -- Função para o menu de avaliação física
 menuAvaliacaoFisica :: IO()->IO ()
 menuAvaliacaoFisica menuPrincipal= do
@@ -447,18 +371,18 @@ lerLinhas stopChar = do
 --Função para liberar acesso aluno
 liberarAcessoAluno :: IO() -> IO()
 liberarAcessoAluno menuAulas= do
-    putStrLn "Para liberar o acesso do ALUNO, digite a sua matricula: "
+    putStrLn "Para liberar o acesso do ALUNO, informe a matrícula: "
     matriculaAluno <- getLine
 
     currentTime <- getZonedTime
     let horaAtual = localTimeOfDay $ zonedTimeToLocalTime currentTime
-    putStrLn $ "Hora atual: " ++ formatHour horaAtual
+    putStrLn $ "Hora atual: " ++ formatHour horaAtual 
 
     resultado <- acessoLiberado matriculaAluno (parseHourToInt(formatHour horaAtual))
 
     printAcesso resultado
-    threadDelay (2 * 1000000)
-    menuAulas
+    threadDelay (4 * 1000000)
+    menuFuncionario menuAulas
 --Função para formatar a hora
 formatHour :: TimeOfDay -> String
 formatHour time = formatTime defaultTimeLocale "%H" time
@@ -469,7 +393,7 @@ parseHourToInt formattedHour = read (takeWhile (/= ':') formattedHour) :: Int
 printAcesso :: Bool -> IO ()
 printAcesso False = do
     setSGR [SetColor Foreground Vivid Red]
-    putStrLn "Acesso Negado"
+    putStrLn "Fora do horário permitido."
     setSGR [Reset]
 
 printAcesso True = do

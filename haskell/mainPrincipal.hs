@@ -54,10 +54,7 @@ main = do
             putStrLn "Encerrando o programa!"
             exitSuccess
         else return()
-
-
     existeCadastroR <- existeCadastro cpfValido
-
     tipoEsenhaCorreto <- cadastroCondizComTipoESenha cpfValido tipoFuncionarioValidado senhaValida
     if existeCadastroR
         then do
@@ -72,8 +69,7 @@ main = do
                     threadDelay (2 * 1000000)
                     main
         else do
-            cadastraLogin cpfValido senhaValida tipoFuncionarioValidado
-            putStrLn "--Seu primeiro acesso foi cadastrado, faça o login novamente"
+            putStrLn " > Cadastro não encontrado !"
             threadDelay (2 * 1000000)
             main
 

@@ -19,6 +19,7 @@ import MainAluno
 import Aluno
 
 
+
 --  Função que extrai os primeiros elementos de uma lista de strings.
 
 
@@ -28,16 +29,20 @@ verificandoId str xs = str `elem` xs
 
 
 -- Função para adicionar um funcionário ao arquivo
-adicionarFuncionario :: Funcionario -> IO ()
-adicionarFuncionario novo_funcionario = do
-  conexao <- openFile "haskell//funcionario.txt" ReadMode
+adicionarFuncionario :: Funcionario ->String->String-> IO ()
+adicionarFuncionario novo_funcionario cpfFunc senha= do
+  conexao <- openFile "haskell/funcionario.txt" ReadMode
   conteudo <- hGetContents conexao
+  
   let linhas = lines conteudo
       ids = primeirosElementos linhas
       idNovo = funcId novo_funcionario
   if verificandoId (show idNovo) ids
     then putStrLn "ID já em uso. Escolha um ID diferente."
-    else appendFile "funcionario.txt" (toStringFuncionario novo_funcionario ++ "\n")
+    else do
+        appendFile "haskell/login.txt" (cpfFunc++","++senha++",3")
+        appendFile "haskell/funcionario.txt" (toStringFuncionario novo_funcionario ++ "\n")
+
   hClose conexao
 
 -- Função para criar um novo funcionário
@@ -508,7 +513,7 @@ acessoLiberado matriculaAluno hora = do
     let plano = parsePlanoAlunoParaPlano tipoPlano
         horamaxima = horaEntradaMaxima plano
         horaminima = horaEntradaMinima plano
-    
+    putStrLn ("Horário de Acesso: "++ show(horaminima)++":00 - "++show(horamaxima)++":00")
     let resultado = (hora >= horaminima) && (hora <= horamaxima)
 
     return (resultado)
