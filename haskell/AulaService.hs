@@ -63,7 +63,7 @@ deletarAulaPeloNome nome = do
             putStrLn " "
 
 aulasToString :: [Aula] -> String
-aulasToString aulas = unlines $ map show aulas
+aulasToString aulas = unlines $ map showAulaTxt aulas
 
 nomesDasAulas :: [Aula] -> [String]
 nomesDasAulas aulas = map nomeAula aulas

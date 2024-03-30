@@ -48,15 +48,15 @@ adicionarFuncionario novo_funcionario cpfFunc senha= do
 -- Função para criar um novo funcionário
 criarFuncionario :: IO Funcionario
 criarFuncionario = do
-    
+    limparTerminal
     conexao <- openFile "haskell/funcionario.txt" ReadMode
     conteudo <- hGetContents conexao
-
     let linhas = lines conteudo
         ids = primeirosElementos linhas
     idFuncionario <- gerarId 1 ids
-    putStrLn(" ID: "++ show(idFuncionario))
-    putStrLn "Nome: "
+    putStrLn "══════════════CADASTRO/FUNCIONÁRIO═══════════\n"
+    putStrLn("ID: "++ show(idFuncionario))
+    putStrLn "Nome do Funcionario: "
     nome <- getLine
 
     putStrLn "Digite o CPF (11 Dígitos): "

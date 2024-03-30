@@ -1,7 +1,5 @@
 danca;horario livre;["Premium", "Gold", "Light"]
 BOXE;QUINTA 18:00;["Premium"]
 Spinning;qQuarta feira | 20:00;["Gold", "Light"]
-FUTSAL;Terca feira | 14:00;["Premium", "Gold"]
 AULATESTE;ontem;["Light", "Premium", "Gold"]
 TESTE;teste teste;["Light", "Gold"]
-FUTSAL;Ter�a | 20:00 - 21:00;["Premium", "Gold", "Light"]

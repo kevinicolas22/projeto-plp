@@ -281,8 +281,8 @@ imprimirFolhaPagamento funcionario = do
 --Muda filtrar e folha
 filtrarFuncionarioPorId :: Int -> [String] -> Maybe Funcionario
 filtrarFuncionarioPorId targetId linhas = do
-  linha <- find (\linha -> case splitOn "," linha of { (idStr:_) -> readMaybe idStr == Just targetId; _ -> False }) linhas
-  let [idStr, nome, cpf, endereco, telefone, dataIngresso, salarioStr] = splitOn "," linha
+  linha <- find (\linha -> case splitOn ";" linha of { (idStr:_) -> readMaybe idStr == Just targetId; _ -> False }) linhas
+  let [idStr, nome, cpf, endereco, telefone, dataIngresso, salarioStr] = splitOn ";" linha
   salario <- readMaybe salarioStr
   return (Funcionario { funcId = read idStr, nome = nome, cpf = cpf, endereco = endereco, telefone = telefone, data_ingresso = dataIngresso, salario = salario })
 
@@ -318,7 +318,7 @@ calcularMediaPagamento pagamentos = (calcularReceita pagamentos) / fromIntegral 
 
 -- Função para calcular o total de dinheiro pago aos funcionários
 calcularSalarios :: [String] -> Double
-calcularSalarios = sum . map (read . last . splitOn ",")
+calcularSalarios = sum . map (read . last . splitOn ";")
 
 -- Função principal para gerar o relatório financeiro
 gerarRelatorio :: IO ()
@@ -335,7 +335,8 @@ gerarRelatorio = do
     putStrLn $ "| Alunos por Plano: " ++ show alunosPorPlano
     putStrLn $ "| Média de Pagamento por Aluno: " ++ show mediaPagamento
     putStrLn $ "| Total de Salários dos Funcionários: " ++ show totalSalarios
-    putStrLn $ "| Receita Total: " ++ show receitaAcademia
+    putStrLn $ "| Receita Bruta: " ++ show receitaAcademia
+    putStrLn $ "| Receita Líquida: " ++ show (receitaAcademia-totalSalarios)
     putStrLn "======================================================="
     
 

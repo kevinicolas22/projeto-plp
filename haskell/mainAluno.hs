@@ -360,7 +360,6 @@ listarAulas:: Aluno->IO()->IO()
 listarAulas aluno menuPrincipal= do
       limparTerminal
       putStrLn "══════════════════ MINHAS AULAS ══════════════════\n"
-      
       mapM_ exibeAula (aulas aluno)
       putStrLn "\n [0] Voltar        [1] Excluir Aula"
       saida<- getLine

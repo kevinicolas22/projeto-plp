@@ -214,6 +214,7 @@ criarNovoFuncionario  menuPrincipal= do
 lerTodosFuncionarios :: IO() -> IO()
 lerTodosFuncionarios  menuPrincipal= do
     limparTerminal
+    putStrLn "══════════════FUNCIONARIOS══════════════\n"
     listarTodosFuncionarios
     putStrLn "\n\n [0] Voltar"
     op <- getLine

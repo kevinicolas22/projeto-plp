@@ -33,17 +33,8 @@ loginMembro tipoFuncionarioValidado = do
     senha <- getLine
     senhaCorreta senha tipoFuncionarioValidado
 
-
-    putStrLn "Digite: (C - Confirmar o Login; E - Exit)"
-    opcao <- getLine
-    let opcaoUpper = map toUpper opcao
-    opcaoValida <- padraoCorreto opcaoUpper
-
-    if opcaoValida == "E"
-        then do 
-            putStrLn "Encerrando o programa!"
-            exitSuccess
-        else return()
+    putStrLn "\n Carregando..."
+    threadDelay (2 * 1000000)
     conexao<- openFile "haskell/login.txt" ReadMode
     conteudo<- hGetContents conexao
     existeCadastroR <- existeCadastro cpfDelimitado conteudo
@@ -72,14 +63,20 @@ main = do
     putStrLn "╔═══════════════════════════════════════════════════════╗"
     putStrLn "║               Seja Bem-vindo a CodeFit                ║"
     putStrLn "╚═══════════════════════════════════════════════════════╝"
-    putStrLn "\n > Tipo de usuario:"
-    putStrLn "\n   1. ALUNO"
-    putStrLn "   2. GESTOR"
-    putStrLn "   3. FUNCIONÁRIO\n"
-    putStr " >"
+    putStrLn "|\n|   1. ALUNO"
+    putStrLn "|   2. GESTOR"
+    putStrLn "|   3. FUNCIONÁRIO"
+    putStr "|\n| > Tipo de usuario ('!' Para Sair):"
     hFlush stdout
-    tipoFuncionario <- readLn :: IO Int
-    tipoFuncionarioValidado <- tipoUsuarioCorreto tipoFuncionario
+    tipoFuncionario <- getLine
+    if tipoFuncionario == "!"
+        then do
+            putStrLn "Encerrando o programa!"
+            threadDelay (2 * 1000000)
+            exitSuccess
+        else return()
+    let tipoFuncInt = read tipoFuncionario :: Int
+    tipoFuncionarioValidado <- tipoUsuarioCorreto tipoFuncInt
     if tipoFuncionarioValidado == 1
         then do loginAluno main
     else return()
