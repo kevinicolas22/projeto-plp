@@ -54,43 +54,41 @@ criarFuncionario = do
 
     let linhas = lines conteudo
         ids = primeirosElementos linhas
-
     idFuncionario <- gerarId 1 ids
-    let idInt = read idFuncionario :: Int
-
-    putStrLn "Digite o seu nome: "
+    putStrLn(" ID: "++ show(idFuncionario))
+    putStrLn "Nome: "
     nome <- getLine
 
-    putStrLn "Digite o seu CPF 11 dígitos ex: 12345678900: "
+    putStrLn "Digite o CPF (11 Dígitos): "
     cpf <- obterInformacao "CPF" delimitarCpf
 
-    putStrLn "Digite seu endereço: "
+    putStrLn "Digite o endereço: "
     endereco <- getLine
 
-    putStrLn "Digite o seu telefone 11 dígitos ex: 08391234567"
+    putStrLn "Digite o telefone 11 dígitos ex: 08391234567"
     telefone <- obterInformacao "telefone" delimitarTelefone
 
     putStrLn "Digite a data de ingresso 8 dígitos ex: DDMMAAAA"
     data_ingresso <- obterInformacao "data de ingresso" delimitarIngresso
 
-    putStrLn "Digite seu salário: "
+    putStrLn "Digite o salário: "
     salario <- readLn :: IO Float
 
-    return (Funcionario (idInt) nome cpf endereco telefone data_ingresso salario)
+    return (Funcionario (idFuncionario) nome cpf endereco telefone data_ingresso salario)
 
 
 -- Função para gerar um ID único
-gerarId :: Int -> [String] -> IO String
+gerarId :: Int -> [String] -> IO Int
 gerarId count ids = do
-    if show count `elem` ids
+    if show(count) `elem` ids
         then gerarId (count + 1) ids
-        else return (show count)
+        else return count
 
 
 -- Função para ler um funcionário pelo ID e imprimir seus dados
 lerFuncionarioPorId :: Int -> IO ()
 lerFuncionarioPorId targetId = do
-  conexao <- openFile "funcionario.txt" ReadMode
+  conexao <- openFile "haskell/funcionario.txt" ReadMode
   conteudo <- hGetContents conexao
   let linhas = lines conteudo
       ids = primeirosElementos linhas
@@ -98,17 +96,19 @@ lerFuncionarioPorId targetId = do
     then putStrLn "ID não encontrado."
     else do
         let dadosFuncionario = filtrarId targetId linhas
+            dadosB= dadosFuncionario !!0
+            dadosDivididos = map (splitOn ";") dadosB
         putStrLn "Funcionario encontrado"
-        imprimindoFuncionario dadosFuncionario
+        imprimindoFuncionario dadosDivididos
   hClose conexao  
 
 --- Função para listar todos os gestores do arquivo "funcionario.txt"
 listarTodosFuncionarios :: IO () 
 listarTodosFuncionarios = do
-    handle <- openFile "funcionario.txt" ReadMode
+    handle <- openFile "haskell/funcionario.txt" ReadMode
     assunto <- hGetContents handle
     let linhas = lines assunto
-        funcionarios = map (splitOn ",") linhas
+        funcionarios = map (splitOn ";") linhas
     if (length linhas) == 0
         then putStrLn "\nNenhum funcionario encontrado."
         else imprimindoFuncionario funcionarios
@@ -117,7 +117,7 @@ listarTodosFuncionarios = do
 -- Função que atualiza os dados de um funcionário no arquivo "funcionario.txt" com base no ID fornecido.
 atualizarFuncionarioPorId :: Int -> Funcionario -> IO ()
 atualizarFuncionarioPorId targetId novoFuncionario = do
-  handle <- openFile "funcionario.txt" ReadMode
+  handle <- openFile "haskell/funcionario.txt" ReadMode
   contents <- hGetContents handle
   let linhas = lines contents
       ids = primeirosElementos linhas
@@ -150,7 +150,7 @@ atualizarDadosFuncionario linha (Funcionario id nome cpf endereco telefone dataI
 -- Função para remover um funcionário do arquivo pelo ID.
 removerFuncionarioPorId :: Int -> IO ()
 removerFuncionarioPorId targetId = do
-  handle <- openFile "funcionario.txt" ReadMode
+  handle <- openFile "haskell/funcionario.txt" ReadMode
   contents <- hGetContents handle
   let linhas = lines contents
       ids = primeirosElementos linhas
@@ -162,8 +162,8 @@ removerFuncionarioPorId targetId = do
       hPutStr tempHandle (unlines linhasFiltradas)
       hClose handle
       hClose tempHandle
-      removeFile "funcionario.txt"
-      renameFile tempName "funcionario.txt"
+      removeFile "haskell/funcionario.txt"
+      renameFile tempName "haskell/funcionario.txt"
 
 -- Função auxiliar para converter uma lista de strings em um Funcionario
 parseFuncionario :: [String] -> Maybe Funcionario
@@ -174,7 +174,7 @@ parseFuncionario _ = Nothing
 -- Função para converter um funcionário em uma string no formato esperado
 toStringFuncionario :: Funcionario -> String
 toStringFuncionario (Funcionario id nome cpf endereco telefone data_ingresso salario) =
-  intercalate "," [show id, nome, cpf, endereco, telefone, data_ingresso, show salario]
+  intercalate ";" [show id, nome, cpf, endereco, telefone, data_ingresso, show salario]
 
 -- Função para filtrar os dados de um funcionário pelo ID
 filtrarId :: Int -> [String] -> [[String]]

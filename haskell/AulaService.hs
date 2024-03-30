@@ -60,7 +60,7 @@ deletarAulaPeloNome nome = do
             hClose tempHandle
             removeFile "haskell/aulas.txt"
             renameFile tempName "haskell/aulas.txt"
-            putStrLn "Aula Deletada"
+            putStrLn " "
 
 aulasToString :: [Aula] -> String
 aulasToString aulas = unlines $ map show aulas

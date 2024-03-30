@@ -288,13 +288,15 @@ lerTodasAulas menuPrincipal = do
     
 
 deletarAulas :: IO() -> IO()
-deletarAulas menuAulas = do
+deletarAulas menuPrincipal = do
     putStrLn "Digite o nome da aula que deseja deletar: "
     nome <- getLine
     let nomeUpper = map toUpper nome
 
     deletarAulaPeloNome nomeUpper
-    menuAulas
+    putStrLn (nomeUpper++" deletada da lista de aulas !")
+    threadDelay (2 * 1000000)
+    menuAulas menuPrincipal
 
 criarAula ::IO() -> IO()
 criarAula menuPrincipal= do

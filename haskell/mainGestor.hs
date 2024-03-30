@@ -230,7 +230,6 @@ lerFuncionarioOpcao  menuPrincipal= do
     id <- getLine
     putStrLn"Procurando...\n"
     threadDelay (2 * 1000000)
-    putStrLn"Funcionário encontrado!"
     lerFuncionarioPorId (read id)
     putStrLn "\n\n [0] Voltar"
     op <- getLine
