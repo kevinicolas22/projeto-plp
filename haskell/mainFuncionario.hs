@@ -11,7 +11,7 @@ import AvaliacaoFisica
 import Treino
 import Aula
 import MainAluno
-import MainAluno(limparTerminal,recuperaAlunoMatricula,exibeAlunos)
+import MainAluno(limparTerminal)
 import AlunoController
 import Control.Concurrent (threadDelay)
 import Aluno
@@ -68,10 +68,17 @@ listarAlunos menuPrincipal= do
     let linhas = lines conteudo
         matriculas = primeirosElementos linhas
     exibeAlunos matriculas
-    putStrLn "\n [0] Voltar"
+    putStrLn "\n [0] Voltar     [1] Excluir Aluno"
     opçao<- getLine
     case opçao of
         "0"-> menuFuncionario menuPrincipal
+        "1"-> do
+            putStrLn "> Matrícula para exclusão: "
+            matriculaEx<- getLine
+            deletarAluno matriculaEx
+            threadDelay (2 * 1000000)
+            listarAlunos menuPrincipal
+
         _ -> listarAlunos menuPrincipal
 
 

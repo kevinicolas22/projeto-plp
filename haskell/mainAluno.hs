@@ -30,7 +30,6 @@ import qualified Data.ByteString.Lazy as BL
 import AvaliacaoFisica
 
 
-
 defineAulas :: [Aula]
 defineAulas = [aulaDança, aulaBoxe]
   where
@@ -42,7 +41,6 @@ defineAulas = [aulaDança, aulaBoxe]
                       horarioAula = "Terça e Quinta, das 20:00 às 21:30",
                       planosPermitidos = [Premium]
                     }
-                    
 recuperarAulas :: String -> [Aula]
 recuperarAulas conteudo = map parseLinha (lines conteudo)
 
@@ -54,13 +52,9 @@ parseLinha linha =
           horario = elems !! 1
       in Aula {nomeAula=nome, horarioAula= horario, planosPermitidos= parsePlanos planosStr  }
       
-            
-
 parsePlanos :: [String] -> [PlanoTipo]
 parsePlanos planosStrs = map readPlanosTipo (concatMap removeBrackets planosStrs)
       where removeBrackets str = words (filter (\c -> c /= '[' && c /= ']') str)
-
-
 
 exibeAulas :: [Aula] -> IO()
 exibeAulas [] =  putStrLn "Não há aulas cadastradas."
@@ -73,92 +67,6 @@ exibeAula aula = do
 -- Funçao que inicia a pagina manuseada pelo aluno, necessitando da matricula e senha para acessa
 existeMatricula :: String -> String -> Bool
 existeMatricula strMat conteudo = strMat `elem` primeirosElementos (lines conteudo)
-
-exibeAlunos:: [String]-> IO()
-exibeAlunos []= putStrLn "Não há nenhum Aluno cadastrado. "
-exibeAlunos matriculas = do
-  alunos <-mapM recuperaAlunoMatricula matriculas
-  mapM_ exibeAluno alunos
-
-exibeAluno :: Aluno -> IO ()
-exibeAluno aluno = putStrLn(showAlunoLista aluno++"\n")
-
-
--- Vai pro controller
-recuperaAlunoMatricula:: String-> IO Aluno
-recuperaAlunoMatricula matStr= do
-      conexao <- openFile "haskell/Aluno.txt" ReadMode
-      conteudo<- hGetContents conexao
-      seq conteudo $ return ()
-      let linhas = lines conteudo
-          matriculas = primeirosElementos linhas
-          dadosAluno = filtrarMatricula matStr linhas
-          treinosStr = read (dadosAluno !! 7) :: [(String, [String])]
-          treinos = map (\(tipo, exercicios) -> Treino tipo exercicios) treinosStr
-          aulasStr = read (dadosAluno !! 11) :: [(String, String, [String])]
-          aulas = map (\(nome, horario, planos) -> Aula nome horario (map readPlanosTipo planos)) aulasStr
-      let aluno = Aluno{ matricula = dadosAluno !! 0
-                              , alunoId = read (dadosAluno !! 1)
-                              , nomeAluno = dadosAluno !! 2
-                              , cpfAluno = dadosAluno !! 3
-                              , endereçoAluno = dadosAluno !! 4
-                              , contatoAluno = dadosAluno !! 5
-                              , planoAluno = readPlano (dadosAluno !! 6)
-                              , treinos = treinos
-                              , emDia = read (dadosAluno !! 8)
-                              , senhaAluno = dadosAluno !! 9
-                              , emailAluno = dadosAluno !! 10
-                              , aulas = aulas
-                              }
-      
-      hClose conexao 
-      return aluno  
-
-readAula :: String -> Aula
-readAula str = let (nomeAula, rest1) = break (== ',') str
-                   (horario, planosStr) = break (== ',') (tail rest1)
-                   planosAceitos = readPlanos (tail planosStr)
-                  in Aula nomeAula horario planosAceitos
-
-readPlanos :: String -> [PlanoTipo]
-readPlanos str = map readPlanosTipo (splitOn "," str)
-
-readPlanosTipo :: String -> PlanoTipo
-readPlanosTipo "Light" = Light
-readPlanosTipo "Gold" = Gold
-readPlanosTipo "Premium" = Premium
-readPlanosTipo _ = error "Tipo de plano desconhecido"
-
-
-trim :: String -> String
-trim = f . f
-      where f = reverse . dropWhile isSpace
-
-
-readPlano :: String -> PlanoAluno
-readPlano "Light" = Light
-readPlano "Gold" = Gold
-readPlano "Premium" = Premium
-readPlano _ = error "Plano desconhecido"
-
-
--- Vai pro controller
-posicaoMatLista :: String -> [String] -> Int
-posicaoMatLista matricula lista =
-    let posUltimo = length lista - 1
-    in case elemIndex matricula lista of
-        Just pos -> pos
-        Nothing -> error "Matrícula não encontrada na lista"
-
-
--- vai pro controllrr
-filtrarMatricula :: String -> [String] -> [String]
-filtrarMatricula matriculaStr listaG = do
-    let listaP = primeirosElementos listaG
-        posicao = posicaoMatLista matriculaStr listaP
-    --sabendo que a posicao da listaP e a mesma da listaG, com os mesmos valores
-    splitOn ";" (listaG !! posicao)
-
 
 loginAluno::IO()-> IO()
 loginAluno menuPrincipal= do
@@ -636,7 +544,6 @@ alterarPlano aluno menuPrincipal= do
 
 substituirAlunoTxt :: Aluno -> String -> IO ()
 substituirAlunoTxt novoAluno matriculaAlvo = do
-      
       handle <- openFile "haskell/Aluno.txt" ReadMode
       contents <- hGetContents handle
       (tempName, tempHandle) <- openTempFile "." "temp"
@@ -653,8 +560,6 @@ substituirSeMatriculaIgual novoAluno matriculaAlvo linha
     | head (splitOn ";" linha) == matriculaAlvo = alunoToString novoAluno
     | otherwise = linha
 
-
-      
       --alterarPlanoAluno aluno
 exibePlano:: Aluno->IO()-> IO()
 exibePlano aluno menuPrincipal= do 
@@ -677,7 +582,6 @@ exibirMensagemTemporaria :: String -> IO ()
 exibirMensagemTemporaria msg = do
       putStrLn msg
       threadDelay (3 * 1000000)
-
 
 primeiroNome :: String -> String
 primeiroNome nome = head (words nome)

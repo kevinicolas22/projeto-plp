@@ -1,2 +1,1 @@
-002;0;Joao Pedro;093.849.849-93;Rua prefeito ;83 898398282;Gold;[("COSTAS",["puxada","remada",""])];True;jp22;Everton@gmail;[("DAN\199A COLETIVA","Segunda e quarta, das 18:00 \224s 19:30",["Light", "Gold", "Premium"])]
-003;0;Natan;705.150.994-22;rua da agua;40028922;Premium;[("ABDOMEN",["Abs","Abs maquina",""])];True;1234;cavalcantenatan28@gmail.com;[("AULATESTE","ontem",["Light", "Premium", "Gold"])]
+001;0;jodja;929.222.222-22;jdao;jdao;Light;[];False;1234;jdao;[]

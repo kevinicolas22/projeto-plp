@@ -68,3 +68,10 @@ pegarPosicao cpf cpfs = do
         Just x -> x
         Nothing -> -1
 
+delimitarCpf :: String -> String
+delimitarCpf cpfA
+    | length numeros == 11  = cpfFormatado
+    where
+        numeros = filter isDigit cpfA
+        cpfFormatado = intercalate "."[chunk 0 3, chunk 3 6, chunk 6 9] ++ "-" ++ take 2(drop 9 numeros)
+        chunk start end = take(end - start)(drop start numeros)

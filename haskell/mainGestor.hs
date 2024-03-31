@@ -15,7 +15,7 @@ import FuncionarioService
 import Funcionario
 import MainAluno(limparTerminal)
 import Control.Concurrent
-import AlunoController(delimitarCpf)
+import LoginService(delimitarCpf)
 import System.Console.ANSI -- Importação do módulo System.Console.ANSI para usar as funções de controle de terminal
 
 

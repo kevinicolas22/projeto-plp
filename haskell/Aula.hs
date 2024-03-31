@@ -2,6 +2,7 @@ module Aula where
 import Planos
 import Data.List (intercalate)
 import Data.Text (Text)
+import Data.Char (isDigit)
 
 type NomeA = String
 
@@ -32,3 +33,4 @@ instance Show Aula where
 instance Read Aula where
     readsPrec _ str = [(Aula nomeAula "" [], "")]
         where nomeAula = takeWhile (/= ',') str
+

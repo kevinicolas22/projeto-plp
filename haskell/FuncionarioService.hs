@@ -17,7 +17,7 @@ import Data.Maybe (mapMaybe)
 import Text.Read (readMaybe)
 import MainAluno
 import Aluno
-
+import AlunoController
 
 
 --  Função que extrai os primeiros elementos de uma lista de strings.
