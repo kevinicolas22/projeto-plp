@@ -1,6 +1,14 @@
 module AlunoController where
 
 import Control.Monad
+import Network.Mail.SMTP 
+import qualified Network.Mail.Mime (Mail(..), Address(..), simpleMail) 
+import Data.Text(pack)
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
+import Network.Mail.SMTP.Types (Address(..))
+import Control.Exception
+import qualified Data.ByteString.Lazy as BL
 import Data.Foldable
 import Data.List (intercalate)
 import Data.Maybe (mapMaybe, maybeToList)
@@ -213,6 +221,27 @@ alunoToString alunoTo =
                         , show (aulas alunoTo)
                         ] ++ "\n"
       
+-- vai pro controller
+obterPlanoParaAluno :: Aluno -> Plano
+obterPlanoParaAluno aluno = case planoAluno aluno of
+      Light -> planoLight
+      Gold -> planoGold
+      Premium -> planoPremium  
+      
+-- Funçao  para enviar um Email de confirmação do pagamento para a academia (Substituir 'joao.pedro.arruda.silva@ccc' pelo email que irá receber a mensagem (monitor/Professor))
+enviarEmail :: Aluno->String-> IO ()
+enviarEmail aluno opçao= do
+    let planoAtual = obterPlanoParaAluno aluno
+        nomeCaps = map toUpper (nomeAluno aluno)
+     -- Configurar as informações do servidor SMTP
+    let from       = Address Nothing (T.pack (emailAluno aluno))
+        to         = [Address (Just (T.pack "Codefit")) (T.pack "joao.pedro.arruda.silva@ccc.ufcg.edu.br")] --colocar o email aqui (monitor/professor) para correção, envia a mensagem para o email especificado acima
+        cc         = []
+        bcc        = []
+        subject    = T.pack "Pagamento de Mensalidade"
+        body       = plainTextPart (TL.pack (nomeCaps++" EFETUOU O PAGAMENTO DO MÊS\n\n R$"++ show (valorMensal planoAtual)++"\n FORMA DE PAGAMENTO: "++ opçao++ "\n MATRÍCULA: "++ show(matricula aluno)))
+    let mail = simpleMail from to cc bcc subject [body]
+    sendMailWithLoginSTARTTLS "smtp.gmail.com" "alunocodefit@gmail.com" "dhvz rvdb bhsv goqu" mail -- email do qual será enviado a mensagem
 
 -- função que recebe uma lista de String com os dados dos alunos (vindos do Txt) e exibe-os
 exibeAlunos:: [String]-> IO()

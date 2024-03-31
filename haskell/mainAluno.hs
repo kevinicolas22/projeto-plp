@@ -29,21 +29,11 @@ import qualified Data.ByteString.Lazy as BL
 --import qualified Network.HTTP.Simple as Simple
 import AvaliacaoFisica
 
-
-defineAulas :: [Aula]
-defineAulas = [aulaDança, aulaBoxe]
-  where
-    aulaDança = Aula { nomeAula = "DANÇA COLETIVA",
-                       horarioAula = "Segunda e quarta, das 18:00 às 19:30",
-                       planosPermitidos = [Light, Gold, Premium]
-                     }
-    aulaBoxe = Aula { nomeAula = "BOXE",
-                      horarioAula = "Terça e Quinta, das 20:00 às 21:30",
-                      planosPermitidos = [Premium]
-                    }
+-- Funçao que recebe o conteudo das aulas como String e retorna uma lista de Aulas instanciadas
 recuperarAulas :: String -> [Aula]
 recuperarAulas conteudo = map parseLinha (lines conteudo)
 
+-- Funçao que transforma os dados de uma aula como String e retorna a Aula Definida
 parseLinha :: String -> Aula
 parseLinha linha =  
       let elems = splitOn ";" linha
@@ -51,15 +41,18 @@ parseLinha linha =
           nome = elems !! 0
           horario = elems !! 1
       in Aula {nomeAula=nome, horarioAula= horario, planosPermitidos= parsePlanos planosStr  }
-      
+ 
+-- Funçao que recebe uma lista com os nomes dos Planos e retorna um lista com os Planos definidos
 parsePlanos :: [String] -> [PlanoTipo]
 parsePlanos planosStrs = map readPlanosTipo (concatMap removeBrackets planosStrs)
       where removeBrackets str = words (filter (\c -> c /= '[' && c /= ']') str)
 
+-- Funçao que recebe um array de aulas e exibe suas representações em Strings
 exibeAulas :: [Aula] -> IO()
 exibeAulas [] =  putStrLn "Não há aulas cadastradas."
 exibeAulas aulas = mapM_ exibeAula aulas
 
+--Funçao que complementa a função acima
 exibeAula :: Aula -> IO ()
 exibeAula aula = do
       putStrLn(showAula aula++"\n\n")
@@ -68,6 +61,7 @@ exibeAula aula = do
 existeMatricula :: String -> String -> Bool
 existeMatricula strMat conteudo = strMat `elem` primeirosElementos (lines conteudo)
 
+--Funçao que exibe e realiza o processo de login do aluno, verificando a matrícula e a senha
 loginAluno::IO()-> IO()
 loginAluno menuPrincipal= do
       limparTerminal  -- funçao que limpa o terminal
@@ -110,6 +104,7 @@ loginAluno menuPrincipal= do
                               threadDelay (2 * 1000000)
                         homeAluno alunoEncontrado menuPrincipal
 
+-- FUnçao que exibe o menu Principal do aluno e captura a opção escolhida pelo usuário
 homeAluno:: Aluno->IO()->IO()
 homeAluno alunoAtual menuPrincipal= do 
       clearScreen
@@ -136,14 +131,15 @@ homeAluno alunoAtual menuPrincipal= do
             "4"-> aulasColetivas alunoAtual menuPrincipal
             "5"-> menuTreinos alunoAtual menuPrincipal
             "6"-> realizaPagamento alunoAtual menuPrincipal
-            "7"-> calculoImc alunoAtual menuPrincipal
+            "7"-> exibeAvaliacaoFisica alunoAtual menuPrincipal
             "8"-> funçaoSaida menuPrincipal 
             _ -> do
                   putStr "Opção inválida!!"
                   homeAluno alunoAtual menuPrincipal
 
-calculoImc:: Aluno -> IO()-> IO()
-calculoImc aluno menuPrincipal = do
+-- Funçao que, caso ja exista, exibe a avaliaçao física do aluno
+exibeAvaliacaoFisica:: Aluno -> IO()-> IO()
+exibeAvaliacaoFisica aluno menuPrincipal = do
       limparTerminal
       putStrLn ("═════════════════ Avaliação Física ════════════════════\n")
       conexao<- openFile "haskell/avaliacoes_fisicas.txt" ReadMode
@@ -157,7 +153,7 @@ calculoImc aluno menuPrincipal = do
                   opçao<- getLine
                   case opçao of
                         "0" -> homeAluno aluno menuPrincipal
-                        _ -> calculoImc aluno menuPrincipal
+                        _ -> exibeAvaliacaoFisica aluno menuPrincipal
             else do
                   avaliacaoEncontrada<- recuperaAvaliacaoAluno linhas (matricula aluno)
                   exibeAvaliacao avaliacaoEncontrada 
@@ -165,7 +161,7 @@ calculoImc aluno menuPrincipal = do
                   opçao<- getLine
                   case opçao of
                         "0" -> homeAluno aluno menuPrincipal
-                        _ -> calculoImc aluno menuPrincipal
+                        _ -> exibeAvaliacaoFisica aluno menuPrincipal
 
 exibeAvaliacao::  AvaliacaoFisica-> IO()
 exibeAvaliacao avaliacao = do
@@ -175,6 +171,7 @@ exibeAvaliacao avaliacao = do
                   "\nIdade: " ++(show(idade avaliacao)) ++
                   "\nObjetivo: " ++ (objetivo avaliacao)
 
+-- Funçao que recebe a matrícula do aluno e retorna a avaliaçao física que a possui
 recuperaAvaliacaoAluno:: [String] -> String -> IO AvaliacaoFisica
 recuperaAvaliacaoAluno (x:xs) matAluno= do
       let atual = splitOn "," x
@@ -197,6 +194,7 @@ verificaAvaliacao (x:xs) matAluno=do
       else do
             verificaAvaliacao xs matAluno
 
+-- Funçao que sai da conta do aluno e retorna ao menu Inicial do Sistema
 funçaoSaida:: IO() -> IO()
 funçaoSaida menuPrincipal= do
       limparTerminal
@@ -204,7 +202,7 @@ funçaoSaida menuPrincipal= do
       threadDelay (1 * 1000000)
       menuPrincipal
       
-      
+--Funçao para manuseio dos trinos | Exibe os treinos existentes e solicita um novo treino para o funcionário da academia
 menuTreinos:: Aluno-> IO()-> IO()
 menuTreinos aluno menuPrincipal= do
       limparTerminal   
@@ -240,11 +238,12 @@ menuTreinos aluno menuPrincipal= do
                         menuTreinos aluno menuPrincipal
                   _  -> menuTreinos aluno menuPrincipal
                                 
-
+-- Funçao que recebe o tipo de treino e adiciona a solicitação do aluno ao Arquivo Txt de solicitações
 solicitaTreino:: Aluno-> String-> IO()
 solicitaTreino aluno tipoTreino= do
       appendFile "haskell//solicitacoes.txt" (matricula aluno++"," ++tipoTreino ++"\n")
 
+-- Funçao para manuseio das aulas coletivas | Exibe, inscreve e exclui aula
 aulasColetivas:: Aluno-> IO()->IO()
 aulasColetivas aluno menuPrincipal= do
       limparTerminal
@@ -264,6 +263,7 @@ aulasColetivas aluno menuPrincipal= do
                   putStrLn "Opção inválida !!"
                   aulasColetivas aluno menuPrincipal
 
+-- Função que lista as aulas nas quais o aluno está inscrito
 listarAulas:: Aluno->IO()->IO()
 listarAulas aluno menuPrincipal= do
       limparTerminal
@@ -287,7 +287,8 @@ listarAulas aluno menuPrincipal= do
                         threadDelay (2 * 1000000)
                         listarAulas aluno menuPrincipal
             _ -> listarAulas aluno menuPrincipal 
-            
+
+-- Função que recebe o nome de uma aula e a remove da lista de aulas do Aluno
 removerAula :: Aluno -> String -> IO Aluno
 removerAula aluno nomeAulaEx =do
       let nomeAulaExCaps = map toUpper nomeAulaEx
@@ -295,11 +296,11 @@ removerAula aluno nomeAulaEx =do
       substituirAlunoTxt novoAluno (matricula novoAluno)
       return novoAluno
       
+--Função que realiza a inscriçao do aluno em uma aula
 inscriçaoAula:: Aluno->IO()->IO()
 inscriçaoAula aluno menuPrincipal= do
       conexao<- openFile "haskell/aulas.txt" ReadMode
       conteudo<- hGetContents conexao
-      
       let aulas= recuperarAulas conteudo
       if not(emDia aluno)
             then do
@@ -345,14 +346,16 @@ inscriçaoAula aluno menuPrincipal= do
                               hClose conexao
                               aulasColetivas aluno menuPrincipal        
 
-
+-- Função booleana para verificar se o aluno está inscrito na aula passada como argumento
 estaInscrito :: Aluno -> String -> Bool
 estaInscrito aluno nomeAulaStr = any (\aula -> nomeAula aula == nomeAulaStrCaps) (aulas aluno)
       where nomeAulaStrCaps = map toUpper nomeAulaStr
 
+-- Função que verifica se o atual plano do aluno está na lista de planos permitidos da aula
 planoIncluido :: Aluno -> Aula -> Bool
 planoIncluido aluno aula = planoAluno aluno `elem` planosPermitidos aula
 
+--função que adiciona uma aula à lista de aulas do aluno
 adicionaAulaAluno:: Aula-> Aluno-> IO()->IO()
 adicionaAulaAluno aula aluno menuPrincipal=do
       let alunoAtualizado = aluno { aulas = aula : aulas aluno }
@@ -360,7 +363,7 @@ adicionaAulaAluno aula aluno menuPrincipal=do
       substituirAlunoTxt alunoAtualizado (matricula alunoAtualizado)
       aulasColetivas alunoAtualizado menuPrincipal
 
-
+--Função que recebe o nome de uma aula e verifica se ela existe na lista de aulas
 existeAula:: String-> [Aula]-> Bool
 existeAula _ [] = False
 existeAula nomeAulaStr (aula:outrasAulas)=
@@ -368,12 +371,14 @@ existeAula nomeAulaStr (aula:outrasAulas)=
             then True
             else existeAula nomeAulaStr outrasAulas
 
+-- Função que recebe o nome de uma aula e retorna um tipo Aula instanciada
 verificaAula :: String -> [Aula] -> Aula
 verificaAula nomeAulaStr (aula:outrasAulas) = 
       if map toUpper(nomeAula aula) == map toUpper nomeAulaStr
             then aula
             else verificaAula nomeAulaStr outrasAulas
 
+--Função que exibe e edita os dados do Aluno
 meusDados:: Aluno-> IO()->IO() 
 meusDados aluno menuPrincipal= do
       limparTerminal
@@ -386,7 +391,7 @@ meusDados aluno menuPrincipal= do
             "1"-> editDados aluno menuPrincipal
             _ -> meusDados aluno menuPrincipal
       
-      
+-- Função que manuseia o tipo de dado que será editado e recebe o novo dado    
 editDados:: Aluno-> IO()->IO()
 editDados aluno menuPrincipal= do
       limparTerminal
@@ -438,32 +443,10 @@ editDados aluno menuPrincipal= do
                   putStrLn "Opção inválida!"
                   exibirMensagemTemporaria " *Opção inválida*"
                   editDados aluno menuPrincipal
- 
-
--- vai pro controller
-obterPlanoParaAluno :: Aluno -> Plano
-obterPlanoParaAluno aluno = case planoAluno aluno of
-      Light -> planoLight
-      Gold -> planoGold
-      Premium -> planoPremium                  
-
--- Funçao  para enviar um Email de confirmação do pagamento para a academia
-enviarEmail :: Aluno->String-> IO ()
-enviarEmail aluno opçao= do
-    let planoAtual = obterPlanoParaAluno aluno
-        nomeCaps = map toUpper (nomeAluno aluno)
-     -- Configurar as informações do servidor SMTP
-    let from       = Address Nothing (T.pack (emailAluno aluno))
-        to         = [Address (Just (T.pack "Codefit")) (T.pack "joao.pedro.arruda.silva@ccc.ufcg.edu.br")] --colocar o email aqui (monitor/professor) para correção, envia a mensagem para o email especificado acima
-        cc         = []
-        bcc        = []
-        subject    = T.pack "Pagamento de Mensalidade"
-        body       = plainTextPart (TL.pack (nomeCaps++" EFETUOU O PAGAMENTO DO MÊS\n\n R$"++ show (valorMensal planoAtual)++"\n FORMA DE PAGAMENTO: "++ opçao++ "\n MATRÍCULA: "++ show(matricula aluno)))
-    let mail = simpleMail from to cc bcc subject [body]
-    sendMailWithLoginSTARTTLS "smtp.gmail.com" "alunocodefit@gmail.com" "dhvz rvdb bhsv goqu" mail
+                 
 
 
-
+-- Funçao que exibe o débito pendente e realiza o pagamento da mensalidade, por fim envia um email de confirmação para a academia
 realizaPagamento:: Aluno->IO()-> IO()
 realizaPagamento aluno menuPrincipal= do
       limparTerminal
@@ -509,10 +492,12 @@ realizaPagamento aluno menuPrincipal= do
                         enviarEmail aluno opçaoPagamento
                         homeAluno alunoNovo menuPrincipal
 
+-- Função que adiciona os detalhes do pagamento ao arquivo Txt de pagamentos
 adicionaPagamento:: Float-> String-> IO()
 adicionaPagamento valor plano = do
       appendFile "haskell//pagamentos.txt" (show(valor)++"," ++plano ++"\n")
       
+-- Função que realiza a alteração do tipo de plano do aluno
 alterarPlano:: Aluno->IO()-> IO()
 alterarPlano aluno menuPrincipal= do 
       clearScreen
@@ -541,7 +526,7 @@ alterarPlano aluno menuPrincipal= do
       _ <- getLine -- Aguarda o Enter
       homeAluno alunoNovo menuPrincipal
 
-
+-- Função que recebe um aluno e substitui os seus dados no arquivo Txt
 substituirAlunoTxt :: Aluno -> String -> IO ()
 substituirAlunoTxt novoAluno matriculaAlvo = do
       handle <- openFile "haskell/Aluno.txt" ReadMode
@@ -554,7 +539,8 @@ substituirAlunoTxt novoAluno matriculaAlvo = do
       hClose tempHandle
       removeFile "haskell/Aluno.txt"
       renameFile tempName "haskell/Aluno.txt"
-      
+
+-- Função que, caso a matrícula da linha seja igual a matricula requisitada para alteração, substitui a linha pelos novos dados
 substituirSeMatriculaIgual :: Aluno -> String -> String -> String
 substituirSeMatriculaIgual novoAluno matriculaAlvo linha
     | head (splitOn ";" linha) == matriculaAlvo = alunoToString novoAluno
@@ -572,6 +558,7 @@ exibePlano aluno menuPrincipal= do
       when (confirma /= '\n') $ void getChar -- Aguarda o Enter
       homeAluno aluno menuPrincipal
 
+-- Função que limpa o terminal para melhor organização
 limparTerminal :: IO ()
 limparTerminal = do
       clearScreen
@@ -583,5 +570,6 @@ exibirMensagemTemporaria msg = do
       putStrLn msg
       threadDelay (3 * 1000000)
 
+--Função que recebe um nome e retorna apenas o primeiro nome do aluno (ex: Joao pedro -> Joao)
 primeiroNome :: String -> String
 primeiroNome nome = head (words nome)
