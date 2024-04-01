@@ -522,7 +522,7 @@ acessoLiberado matriculaAluno hora = do
     return (resultado)
 
 showPlanoAluno :: Aluno -> String
-showPlanoAluno (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas) = show plano
+showPlanoAluno (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas saldo) = show plano
 
 parsePlanoAlunoParaPlano :: String -> Plano
 parsePlanoAlunoParaPlano "Light" = planoLight

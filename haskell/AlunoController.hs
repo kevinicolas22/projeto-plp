@@ -99,11 +99,13 @@ criarAluno = do
             threadDelay (2 * 1000000) -- atraso temporario da execuçao
             criarAluno
           else do
+            putStrLn "\nRecarga realizada pelo aluno: "
+            recarga<- readLn :: IO Float
             putStrLn "\nConfirmar Cadastro... Pressione ENTER"
             confirma <- getChar
             when (confirma /= '\n') $ void getChar -- Aguarda o Enter
             --Instancia aluno
-            let alunoCriado = Aluno { alunoId = 0, nomeAluno = nomeAluno, cpfAluno = cpfDelimitado, endereçoAluno = endereçoAluno, contatoAluno = contatoAluno, planoAluno = planoEscolhido, treinos = [], emDia = False, matricula= matriculaAluno, senhaAluno= senhaAluno, emailAluno = emailAluno, aulas = []}
+            let alunoCriado = Aluno { alunoId = 0, nomeAluno = nomeAluno, cpfAluno = cpfDelimitado, endereçoAluno = endereçoAluno, contatoAluno = contatoAluno, planoAluno = planoEscolhido, treinos = [], emDia = False, matricula= matriculaAluno, senhaAluno= senhaAluno, emailAluno = emailAluno, aulas = [], saldo =recarga}
             appendFile "haskell/Aluno.txt" (alunoToString alunoCriado) 
 
 -- Funçao que deleta o aluno do arquivo de dados a partir da sua matrícula
@@ -141,6 +143,7 @@ recuperaAlunoMatricula matStr= do
           treinos = map (\(tipo, exercicios) -> Treino tipo exercicios) treinosStr
           aulasStr = read (dadosAluno !! 11) :: [(String, String, [String])]
           aulas = map (\(nome, horario, planos) -> Aula nome horario (map readPlanosTipo planos)) aulasStr
+          saldoAtual = read (dadosAluno!!12):: Float
       let aluno = Aluno{ matricula = dadosAluno !! 0
                               , alunoId = read (dadosAluno !! 1)
                               , nomeAluno = dadosAluno !! 2
@@ -153,6 +156,7 @@ recuperaAlunoMatricula matStr= do
                               , senhaAluno = dadosAluno !! 9
                               , emailAluno = dadosAluno !! 10
                               , aulas = aulas
+                              , saldo = saldoAtual
                               }
       hClose conexao 
       return aluno  
@@ -219,6 +223,7 @@ alunoToString alunoTo =
                         , senhaAluno alunoTo
                         , emailAluno alunoTo
                         , show (aulas alunoTo)
+                        , show (saldo alunoTo)
                         ] ++ "\n"
       
 -- vai pro controller

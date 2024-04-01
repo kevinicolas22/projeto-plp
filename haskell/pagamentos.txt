@@ -4,3 +4,7 @@
 100.0,Premium
 70.0,Gold
 70.0,Gold
+70.0,Gold
+70.0,Gold
+100.0,Premium
+100.0,Premium

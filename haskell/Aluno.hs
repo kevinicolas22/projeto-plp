@@ -36,7 +36,8 @@ data Aluno = Aluno
     emDia :: EmDia,
     senhaAluno:: Senha,
     emailAluno:: Email,
-    aulas:: Aulas
+    aulas:: Aulas,
+    saldo:: Float
   }
 
 -- Recupera apenas as matriculas dos alunos do aquivo Aluno.txt
@@ -63,7 +64,7 @@ showAlunoLista aluno=
   "\n             Matrícula: "++ matricula aluno
   
 instance Show Aluno where
-  show (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas) =
+  show (Aluno matricula alunoId nomeAluno cpfAluno endereçoAluno contatoAluno plano treinos emDia senhaAluno emailAluno aulas saldo) =
     
     if emDia
       then 
@@ -75,6 +76,7 @@ instance Show Aluno where
         ++ "\n Matrícula: " ++  matricula
         ++ "\n Senha: " ++ senhaAluno
         ++ "\n Email: " ++ emailAluno
+        ++ "\n Saldo Atual: R$ "++ show(saldo)
     else
       do
         " CPF: " ++ cpfAluno
@@ -85,6 +87,7 @@ instance Show Aluno where
         ++ "\n Matrícula: " ++  matricula
         ++ "\n Senha: " ++ senhaAluno
         ++ "\n Email: " ++ emailAluno
+        ++ "\n SaldoAtual: R$ "++ show(saldo)
      
             
 

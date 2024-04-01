@@ -118,8 +118,9 @@ homeAluno alunoAtual menuPrincipal= do
       putStrLn "║   [4] Aulas Coletivas                   ║"
       putStrLn "║   [5] Treinos                           ║"
       putStrLn "║   [6] Realizar Pagamento                ║"
-      putStrLn "║   [7] Consultar Avaliação física        ║"
-      putStrLn "║   [8] Sair                              ║"
+      putStrLn "║   [7] Realizar recarga de Saldo         ║"
+      putStrLn "║   [8] Consultar Avaliação física        ║"
+      putStrLn "║   [9] Sair                              ║"
       putStrLn "║                                         ║"
       putStrLn "║   > Digite a opção:                     ║ "
       putStrLn "╚═════════════════════════════════════════╝"
@@ -131,12 +132,32 @@ homeAluno alunoAtual menuPrincipal= do
             "4"-> aulasColetivas alunoAtual menuPrincipal
             "5"-> menuTreinos alunoAtual menuPrincipal
             "6"-> realizaPagamento alunoAtual menuPrincipal
-            "7"-> exibeAvaliacaoFisica alunoAtual menuPrincipal
-            "8"-> funçaoSaida menuPrincipal 
+            "7"-> recargaSaldo alunoAtual menuPrincipal
+            "8"-> exibeAvaliacaoFisica alunoAtual menuPrincipal
+            "9"-> funçaoSaida menuPrincipal 
             _ -> do
                   putStr "Opção inválida!!"
                   homeAluno alunoAtual menuPrincipal
 
+-- Funçao que realiza a recarga do saldo do aluno
+recargaSaldo:: Aluno-> IO()-> IO()
+recargaSaldo aluno menuPrincipal= do
+      limparTerminal
+      let saldoAtual = saldo aluno
+      putStrLn ("═════════════════ Recarga ════════════════════\n")
+      putStrLn "> Valor da Recarga: "
+      recarga<- readLn:: IO Float
+      if recarga<=0 
+            then do 
+                  putStrLn " VALOR INVÁLIDO !!"
+                  threadDelay (2 * 1000000)
+                  recargaSaldo aluno menuPrincipal
+            else return()
+      putStrLn " *VALOR ADICIONADO AO SEU SALDO !!"
+      threadDelay (2 * 1000000)
+      let novoAluno = aluno{saldo= recarga+saldoAtual}
+      substituirAlunoTxt novoAluno (matricula novoAluno)
+      homeAluno novoAluno menuPrincipal
 -- Funçao que, caso ja exista, exibe a avaliaçao física do aluno
 exibeAvaliacaoFisica:: Aluno -> IO()-> IO()
 exibeAvaliacaoFisica aluno menuPrincipal = do
@@ -460,13 +481,17 @@ realizaPagamento aluno menuPrincipal= do
       else do
             putStrLn " - Mensalidade Pendende."
             let planoAtual = obterPlanoParaAluno aluno
+            putStrLn (" - SALDO ATUAL: R$ "++ show(saldo aluno))
             putStrLn ("\x1b[32m" ++" - R$ "++ show(valorMensal planoAtual)++ "\x1b[0m")
             putStrLn "\n> Forma de pagamento:   \n\n [P] Pix"
             putStrLn " [D] Cartão de debito "
             putStrLn " [C] Cartão de crédito"
-            putStr " [B] Boleto\n\n>"
+            putStr " [B] Boleto\n [0] Voltar\n>"
             hFlush stdout
             opçao <- getLine
+            if opçao == "0"
+                  then homeAluno aluno menuPrincipal
+            else return() 
             let opçaoPagamento = case opçao of
                   "P"-> "Pix"
                   "D"-> "Cartão de Débito"
@@ -477,14 +502,23 @@ realizaPagamento aluno menuPrincipal= do
                   "c"-> "Cartão de Crédito"
                   "b"-> "Boleto"
                   _ -> "opçao invalida"
+            
             if opçaoPagamento == "opçao invalida"
                   then do
                         putStrLn "> Opçao Inválida !!"
                         threadDelay (2 * 1000000)
                         realizaPagamento aluno menuPrincipal
                   else do      
+                        let saldoAtual = saldo aluno
+                        if (valorMensal planoAtual)> saldoAtual
+                              then do
+                                    putStrLn "\n * SALDO INSUFICIENTE. EFETUE UMA RECARGA PARA PROSSEGUIR !!"
+                                    threadDelay (3 * 1000000)
+                                    realizaPagamento aluno menuPrincipal
+                              else return()
+
                         exibirMensagemTemporaria "\n *Processando pagamento...*"
-                        let alunoNovo = aluno{emDia = True}
+                        let alunoNovo = aluno{emDia = True, saldo= saldoAtual-(valorMensal planoAtual)}
                         substituirAlunoTxt alunoNovo (matricula alunoNovo)
                         putStrLn $ "\x1b[32m" ++ " Pagamento Realizado." ++ "\x1b[0m"
                         threadDelay (2 * 1000000)
