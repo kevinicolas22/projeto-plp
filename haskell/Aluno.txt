@@ -1,0 +1,26 @@
+001;0;kevin;444.777.888-10;rua teste 3;083991340390;Premium;[];False;1234;teste@gmail.com;[]
+002;0;laysa;888.999.000-55;rua teste 4;083991340390;Premium;[];False;1234;emailteste@gmail.com;[]
+003;0;JP;999.000.111-65;ruateste6;08391340390;Premium;[];False;1234;emailteste@gmail.com;[]
+004;0;professor;888.999.111-22;rua teste03;083991340390;Gold;[];False;1234;emailteste@gmail.com;[]
+005;0;EVERTON;123.456.789-10;rua teste 2;08391340390;Gold;[("CARDIO2",["exercicio1","exercicio2",""]),("CARDIO",["Esteira","Bicicleta",""]),("PEITO",["exercicio","exercicio2",""]),("PERNA",["leg","panturrilha","esteira",""])];True;1234;emailteste@gmail.com;[("BOXE","Segunda as 18:00",["Premium", "Gold"])]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+006;0;teste aluno;000.111.222-55;rua teste 05;08391340390;Light;[("PERNA",["esteira","leg",""])];True;1234;emailteste@gmail.com;[]
+
+
+007;0;davi;999.444.222-01;rua teste;083991340390;Gold;[];False;1234;alunoteste@gmail.com;[]

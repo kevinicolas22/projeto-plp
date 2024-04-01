@@ -1,0 +1,6 @@
+50.0,Light
+100.0,Premium
+50.0,Light
+100.0,Premium
+70.0,Gold
+70.0,Gold
