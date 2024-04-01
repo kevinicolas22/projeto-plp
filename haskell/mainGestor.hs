@@ -97,9 +97,11 @@ listarGestores  menuPrincipal= do
     
  
 criarNovoGestor :: IO() -> IO() 
-criarNovoGestor  menuPrincipal= do
+criarNovoGestor  menuPrincipal = do
   novoGestor <- criarGestor
-  adicionarGestor novoGestor
+  putStrLn ">> Nova senha de acesso: "
+  senhaGestor <- getLine
+  adicionarGestor novoGestor(cpfG novoGestor) senhaGestor
   putStrLn "\n\nGestor adicionado com sucesso!"
   threadDelay (2 * 1000000)
   limparTerminal

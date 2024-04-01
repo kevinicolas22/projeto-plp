@@ -1,5 +1,5 @@
 module MaquinaService where
-
+-- import que estao sendo utilizados
 import Maquina
 import Data.List (intercalate)
 import System.IO
@@ -59,8 +59,14 @@ criarMaquina = do
 
       return (Maquina id nome dataManutencao)
 
+
+-- Função para verificar o id de maquina 
+
 verificandoIdM :: String -> [String] -> Bool
 verificandoIdM str xs = str `elem` xs
+
+-- Função para analisar uma linha uma linha de texto que tem info. de maquinas
+-- e retorna um valor do tipo Maybe Maquina
 
 parseMaquina :: String -> Maybe Maquina
 parseMaquina linha = case splitOn "," linha of
@@ -68,6 +74,7 @@ parseMaquina linha = case splitOn "," linha of
         Just (Maquina (read codigo) nome (read dataManutencao))
     _ -> Nothing
 
+-- Funçao para facilitar a interação com o usuário para obter informações específicas
 obterInformacaoM :: String -> (String -> Maybe String) -> IO String
 obterInformacaoM tipo validador = do
     entrada <- getLine
@@ -88,6 +95,8 @@ contarMaquinas arquivo = do
     conteudo <- readFile arquivo
     let linhas = lines conteudo
     return (length linhas)
+
+-- Função para adicionar uma Maquina com necessidade de reparo no txt "maquina_reparo"
 
 adicionarMaquinaReparo :: Maquina -> IO ()
 adicionarMaquinaReparo reparo_maquina = do

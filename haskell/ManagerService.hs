@@ -1,6 +1,8 @@
 {-# LANGUAGE PackageImports #-}
 module ManagerService where
 
+-- importações
+
 import "directory" System.Directory
 import Manager
 import System.IO
@@ -24,8 +26,6 @@ import System.Console.ANSI
 import Control.Concurrent
 import Control.Exception (catch, IOException)
 import Control.Concurrent (threadDelay)
-
-
 
 
 -- Função para criar um gestor com ID automático
@@ -53,6 +53,7 @@ criarGestor = do
         else do
             hClose handle  -- Feche o arquivo antes de prosseguir
             let idInt = read idGestor :: Int
+            putStrLn "══════════════CADASTRO/GESTOR═══════════\n"
             putStrLn $ ">> Seu ID: " ++ show idInt
             putStrLn "\n>> Digite o seu CPF (formatação 000.000.000-00): "
             cpfG <- getLine
@@ -96,9 +97,11 @@ gerarIdUnico count ids = do
         else return (show count)
 
 
---- Funçao para adicionar gestor ao arquivo txt(banco de dados)
-adicionarGestor :: Manager -> IO ()
-adicionarGestor novo_gestor = do
+--- Funçao para adicionar gestor ao arquivo txt de manager, adicionar o cpf e uma senha para
+-- o txt de login, assim o sistema faz o cadastro de gestor
+
+adicionarGestor :: Manager -> String -> String -> IO ()
+adicionarGestor novo_gestor cpfGestor senha = do
   conexao <- openFile "manager.txt" ReadMode
   assunto <- hGetContents conexao
   let linhas = lines assunto
@@ -106,7 +109,9 @@ adicionarGestor novo_gestor = do
       idNovo = managerId novo_gestor
   if verificandoIdG (show idNovo) ids
     then putStrLn "ID já em uso. Escolha um ID diferente."
-    else appendFile "manager.txt" (toStringManager novo_gestor ++ "\n")
+    else do 
+        appendFile"haskell/login.txt"(cpfGestor++","++senha++",2"++"\n")
+        appendFile "manager.txt" (toStringManager novo_gestor ++ "\n")
   hClose conexao
 
 
@@ -225,20 +230,22 @@ parseManager linha = case splitOn "," linha of
             Nothing -> Nothing  -- Se a conversão falhar, retornamos Nothing
     _ -> Nothing
 
---- Funcao para consultar gestor 
 
-    --- Funções auxiliares
-
+-- Função para verificar o id de gestor
 verificandoIdG :: String -> [String] -> Bool
 verificandoIdG str xs = str `elem` xs
 
+-- Função converte um objeto Manager em uma string 
+-- formatada contendo todos os seus atributos separados por ","
 toStringManager :: Manager -> String
 toStringManager gestor = intercalate ", " [show (managerId gestor), show (cpfG gestor), nomeG gestor, dataNascimento gestor, show (telefoneG gestor), enderecoG gestor]
 
+-- Pega uma lista de String e retorna outra lista de String,
+-- contendo apenas o primeiro elemento de cada string
 primeirosElementosG :: [String] -> [String]
 primeirosElementosG linhas = map (\linha -> head(splitOn","linha))linhas
 
-
+-- Função para filtrar um Id de Gestor
 filtrarIdG :: Int -> [String] -> Maybe Manager
 filtrarIdG id listaG = do
     let listaP = primeirosElementosG listaG
@@ -299,7 +306,7 @@ folhaPagamentoFuncionario targetId = do
       imprimirFolhaPagamento funcionario
   hClose conexao
 
-
+-- tipos auxiliares para usar na parte Financeira
 type Valor = Double
 type Plano = String
 type Salario = Double

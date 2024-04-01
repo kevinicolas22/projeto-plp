@@ -9,6 +9,7 @@ import Data.Char (isDigit)
 import Data.List (intercalate)
 import Data.List.Split (chunksOf)
 
+-- Definição de tipos de dados
 type IdG = Int
 type CpfG = String
 type NomeG = String
@@ -17,6 +18,7 @@ type Email = String
 type TelefoneG = String
 type EnderecoG = String
 
+-- Definição de um gestor(manager)
 data Manager = Manager {
     managerId :: IdG,
     cpfG :: CpfG,
