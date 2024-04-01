@@ -13,3 +13,8 @@
 ("COSTAS",["puxada ( 3 | 10 )","remada frontal ( 4 | 12 )",""])
 ("COSTAS",["puxada","remada",""])
 ("ABDOMEN",["Abs","Abs maquina",""])
+("PERNA",["esteira","leg",""])
+("PERNA",["leg","panturrilha","esteira",""])
+("PEITO",["exercicio","exercicio2",""])
+("CARDIO",["Esteira","Bicicleta",""])
+("CARDIO2",["exercicio1","exercicio2",""])

@@ -1,5 +1,4 @@
 danca;horario livre;["Premium", "Gold", "Light"]
-BOXE;QUINTA 18:00;["Premium"]
 Spinning;qQuarta feira | 20:00;["Gold", "Light"]
 AULATESTE;ontem;["Light", "Premium", "Gold"]
-TESTE;teste teste;["Light", "Gold"]
+BOXE;Segunda as 18:00;["Premium", "Gold"]

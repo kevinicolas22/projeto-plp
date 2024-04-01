@@ -58,8 +58,8 @@ planoPremium = Plano {
     valorMensal = 100.0,
     valorSemestre = 510.0,
     valorAnual = 960.0,
-    horaEntradaMaxima = 25,
-    horaEntradaMinima = -1
+    horaEntradaMaxima = 22,
+    horaEntradaMinima = 7
 } 
 
 instance Read PlanoTipo where

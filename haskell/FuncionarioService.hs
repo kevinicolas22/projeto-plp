@@ -18,6 +18,7 @@ import Text.Read (readMaybe)
 import MainAluno
 import Aluno
 import AlunoController
+import Data.Char (isSpace)
 
 
 --  Função que extrai os primeiros elementos de uma lista de strings.
@@ -60,7 +61,10 @@ criarFuncionario = do
     nome <- getLine
 
     putStrLn "Digite o CPF (11 Dígitos): "
-    cpf <- obterInformacao "CPF" delimitarCpf
+    tentativaCpf <- cpfFormatadoF
+
+
+    cpf <- cpfCorretoF tentativaCpf linhas
 
     putStrLn "Digite o endereço: "
     endereco <- getLine
@@ -526,4 +530,35 @@ parsePlanoAlunoParaPlano "Gold" = planoGold
 parsePlanoAlunoParaPlano "Premium" = planoPremium
 
 
-    
+--Função recursiva para validar a repetição de cpf
+cpfCorretoF :: String -> [String] -> IO String
+cpfCorretoF cpf linhas= do
+    if not (repeticaoCpfF cpf linhas)
+        then return cpf
+        else do
+            putStrLn "CPF já em uso. Tente outro"
+            novaTentativa <- getLine
+            cpfCorretoF novaTentativa linhas
+
+cpfFormatadoF :: IO String
+cpfFormatadoF  = do
+    entrada <- getLine
+    case delimitarCpf entrada of
+        Just formato -> return formato
+        Nothing -> do
+            putStrLn $ "CPF inválido. Por favor, tente novamente."
+            cpfFormatadoF
+
+--Função para não aceitar repetição de cpf
+repeticaoCpfF :: String -> [String] -> Bool
+repeticaoCpfF cpf linhas = do
+    let cpfs = segundoElementosF linhas
+    cpf `elem` cpfs
+
+--Funcao para pegar os cpfs do txt
+-- Função para pegar os CPF
+segundoElementosF :: [String] -> [String]
+segundoElementosF linhas = map (removeEspacos . removeAspas . (!! 2) . splitOn ";") linhas
+    where
+        removeAspas = filter (/= '"')
+        removeEspacos = dropWhile isSpace

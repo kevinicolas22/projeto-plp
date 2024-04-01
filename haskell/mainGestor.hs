@@ -100,7 +100,7 @@ criarNovoGestor :: IO() -> IO()
 criarNovoGestor  menuPrincipal = do
   novoGestor <- criarGestor
   putStrLn ">> Nova senha de acesso: "
-  senhaGestor <- getLine
+  senhaGestor <- senhaValida
   adicionarGestor novoGestor(cpfG novoGestor) senhaGestor
   putStrLn "\n\nGestor adicionado com sucesso!"
   threadDelay (2 * 1000000)
@@ -205,7 +205,7 @@ criarNovoFuncionario :: IO() -> IO()
 criarNovoFuncionario  menuPrincipal= do
   novoFuncionario <- criarFuncionario
   putStrLn "Nova senha de acesso: "
-  senhaFunc<- getLine
+  senhaFunc <- senhaValida
   adicionarFuncionario novoFuncionario (cpf novoFuncionario) senhaFunc
   putStrLn "\n Funcionario criado com sucesso!"
   threadDelay (2 * 1000000)

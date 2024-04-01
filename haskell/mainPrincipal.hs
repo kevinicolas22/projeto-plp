@@ -102,11 +102,11 @@ tipoUsuarioCorreto x = if verificarIntTipoFuncionario x
 
 senhaCorreta :: String ->Int-> IO ()
 senhaCorreta senha tipoFuncionarioValidado = do
-    if length senha >= 6
+    if length senha >= 4
         then do
             putStrLn " "
         else do
-            putStrLn "Senha tem que possuir no mínimo 6 caracters, tente novamente!"
+            putStrLn "Senha tem que possuir no mínimo 4 caracters, tente novamente!"
             threadDelay (2 * 1000000)
             loginMembro tipoFuncionarioValidado
             

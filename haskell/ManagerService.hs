@@ -26,6 +26,7 @@ import System.Console.ANSI
 import Control.Concurrent
 import Control.Exception (catch, IOException)
 import Control.Concurrent (threadDelay)
+import Data.Char (isSpace)
 
 
 -- Função para criar um gestor com ID automático
@@ -56,7 +57,8 @@ criarGestor = do
             putStrLn "══════════════CADASTRO/GESTOR═══════════\n"
             putStrLn $ ">> Seu ID: " ++ show idInt
             putStrLn "\n>> Digite o seu CPF (formatação 000.000.000-00): "
-            cpfG <- getLine
+            tentativaCpf <- cpfFormatado
+            cpfG <- cpfCorreto tentativaCpf linhas
             case delimitarCpfG cpfG of
                 Just cpfGDelimitado -> do
                     putStrLn "\n>> Digite o seu nome: "
@@ -107,8 +109,8 @@ adicionarGestor novo_gestor cpfGestor senha = do
   let linhas = lines assunto
       ids = primeirosElementosG linhas
       idNovo = managerId novo_gestor
-  if verificandoIdG (show idNovo) ids
-    then putStrLn "ID já em uso. Escolha um ID diferente."
+  if (verificandoIdG (show idNovo) ids) && (repeticaoCpf cpfGestor linhas)
+    then putStrLn "CPF já em uso. Escolha outro "
     else do 
         appendFile"haskell/login.txt"(cpfGestor++","++senha++",2"++"\n")
         appendFile "manager.txt" (toStringManager novo_gestor ++ "\n")
@@ -351,3 +353,48 @@ limpar :: IO ()
 limpar = do
       clearScreen
       setCursorPosition 0 0
+
+--Função
+
+--Função recursiva para validar a repetição de cpf
+cpfCorreto :: String -> [String] -> IO String
+cpfCorreto cpf linhas= do
+    if not (repeticaoCpf cpf linhas)
+        then return cpf
+        else do
+            putStrLn "CPF já em uso. Tente outro"
+            novaTentativa <- getLine
+            cpfCorreto novaTentativa linhas
+
+cpfFormatado :: IO String
+cpfFormatado  = do
+    entrada <- getLine
+    case delimitarCpfG entrada of
+        Just formato -> return formato
+        Nothing -> do
+            putStrLn $ "CPF inválido. Por favor, tente novamente."
+            cpfFormatado
+
+--Função para não aceitar repetição de cpf
+repeticaoCpf :: String -> [String] -> Bool
+repeticaoCpf cpf linhas = do
+    let cpfs = segundoElementosG linhas
+    cpf `elem` cpfs
+
+--Funcao para pegar os cpfs do txt
+-- Função para pegar os CPF
+segundoElementosG :: [String] -> [String]
+segundoElementosG linhas = map (removeEspacos . removeAspas . (!! 1) . splitOn ",") linhas
+    where
+        removeAspas = filter (/= '"')
+        removeEspacos = dropWhile isSpace
+
+senhaValida :: IO String
+senhaValida  = do
+    senha <- getLine
+    if length senha >= 4
+        then do
+            return senha
+        else do
+            putStrLn "Senha tem que possuir no mínimo 4 caracters, tente novamente!"
+            senhaValida  
