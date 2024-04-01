@@ -1,5 +1,0 @@
-DANCA COLETIVA;Segunda e quarta-feira | 18:00 - 19:30;["Light","Gold","Premium"]
-BOXE;Terca e Quinta-feira | 20:00 - 21:30;["Premium"]
-YOGA;Quarta feira | 19:00 - 20:00;["Gold","Premium"]
-NATACAO;Terca e Sexta-feira | 8:00 - 10:00;["Premium"]
-SPINNING; Segunda feira | 16:00 - 18:00;["Gold","Premium"]
