@@ -6,17 +6,8 @@ import Data.Char (isDigit)
 import Data.List.Split (splitOn)
 import Data.List (elemIndices, intercalate, elemIndex)
 
-primeirosElementos :: [String] -> [String]
-primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
-  where
-    replace :: Char -> Char -> String -> String
-    replace _ _ [] = []
-    replace from to (c : cs)
-      | c == from = to : replace from to cs
-      | otherwise = c : replace from to cs
 
-
-
+--Funçãp para verificar se cadastro já existe
 existeCadastro :: String ->String-> IO Bool
 existeCadastro cpf conteudo= do
     let linhas = lines conteudo
@@ -26,6 +17,7 @@ existeCadastro cpf conteudo= do
    
     return existe
 
+--Função para verificar se o tipo de usuário e a senha estão corretos, comparando com os passados no input
 cadastroCondizComTipoESenha :: String -> Int -> String ->IO Bool
 cadastroCondizComTipoESenha cpf tipoUsuario senha = do
     conexao<- openFile "haskell/login.txt" ReadMode
@@ -46,6 +38,7 @@ cadastroCondizComTipoESenha cpf tipoUsuario senha = do
             hClose conexao
             return resultado
 
+--Função para retornar o tipo de menu a ser acessado
 tipoMenu :: String ->IO String
 tipoMenu cpf = do
     conexao<- openFile "haskell/login.txt" ReadMode
@@ -62,12 +55,14 @@ tipoMenu cpf = do
     hClose conexao    
     return (listaP !! 2)
 
+--Função responsável por retornar as posição de ocorrência do cpf numa lista
 pegarPosicao :: String -> [String] -> Int
 pegarPosicao cpf cpfs = do
     case elemIndex cpf cpfs of
         Just x -> x
         Nothing -> -1
 
+--Função para validar as entradas para um formato de cpf 
 delimitarCpf :: String -> String
 delimitarCpf cpfA
     | length numeros == 11  = cpfFormatado
@@ -75,3 +70,13 @@ delimitarCpf cpfA
         numeros = filter isDigit cpfA
         cpfFormatado = intercalate "."[chunk 0 3, chunk 3 6, chunk 6 9] ++ "-" ++ take 2(drop 9 numeros)
         chunk start end = take(end - start)(drop start numeros)
+
+--Função que retorna os primeiros elementos de uma lista, no caso a ser usado vai retornar os CPF's cadastrados
+primeirosElementos :: [String] -> [String]
+primeirosElementos linhas = map (\linha -> head (words (replace ',' ' ' linha))) linhas
+  where
+    replace :: Char -> Char -> String -> String
+    replace _ _ [] = []
+    replace from to (c : cs)
+      | c == from = to : replace from to cs
+      | otherwise = c : replace from to cs

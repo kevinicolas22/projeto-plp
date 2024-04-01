@@ -17,7 +17,8 @@ data Login = Login
 
 class Stringify a where
     toString :: a -> String
-        
+    
+--Função para usar como padrão para salvar nos arquivos  
 instance Stringify Login where
     toString (Login cpf senha tipoUsuario) =  cpf ++ "," ++
                                                 senha  ++ "," ++
